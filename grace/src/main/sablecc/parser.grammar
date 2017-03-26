@@ -1,0 +1,73 @@
+Package compiler;
+
+
+Helpers
+  //white space
+  vt = 9; //vertical tab
+  lf = 10; //line feed
+  ht = 11; //horizontal tab
+  ff = 12; //form feed
+  cr = 13; //carriage return
+  sp = ' '; //space
+  eol = cr | lf || cr lf; //end of line
+  whitespace = (sp | ht | ff | eol)*;
+
+  //others
+  anything = [0 .. 0xffff];
+  not_eol = [anything - [cr + lf]];
+
+  digit = ['0' .. '9'];
+  hex = [digit + ['a' .. 'f']];
+  nondigit = [ '_' + [['a' .. 'z'] + ['A' .. 'Z']]];
+  letter = [['a' .. 'z'] + ['A' .. 'Z']];
+  esc_seq = '\n' | '\t' | '\r' | '\0' | '\\' | '\' ''' | '\"' | '\x' hex hex;
+
+
+  separator = ',' |  whitespace;
+  type = 'int' | 'char';
+
+
+Tokens
+  //keywords
+  and = 'and';
+  char = 'char' ;
+  div = 'div';
+  do = 'do';
+  else = 'else';
+  fun = 'fun';
+  if = 'if';
+  int = 'int';
+  mod = 'mod';
+  not = 'not';
+  nothing = 'nothing';
+  or = 'or';
+  ref = 'ref';
+  return = 'return';
+  then = 'then';
+  var = 'var';
+  while = 'while';
+
+  //others
+  simple_com = '$' not_eol* eol; //one line comment
+  id = letter (digit | nondigit )*; //var or fun names
+  number = digit+;
+
+  //separators
+  comma = ',';
+  dot = '.';
+  semicolon = ';';
+  whitespace = whitespace;
+
+  //embrace
+  l_par = '(';
+  r_par = ')';
+  l_brack = '[';
+  r_brack = ']';
+  l_brace = '{';
+  r_brace = '}';
+
+  //math
+
+
+Ignored Tokens
+  whitespace;

@@ -1,0 +1,38 @@
+Package compiler;
+
+
+Helpers
+  sp = ' ';
+  lf = 0x000a;
+  cr = 0x000d;
+  ff = 0x000c;
+  ht = 0x0009;
+  line_terminator = lf | cr | cr lf;
+  white_space = (sp | ht | ff | line_terminator)*;
+  letter = ['a' .. 'z'] | ['A' .. 'Z'];
+  digit = ['0' .. '9'];
+
+Tokens
+  white_space = white_space;
+  and = 'and';
+  char = 'char';
+  div = 'div';
+  do = 'do';
+  else = 'else';
+  fun = 'fun';
+  if = 'if';
+  int = 'int';
+  mod = 'mod';
+  not = 'not';
+  nothing = 'nothing';
+  or = 'or';
+  ref = 'ref';
+  return = 'return';
+  then = 'then';
+  var = 'var';
+  while = 'while';
+  name = letter (letter | digit | '_')*;
+  number = digit+;
+
+Ignored Tokens
+  white_space;
