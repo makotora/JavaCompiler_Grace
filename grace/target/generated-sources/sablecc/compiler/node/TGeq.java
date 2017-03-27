@@ -5,16 +5,16 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TDot extends Token
+public final class TGeq extends Token
 {
-    public TDot()
+    public TGeq()
     {
-        super.setText(".");
+        super.setText(">=");
     }
 
-    public TDot(int line, int pos)
+    public TGeq(int line, int pos)
     {
-        super.setText(".");
+        super.setText(">=");
         setLine(line);
         setPos(pos);
     }
@@ -22,17 +22,17 @@ public final class TDot extends Token
     @Override
     public Object clone()
     {
-      return new TDot(getLine(), getPos());
+      return new TGeq(getLine(), getPos());
     }
 
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTDot(this);
+        ((Analysis) sw).caseTGeq(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TDot text.");
+        throw new RuntimeException("Cannot change TGeq text.");
     }
 }

@@ -12,16 +12,24 @@ Helpers
   eol = cr | lf || cr lf; //end of line
   whitespace = (sp | ht | ff | eol)*;
 
+  squote = '''; //single quote
+  dquote = '"'; //double quote
+  backslash = '\';
+
   //others
   anything = [0 .. 0xffff];
   not_eol = [anything - [cr + lf]];
+  dollar = '$';
+  not_dollar = [anything - dollar];
+  operands = '+' | '-' | '*' | 'div' | 'mod';
 
   digit = ['0' .. '9'];
-  hex = [digit + ['a' .. 'f']];
+  number = digit+;
+  hex = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
   nondigit = [ '_' + [['a' .. 'z'] + ['A' .. 'Z']]];
   letter = [['a' .. 'z'] + ['A' .. 'Z']];
+  char = [not_eol - [[squote + dquote] + backslash]];
   esc_seq = '\n' | '\t' | '\r' | '\0' | '\\' | '\' ''' | '\"' | '\x' hex hex;
-
 
   separator = ',' |  whitespace;
   type = 'int' | 'char';
@@ -48,26 +56,42 @@ Tokens
   while = 'while';
 
   //others
+  comment = '$$' not_dollar* '$' (not_dollar+ '$')* '$';
   simple_com = '$' not_eol* eol; //one line comment
   id = letter (digit | nondigit )*; //var or fun names
-  number = digit+;
+  number = number;
 
-  //separators
-  comma = ',';
-  dot = '.';
-  semicolon = ';';
+  single_char = ''' char ''' | ''' esc_seq ''';
+  string = '"' (char | esc_seq)+ '"';
+
   whitespace = whitespace;
 
-  //embrace
+  //separators
   l_par = '(';
   r_par = ')';
   l_brack = '[';
   r_brack = ']';
   l_brace = '{';
   r_brace = '}';
+  comma = ',';
+  semicolon = ';';
+  colon = ':';
+  assign = '<-';
 
   //math
+  plus = '+';
+  minus = '-';
+  mult = '*';
 
+  //comparisons
+  eq = '=';
+  neq = '#';
+  leq = '<=';
+  geq = '>=';
+  lt = '<';
+  gt = '>';
 
 Ignored Tokens
-  whitespace;
+  whitespace,
+  simple_com,
+  comment;
