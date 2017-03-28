@@ -1,6 +1,5 @@
 Package compiler;
 
-
 Helpers
   //white space
   vt = 9; //vertical tab
@@ -67,12 +66,12 @@ Tokens
   whitespace = whitespace;
 
   //separators
-  l_par = '(';
-  r_par = ')';
-  l_brack = '[';
-  r_brack = ']';
-  l_brace = '{';
-  r_brace = '}';
+  lpar = '(';
+  rpar = ')';
+  lbrack = '[';
+  rbrack = ']';
+  lbrace = '{';
+  rbrace = '}';
   comma = ',';
   semicolon = ';';
   colon = ':';
@@ -95,3 +94,85 @@ Ignored Tokens
   whitespace,
   simple_com,
   comment;
+
+Productions
+  program = func_def;
+
+  //types
+  data_type = {int} int
+            | {char} char;
+  type      = data_type array_brack*;
+  ret_type  = {something} data_type
+            | {nothing} nothing;
+  fpar_type = {stat} data_type empty_brack? array_brack*;
+  empty_brack = lbrack rbrack;
+  array_brack = lbrack number rbrack;
+
+  //var definition
+  var_def = var id_list colon type semicolon;
+  id_list = id id_list_tail*;
+  id_list_tail = comma id;
+
+  //function header
+  header    = fun id lpar fpar_def_list? rpar colon ret_type;
+  fpar_def_list = fpar_def par_list_tail*;
+  fpar_def = ref? id_list colon fpar_type;
+  par_list_tail = semicolon fpar_def;
+
+  //definitions-declarations
+  func_def = header local_def* block;
+  func_decl = header semicolon;
+  local_def = {fdef} func_def
+            | {fdec} func_decl
+            | {vdef} var_def;
+
+  //block contains statements (defined later)
+  block = lbrace stmt* rbrace;
+
+  //things we need to define statements
+  func_call = id lpar expr_list? rpar;
+  expr_list = expr expr_tail*;
+  expr_tail = comma expr;
+
+  lvalue = {id} id
+          | {string} string
+          | {lvalue} lvalue lbrack expr rbrack;
+
+    //Expression
+    expr = {term} term
+         | {add}  expr plus term
+         |{sub}  expr minus term;
+    term = {fact} fact
+         |{mult} term mult fact
+         |{div}  term div fact;
+    fact = {number} number
+         | {char} single_char
+         | {fcall} func_call
+         | {lval} lvalue
+         | {paren} lpar expr rpar;
+
+    //Conditions
+    cond = {cterm} cterm
+         | {or} cond or cterm;
+
+    cterm = {cfact} cfact
+          | {and} cterm and cfact;
+
+    cfact = {comp} comp
+          | {not} not cfact;
+
+    comp = {eq} expr eq expr2
+         | {neq} expr neq expr2
+         | {leq} expr leq expr2
+         | {geq} expr geq expr2
+         | {lt} expr lt expr2
+         | {gt} expr gt expr2
+         | {cparen} lpar cond rpar;
+
+    expr2 = expr;
+
+    //Statements
+    stmt = {noop} semicolon
+          | {assignment} lvalue assign expr semicolon
+          | {block} block
+          | {fcall} func_call semicolon;

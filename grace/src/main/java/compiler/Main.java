@@ -2,36 +2,32 @@ package compiler;
 
 import compiler.lexer.Lexer;
 import compiler.node.*;
+import compiler.parser.*;
 import java.io.PushbackReader;
 import java.io.InputStreamReader;
+import java.io.*;
 
-public class Main {
+public class Main
+{
+ public static void main(String[] arguments)
+ {
 
-        public static void main(String args[]) {
-                PushbackReader reader = new PushbackReader(new InputStreamReader(System.in));
-                Lexer lexer = new Lexer(reader);
+   // Create a Parser instance.
+    Parser p =
+    new Parser(
+    new Lexer(
+    new PushbackReader(
+    new InputStreamReader(System.in), 1024)));
 
-                for(;;)
-                {
-                        try
-                        {
-                                Token t = lexer.next();
-
-                                if (t instanceof EOF)
-                                        break;
-                                if(t instanceof TSimpleCom)
-                                        System.out.println("Simple comment!");
-                                System.out.println(t.toString());
-
-                        }
-                        catch (Exception e)
-                        {
-                                System.err.println(e.getMessage());
-                        }
-
-                }
-
-                System.exit(0);
-        }
-
+   // Parse the input.
+    try
+    {
+      Start tree = p.parse();
+	    System.out.println(tree.toString());
+    }
+    catch(Exception e)
+    {
+   	  e.printStackTrace();
+    }
+  }
 }
