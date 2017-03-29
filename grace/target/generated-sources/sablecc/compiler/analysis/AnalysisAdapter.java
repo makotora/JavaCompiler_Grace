@@ -209,6 +209,16 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+    public void caseAPositiveExpr(APositiveExpr node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANegativeExpr(ANegativeExpr node)
+    {
+        defaultCase(node);
+    }
+
     public void caseAAddExpr(AAddExpr node)
     {
         defaultCase(node);

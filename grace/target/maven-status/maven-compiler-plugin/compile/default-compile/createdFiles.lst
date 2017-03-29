@@ -54,8 +54,10 @@ compiler/node/PWhileStmt.class
 compiler/node/Switch.class
 compiler/node/TNothing.class
 compiler/node/TAnd.class
+compiler/node/ANegativeExpr.class
 compiler/node/AVdefLocalDef.class
 compiler/node/TOr.class
+compiler/node/APositiveExpr.class
 compiler/node/AWhileElseWhileWithElse.class
 compiler/node/ACtermCond.class
 compiler/node/ANotCfact.class

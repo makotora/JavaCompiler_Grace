@@ -40,6 +40,8 @@ public interface Analysis extends Switch
     void caseAStringLvalue(AStringLvalue node);
     void caseALvalueLvalue(ALvalueLvalue node);
     void caseATermExpr(ATermExpr node);
+    void caseAPositiveExpr(APositiveExpr node);
+    void caseANegativeExpr(ANegativeExpr node);
     void caseAAddExpr(AAddExpr node);
     void caseASubExpr(ASubExpr node);
     void caseAFactTerm(AFactTerm node);

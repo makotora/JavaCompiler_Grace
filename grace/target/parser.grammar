@@ -137,6 +137,8 @@ Productions
 
     //Expression
     expr = {term} term
+    	 | {positive} plus term
+    	 | {negative} minus term
          | {add}  expr plus term
          |{sub}  expr minus term;
     term = {fact} fact
