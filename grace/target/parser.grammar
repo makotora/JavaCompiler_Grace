@@ -9,7 +9,7 @@ Helpers
   cr = 13; //carriage return
   sp = ' '; //space
   eol = cr | lf || cr lf; //end of line
-  whitespace = (sp | ht | ff | eol)*;
+  whitespace = (sp | ht | ff | eol | vt)*;
 
   squote = '''; //single quote
   dquote = '"'; //double quote
@@ -126,9 +126,6 @@ Productions
             | {fdec} func_decl
             | {vdef} var_def;
 
-  //block contains statements (defined later)
-  block = lbrace stmt* rbrace;
-
   //things we need to define statements
   func_call = id lpar expr_list? rpar;
   expr_list = expr expr_tail*;
@@ -144,7 +141,8 @@ Productions
          |{sub}  expr minus term;
     term = {fact} fact
          |{mult} term mult fact
-         |{div}  term div fact;
+         |{div}  term div fact
+         |{mod} term mod fact;
     fact = {number} number
          | {char} single_char
          | {fcall} func_call
@@ -161,18 +159,40 @@ Productions
     cfact = {comp} comp
           | {not} not cfact;
 
-    comp = {eq} expr eq expr2
-         | {neq} expr neq expr2
-         | {leq} expr leq expr2
-         | {geq} expr geq expr2
-         | {lt} expr lt expr2
-         | {gt} expr gt expr2
+    comp = {eq} [expr1]:expr eq [expr2]:expr
+         | {neq} [expr1]:expr neq [expr2]:expr
+         | {leq} [expr1]:expr leq [expr2]:expr
+         | {geq} [expr1]:expr geq [expr2]:expr
+         | {lt} [expr1]:expr lt [expr2]:expr
+         | {gt} [expr1]:expr gt [expr2]:expr
          | {cparen} lpar cond rpar;
 
-    expr2 = expr;
+
+    //block contains statements
+    block = lbrace stmt* rbrace;
 
     //Statements
     stmt = {noop} semicolon
-          | {assignment} lvalue assign expr semicolon
-          | {block} block
-          | {fcall} func_call semicolon;
+         | {assignment} lvalue assign expr semicolon
+         | {block} block
+         | {fcall} func_call semicolon
+         | {if} if_stmt
+         | {while} while_stmt
+         | {return} return expr? semicolon;
+
+    if_stmt = {no_else} if cond then [then_stmt]:stmt
+            | {else} if cond then [then_stmt]:stmt_with_else else [else_stmt]:stmt;
+
+    stmt_with_else = {noop} semicolon
+                   | {assignment} lvalue assign expr semicolon
+                   | {block} block
+                   | {fcall} func_call semicolon
+                   | {if} if_else_stmt
+                   | {while} while_with_else
+                   | {return} return expr? semicolon;
+
+    if_else_stmt = if cond then [then_stmt]:stmt_with_else else [else_stmt]:stmt_with_else;
+
+    while_stmt = {no_else} while cond do stmt;
+
+    while_with_else = {while_else} while cond do stmt_with_else;

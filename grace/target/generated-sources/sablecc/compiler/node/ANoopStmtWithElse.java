@@ -5,45 +5,45 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AExpr2 extends PExpr2
+public final class ANoopStmtWithElse extends PStmtWithElse
 {
-    private PExpr _expr_;
+    private TSemicolon _semicolon_;
 
-    public AExpr2()
+    public ANoopStmtWithElse()
     {
         // Constructor
     }
 
-    public AExpr2(
-        @SuppressWarnings("hiding") PExpr _expr_)
+    public ANoopStmtWithElse(
+        @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setExpr(_expr_);
+        setSemicolon(_semicolon_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AExpr2(
-            cloneNode(this._expr_));
+        return new ANoopStmtWithElse(
+            cloneNode(this._semicolon_));
     }
 
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAExpr2(this);
+        ((Analysis) sw).caseANoopStmtWithElse(this);
     }
 
-    public PExpr getExpr()
+    public TSemicolon getSemicolon()
     {
-        return this._expr_;
+        return this._semicolon_;
     }
 
-    public void setExpr(PExpr node)
+    public void setSemicolon(TSemicolon node)
     {
-        if(this._expr_ != null)
+        if(this._semicolon_ != null)
         {
-            this._expr_.parent(null);
+            this._semicolon_.parent(null);
         }
 
         if(node != null)
@@ -56,23 +56,23 @@ public final class AExpr2 extends PExpr2
             node.parent(this);
         }
 
-        this._expr_ = node;
+        this._semicolon_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expr_);
+            + toString(this._semicolon_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expr_ == child)
+        if(this._semicolon_ == child)
         {
-            this._expr_ = null;
+            this._semicolon_ = null;
             return;
         }
 
@@ -83,9 +83,9 @@ public final class AExpr2 extends PExpr2
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expr_ == oldChild)
+        if(this._semicolon_ == oldChild)
         {
-            setExpr((PExpr) newChild);
+            setSemicolon((TSemicolon) newChild);
             return;
         }
 

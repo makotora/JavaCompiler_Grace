@@ -596,38 +596,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAVdefLocalDef(node);
     }
 
-    public void inABlock(ABlock node)
-    {
-        defaultIn(node);
-    }
-
-    public void outABlock(ABlock node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseABlock(ABlock node)
-    {
-        inABlock(node);
-        if(node.getLbrace() != null)
-        {
-            node.getLbrace().apply(this);
-        }
-        {
-            List<PStmt> copy = new ArrayList<PStmt>(node.getStmt());
-            for(PStmt e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        if(node.getRbrace() != null)
-        {
-            node.getRbrace().apply(this);
-        }
-        outABlock(node);
-    }
-
     public void inAFuncCall(AFuncCall node)
     {
         defaultIn(node);
@@ -947,6 +915,35 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outADivTerm(node);
     }
 
+    public void inAModTerm(AModTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAModTerm(AModTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAModTerm(AModTerm node)
+    {
+        inAModTerm(node);
+        if(node.getTerm() != null)
+        {
+            node.getTerm().apply(this);
+        }
+        if(node.getMod() != null)
+        {
+            node.getMod().apply(this);
+        }
+        if(node.getFact() != null)
+        {
+            node.getFact().apply(this);
+        }
+        outAModTerm(node);
+    }
+
     public void inANumberFact(ANumberFact node)
     {
         defaultIn(node);
@@ -1220,9 +1217,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAEqComp(AEqComp node)
     {
         inAEqComp(node);
-        if(node.getExpr() != null)
+        if(node.getExpr1() != null)
         {
-            node.getExpr().apply(this);
+            node.getExpr1().apply(this);
         }
         if(node.getEq() != null)
         {
@@ -1249,9 +1246,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseANeqComp(ANeqComp node)
     {
         inANeqComp(node);
-        if(node.getExpr() != null)
+        if(node.getExpr1() != null)
         {
-            node.getExpr().apply(this);
+            node.getExpr1().apply(this);
         }
         if(node.getNeq() != null)
         {
@@ -1278,9 +1275,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseALeqComp(ALeqComp node)
     {
         inALeqComp(node);
-        if(node.getExpr() != null)
+        if(node.getExpr1() != null)
         {
-            node.getExpr().apply(this);
+            node.getExpr1().apply(this);
         }
         if(node.getLeq() != null)
         {
@@ -1307,9 +1304,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAGeqComp(AGeqComp node)
     {
         inAGeqComp(node);
-        if(node.getExpr() != null)
+        if(node.getExpr1() != null)
         {
-            node.getExpr().apply(this);
+            node.getExpr1().apply(this);
         }
         if(node.getGeq() != null)
         {
@@ -1336,9 +1333,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseALtComp(ALtComp node)
     {
         inALtComp(node);
-        if(node.getExpr() != null)
+        if(node.getExpr1() != null)
         {
-            node.getExpr().apply(this);
+            node.getExpr1().apply(this);
         }
         if(node.getLt() != null)
         {
@@ -1365,9 +1362,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAGtComp(AGtComp node)
     {
         inAGtComp(node);
-        if(node.getExpr() != null)
+        if(node.getExpr1() != null)
         {
-            node.getExpr().apply(this);
+            node.getExpr1().apply(this);
         }
         if(node.getGt() != null)
         {
@@ -1409,25 +1406,36 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outACparenComp(node);
     }
 
-    public void inAExpr2(AExpr2 node)
+    public void inABlock(ABlock node)
     {
         defaultIn(node);
     }
 
-    public void outAExpr2(AExpr2 node)
+    public void outABlock(ABlock node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAExpr2(AExpr2 node)
+    public void caseABlock(ABlock node)
     {
-        inAExpr2(node);
-        if(node.getExpr() != null)
+        inABlock(node);
+        if(node.getLbrace() != null)
         {
-            node.getExpr().apply(this);
+            node.getLbrace().apply(this);
         }
-        outAExpr2(node);
+        {
+            List<PStmt> copy = new ArrayList<PStmt>(node.getStmt());
+            for(PStmt e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getRbrace() != null)
+        {
+            node.getRbrace().apply(this);
+        }
+        outABlock(node);
     }
 
     public void inANoopStmt(ANoopStmt node)
@@ -1528,5 +1536,428 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getSemicolon().apply(this);
         }
         outAFcallStmt(node);
+    }
+
+    public void inAIfStmt(AIfStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIfStmt(AIfStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIfStmt(AIfStmt node)
+    {
+        inAIfStmt(node);
+        if(node.getIfStmt() != null)
+        {
+            node.getIfStmt().apply(this);
+        }
+        outAIfStmt(node);
+    }
+
+    public void inAWhileStmt(AWhileStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAWhileStmt(AWhileStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAWhileStmt(AWhileStmt node)
+    {
+        inAWhileStmt(node);
+        if(node.getWhileStmt() != null)
+        {
+            node.getWhileStmt().apply(this);
+        }
+        outAWhileStmt(node);
+    }
+
+    public void inAReturnStmt(AReturnStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAReturnStmt(AReturnStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAReturnStmt(AReturnStmt node)
+    {
+        inAReturnStmt(node);
+        if(node.getReturn() != null)
+        {
+            node.getReturn().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAReturnStmt(node);
+    }
+
+    public void inANoElseIfStmt(ANoElseIfStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANoElseIfStmt(ANoElseIfStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANoElseIfStmt(ANoElseIfStmt node)
+    {
+        inANoElseIfStmt(node);
+        if(node.getIf() != null)
+        {
+            node.getIf().apply(this);
+        }
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        if(node.getThenStmt() != null)
+        {
+            node.getThenStmt().apply(this);
+        }
+        outANoElseIfStmt(node);
+    }
+
+    public void inAElseIfStmt(AElseIfStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAElseIfStmt(AElseIfStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAElseIfStmt(AElseIfStmt node)
+    {
+        inAElseIfStmt(node);
+        if(node.getIf() != null)
+        {
+            node.getIf().apply(this);
+        }
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        if(node.getThenStmt() != null)
+        {
+            node.getThenStmt().apply(this);
+        }
+        if(node.getElse() != null)
+        {
+            node.getElse().apply(this);
+        }
+        if(node.getElseStmt() != null)
+        {
+            node.getElseStmt().apply(this);
+        }
+        outAElseIfStmt(node);
+    }
+
+    public void inANoopStmtWithElse(ANoopStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANoopStmtWithElse(ANoopStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANoopStmtWithElse(ANoopStmtWithElse node)
+    {
+        inANoopStmtWithElse(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outANoopStmtWithElse(node);
+    }
+
+    public void inAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
+    {
+        inAAssignmentStmtWithElse(node);
+        if(node.getLvalue() != null)
+        {
+            node.getLvalue().apply(this);
+        }
+        if(node.getAssign() != null)
+        {
+            node.getAssign().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAAssignmentStmtWithElse(node);
+    }
+
+    public void inABlockStmtWithElse(ABlockStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABlockStmtWithElse(ABlockStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABlockStmtWithElse(ABlockStmtWithElse node)
+    {
+        inABlockStmtWithElse(node);
+        if(node.getBlock() != null)
+        {
+            node.getBlock().apply(this);
+        }
+        outABlockStmtWithElse(node);
+    }
+
+    public void inAFcallStmtWithElse(AFcallStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAFcallStmtWithElse(AFcallStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAFcallStmtWithElse(AFcallStmtWithElse node)
+    {
+        inAFcallStmtWithElse(node);
+        if(node.getFuncCall() != null)
+        {
+            node.getFuncCall().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAFcallStmtWithElse(node);
+    }
+
+    public void inAIfStmtWithElse(AIfStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIfStmtWithElse(AIfStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIfStmtWithElse(AIfStmtWithElse node)
+    {
+        inAIfStmtWithElse(node);
+        if(node.getIfElseStmt() != null)
+        {
+            node.getIfElseStmt().apply(this);
+        }
+        outAIfStmtWithElse(node);
+    }
+
+    public void inAWhileStmtWithElse(AWhileStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAWhileStmtWithElse(AWhileStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAWhileStmtWithElse(AWhileStmtWithElse node)
+    {
+        inAWhileStmtWithElse(node);
+        if(node.getWhileWithElse() != null)
+        {
+            node.getWhileWithElse().apply(this);
+        }
+        outAWhileStmtWithElse(node);
+    }
+
+    public void inAReturnStmtWithElse(AReturnStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAReturnStmtWithElse(AReturnStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAReturnStmtWithElse(AReturnStmtWithElse node)
+    {
+        inAReturnStmtWithElse(node);
+        if(node.getReturn() != null)
+        {
+            node.getReturn().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAReturnStmtWithElse(node);
+    }
+
+    public void inAIfElseStmt(AIfElseStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIfElseStmt(AIfElseStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIfElseStmt(AIfElseStmt node)
+    {
+        inAIfElseStmt(node);
+        if(node.getIf() != null)
+        {
+            node.getIf().apply(this);
+        }
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        if(node.getThenStmt() != null)
+        {
+            node.getThenStmt().apply(this);
+        }
+        if(node.getElse() != null)
+        {
+            node.getElse().apply(this);
+        }
+        if(node.getElseStmt() != null)
+        {
+            node.getElseStmt().apply(this);
+        }
+        outAIfElseStmt(node);
+    }
+
+    public void inANoElseWhileStmt(ANoElseWhileStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANoElseWhileStmt(ANoElseWhileStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANoElseWhileStmt(ANoElseWhileStmt node)
+    {
+        inANoElseWhileStmt(node);
+        if(node.getWhile() != null)
+        {
+            node.getWhile().apply(this);
+        }
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        if(node.getDo() != null)
+        {
+            node.getDo().apply(this);
+        }
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        outANoElseWhileStmt(node);
+    }
+
+    public void inAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
+    {
+        inAWhileElseWhileWithElse(node);
+        if(node.getWhile() != null)
+        {
+            node.getWhile().apply(this);
+        }
+        if(node.getCond() != null)
+        {
+            node.getCond().apply(this);
+        }
+        if(node.getDo() != null)
+        {
+            node.getDo().apply(this);
+        }
+        if(node.getStmtWithElse() != null)
+        {
+            node.getStmtWithElse().apply(this);
+        }
+        outAWhileElseWhileWithElse(node);
     }
 }

@@ -33,7 +33,6 @@ public interface Analysis extends Switch
     void caseAFdefLocalDef(AFdefLocalDef node);
     void caseAFdecLocalDef(AFdecLocalDef node);
     void caseAVdefLocalDef(AVdefLocalDef node);
-    void caseABlock(ABlock node);
     void caseAFuncCall(AFuncCall node);
     void caseAExprList(AExprList node);
     void caseAExprTail(AExprTail node);
@@ -46,6 +45,7 @@ public interface Analysis extends Switch
     void caseAFactTerm(AFactTerm node);
     void caseAMultTerm(AMultTerm node);
     void caseADivTerm(ADivTerm node);
+    void caseAModTerm(AModTerm node);
     void caseANumberFact(ANumberFact node);
     void caseACharFact(ACharFact node);
     void caseAFcallFact(AFcallFact node);
@@ -64,11 +64,26 @@ public interface Analysis extends Switch
     void caseALtComp(ALtComp node);
     void caseAGtComp(AGtComp node);
     void caseACparenComp(ACparenComp node);
-    void caseAExpr2(AExpr2 node);
+    void caseABlock(ABlock node);
     void caseANoopStmt(ANoopStmt node);
     void caseAAssignmentStmt(AAssignmentStmt node);
     void caseABlockStmt(ABlockStmt node);
     void caseAFcallStmt(AFcallStmt node);
+    void caseAIfStmt(AIfStmt node);
+    void caseAWhileStmt(AWhileStmt node);
+    void caseAReturnStmt(AReturnStmt node);
+    void caseANoElseIfStmt(ANoElseIfStmt node);
+    void caseAElseIfStmt(AElseIfStmt node);
+    void caseANoopStmtWithElse(ANoopStmtWithElse node);
+    void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node);
+    void caseABlockStmtWithElse(ABlockStmtWithElse node);
+    void caseAFcallStmtWithElse(AFcallStmtWithElse node);
+    void caseAIfStmtWithElse(AIfStmtWithElse node);
+    void caseAWhileStmtWithElse(AWhileStmtWithElse node);
+    void caseAReturnStmtWithElse(AReturnStmtWithElse node);
+    void caseAIfElseStmt(AIfElseStmt node);
+    void caseANoElseWhileStmt(ANoElseWhileStmt node);
+    void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node);
 
     void caseTAnd(TAnd node);
     void caseTChar(TChar node);

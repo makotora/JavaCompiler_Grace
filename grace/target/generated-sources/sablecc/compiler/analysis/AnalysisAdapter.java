@@ -174,11 +174,6 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseABlock(ABlock node)
-    {
-        defaultCase(node);
-    }
-
     public void caseAFuncCall(AFuncCall node)
     {
         defaultCase(node);
@@ -235,6 +230,11 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseADivTerm(ADivTerm node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAModTerm(AModTerm node)
     {
         defaultCase(node);
     }
@@ -329,7 +329,7 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAExpr2(AExpr2 node)
+    public void caseABlock(ABlock node)
     {
         defaultCase(node);
     }
@@ -350,6 +350,81 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseAFcallStmt(AFcallStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAIfStmt(AIfStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWhileStmt(AWhileStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAReturnStmt(AReturnStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANoElseIfStmt(ANoElseIfStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAElseIfStmt(AElseIfStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANoopStmtWithElse(ANoopStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseABlockStmtWithElse(ABlockStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAFcallStmtWithElse(AFcallStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAIfStmtWithElse(AIfStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWhileStmtWithElse(AWhileStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAReturnStmtWithElse(AReturnStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAIfElseStmt(AIfElseStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANoElseWhileStmt(ANoElseWhileStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
     {
         defaultCase(node);
     }

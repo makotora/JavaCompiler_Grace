@@ -7,9 +7,9 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AGtComp extends PComp
 {
-    private PExpr _expr_;
+    private PExpr _expr1_;
     private TGt _gt_;
-    private PExpr2 _expr2_;
+    private PExpr _expr2_;
 
     public AGtComp()
     {
@@ -17,12 +17,12 @@ public final class AGtComp extends PComp
     }
 
     public AGtComp(
-        @SuppressWarnings("hiding") PExpr _expr_,
+        @SuppressWarnings("hiding") PExpr _expr1_,
         @SuppressWarnings("hiding") TGt _gt_,
-        @SuppressWarnings("hiding") PExpr2 _expr2_)
+        @SuppressWarnings("hiding") PExpr _expr2_)
     {
         // Constructor
-        setExpr(_expr_);
+        setExpr1(_expr1_);
 
         setGt(_gt_);
 
@@ -34,7 +34,7 @@ public final class AGtComp extends PComp
     public Object clone()
     {
         return new AGtComp(
-            cloneNode(this._expr_),
+            cloneNode(this._expr1_),
             cloneNode(this._gt_),
             cloneNode(this._expr2_));
     }
@@ -44,16 +44,16 @@ public final class AGtComp extends PComp
         ((Analysis) sw).caseAGtComp(this);
     }
 
-    public PExpr getExpr()
+    public PExpr getExpr1()
     {
-        return this._expr_;
+        return this._expr1_;
     }
 
-    public void setExpr(PExpr node)
+    public void setExpr1(PExpr node)
     {
-        if(this._expr_ != null)
+        if(this._expr1_ != null)
         {
-            this._expr_.parent(null);
+            this._expr1_.parent(null);
         }
 
         if(node != null)
@@ -66,7 +66,7 @@ public final class AGtComp extends PComp
             node.parent(this);
         }
 
-        this._expr_ = node;
+        this._expr1_ = node;
     }
 
     public TGt getGt()
@@ -94,12 +94,12 @@ public final class AGtComp extends PComp
         this._gt_ = node;
     }
 
-    public PExpr2 getExpr2()
+    public PExpr getExpr2()
     {
         return this._expr2_;
     }
 
-    public void setExpr2(PExpr2 node)
+    public void setExpr2(PExpr node)
     {
         if(this._expr2_ != null)
         {
@@ -123,7 +123,7 @@ public final class AGtComp extends PComp
     public String toString()
     {
         return ""
-            + toString(this._expr_)
+            + toString(this._expr1_)
             + toString(this._gt_)
             + toString(this._expr2_);
     }
@@ -132,9 +132,9 @@ public final class AGtComp extends PComp
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expr_ == child)
+        if(this._expr1_ == child)
         {
-            this._expr_ = null;
+            this._expr1_ = null;
             return;
         }
 
@@ -157,9 +157,9 @@ public final class AGtComp extends PComp
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expr_ == oldChild)
+        if(this._expr1_ == oldChild)
         {
-            setExpr((PExpr) newChild);
+            setExpr1((PExpr) newChild);
             return;
         }
 
@@ -171,7 +171,7 @@ public final class AGtComp extends PComp
 
         if(this._expr2_ == oldChild)
         {
-            setExpr2((PExpr2) newChild);
+            setExpr2((PExpr) newChild);
             return;
         }
 

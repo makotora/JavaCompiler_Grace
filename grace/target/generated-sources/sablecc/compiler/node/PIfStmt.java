@@ -2,7 +2,7 @@
 
 package compiler.node;
 
-public abstract class PExpr2 extends Node
+public abstract class PIfStmt extends Node
 {
     // Empty body
 }
