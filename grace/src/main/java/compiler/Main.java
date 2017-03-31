@@ -11,6 +11,7 @@ public class Main
 {
  public static void main(String[] arguments)
  {
+     Start tree = null;
 
    // Create a Parser instance.
     Parser p =
@@ -22,12 +23,14 @@ public class Main
    // Parse the input.
     try
     {
-      Start tree = p.parse();
+      tree = p.parse();
 	    System.out.println(tree.toString());
     }
     catch(Exception e)
     {
    	  e.printStackTrace();
     }
+
+    tree.apply(new GenericsVisitor());
   }
 }

@@ -166,5 +166,6 @@ compiler/node/AVarDef.class
 compiler/node/PIfElseStmt.class
 compiler/node/ABlockStmt.class
 compiler/node/AFdecLocalDef.class
+compiler/GenericsVisitor.class
 compiler/node/PCfact.class
 compiler/node/TColon.class
