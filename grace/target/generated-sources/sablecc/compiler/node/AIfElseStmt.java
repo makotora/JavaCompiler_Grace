@@ -9,10 +9,8 @@ public final class AIfElseStmt extends PIfElseStmt
 {
     private TIf _if_;
     private PCond _cond_;
-    private TThen _then_;
-    private PStmtWithElse _thenStmt_;
-    private TElse _else_;
-    private PStmtWithElse _elseStmt_;
+    private PThenStmtWelse _thenStmtWelse_;
+    private PElseStmtWithElse _elseStmtWithElse_;
 
     public AIfElseStmt()
     {
@@ -22,23 +20,17 @@ public final class AIfElseStmt extends PIfElseStmt
     public AIfElseStmt(
         @SuppressWarnings("hiding") TIf _if_,
         @SuppressWarnings("hiding") PCond _cond_,
-        @SuppressWarnings("hiding") TThen _then_,
-        @SuppressWarnings("hiding") PStmtWithElse _thenStmt_,
-        @SuppressWarnings("hiding") TElse _else_,
-        @SuppressWarnings("hiding") PStmtWithElse _elseStmt_)
+        @SuppressWarnings("hiding") PThenStmtWelse _thenStmtWelse_,
+        @SuppressWarnings("hiding") PElseStmtWithElse _elseStmtWithElse_)
     {
         // Constructor
         setIf(_if_);
 
         setCond(_cond_);
 
-        setThen(_then_);
+        setThenStmtWelse(_thenStmtWelse_);
 
-        setThenStmt(_thenStmt_);
-
-        setElse(_else_);
-
-        setElseStmt(_elseStmt_);
+        setElseStmtWithElse(_elseStmtWithElse_);
 
     }
 
@@ -48,10 +40,8 @@ public final class AIfElseStmt extends PIfElseStmt
         return new AIfElseStmt(
             cloneNode(this._if_),
             cloneNode(this._cond_),
-            cloneNode(this._then_),
-            cloneNode(this._thenStmt_),
-            cloneNode(this._else_),
-            cloneNode(this._elseStmt_));
+            cloneNode(this._thenStmtWelse_),
+            cloneNode(this._elseStmtWithElse_));
     }
 
     public void apply(Switch sw)
@@ -109,16 +99,16 @@ public final class AIfElseStmt extends PIfElseStmt
         this._cond_ = node;
     }
 
-    public TThen getThen()
+    public PThenStmtWelse getThenStmtWelse()
     {
-        return this._then_;
+        return this._thenStmtWelse_;
     }
 
-    public void setThen(TThen node)
+    public void setThenStmtWelse(PThenStmtWelse node)
     {
-        if(this._then_ != null)
+        if(this._thenStmtWelse_ != null)
         {
-            this._then_.parent(null);
+            this._thenStmtWelse_.parent(null);
         }
 
         if(node != null)
@@ -131,19 +121,19 @@ public final class AIfElseStmt extends PIfElseStmt
             node.parent(this);
         }
 
-        this._then_ = node;
+        this._thenStmtWelse_ = node;
     }
 
-    public PStmtWithElse getThenStmt()
+    public PElseStmtWithElse getElseStmtWithElse()
     {
-        return this._thenStmt_;
+        return this._elseStmtWithElse_;
     }
 
-    public void setThenStmt(PStmtWithElse node)
+    public void setElseStmtWithElse(PElseStmtWithElse node)
     {
-        if(this._thenStmt_ != null)
+        if(this._elseStmtWithElse_ != null)
         {
-            this._thenStmt_.parent(null);
+            this._elseStmtWithElse_.parent(null);
         }
 
         if(node != null)
@@ -156,57 +146,7 @@ public final class AIfElseStmt extends PIfElseStmt
             node.parent(this);
         }
 
-        this._thenStmt_ = node;
-    }
-
-    public TElse getElse()
-    {
-        return this._else_;
-    }
-
-    public void setElse(TElse node)
-    {
-        if(this._else_ != null)
-        {
-            this._else_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._else_ = node;
-    }
-
-    public PStmtWithElse getElseStmt()
-    {
-        return this._elseStmt_;
-    }
-
-    public void setElseStmt(PStmtWithElse node)
-    {
-        if(this._elseStmt_ != null)
-        {
-            this._elseStmt_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._elseStmt_ = node;
+        this._elseStmtWithElse_ = node;
     }
 
     @Override
@@ -215,10 +155,8 @@ public final class AIfElseStmt extends PIfElseStmt
         return ""
             + toString(this._if_)
             + toString(this._cond_)
-            + toString(this._then_)
-            + toString(this._thenStmt_)
-            + toString(this._else_)
-            + toString(this._elseStmt_);
+            + toString(this._thenStmtWelse_)
+            + toString(this._elseStmtWithElse_);
     }
 
     @Override
@@ -237,27 +175,15 @@ public final class AIfElseStmt extends PIfElseStmt
             return;
         }
 
-        if(this._then_ == child)
+        if(this._thenStmtWelse_ == child)
         {
-            this._then_ = null;
+            this._thenStmtWelse_ = null;
             return;
         }
 
-        if(this._thenStmt_ == child)
+        if(this._elseStmtWithElse_ == child)
         {
-            this._thenStmt_ = null;
-            return;
-        }
-
-        if(this._else_ == child)
-        {
-            this._else_ = null;
-            return;
-        }
-
-        if(this._elseStmt_ == child)
-        {
-            this._elseStmt_ = null;
+            this._elseStmtWithElse_ = null;
             return;
         }
 
@@ -280,27 +206,15 @@ public final class AIfElseStmt extends PIfElseStmt
             return;
         }
 
-        if(this._then_ == oldChild)
+        if(this._thenStmtWelse_ == oldChild)
         {
-            setThen((TThen) newChild);
+            setThenStmtWelse((PThenStmtWelse) newChild);
             return;
         }
 
-        if(this._thenStmt_ == oldChild)
+        if(this._elseStmtWithElse_ == oldChild)
         {
-            setThenStmt((PStmtWithElse) newChild);
-            return;
-        }
-
-        if(this._else_ == oldChild)
-        {
-            setElse((TElse) newChild);
-            return;
-        }
-
-        if(this._elseStmt_ == oldChild)
-        {
-            setElseStmt((PStmtWithElse) newChild);
+            setElseStmtWithElse((PElseStmtWithElse) newChild);
             return;
         }
 

@@ -9,8 +9,7 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
 {
     private TWhile _while_;
     private PCond _cond_;
-    private TDo _do_;
-    private PStmtWithElse _stmtWithElse_;
+    private PDoStmtWelse _doStmtWelse_;
 
     public AWhileElseWhileWithElse()
     {
@@ -20,17 +19,14 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
     public AWhileElseWhileWithElse(
         @SuppressWarnings("hiding") TWhile _while_,
         @SuppressWarnings("hiding") PCond _cond_,
-        @SuppressWarnings("hiding") TDo _do_,
-        @SuppressWarnings("hiding") PStmtWithElse _stmtWithElse_)
+        @SuppressWarnings("hiding") PDoStmtWelse _doStmtWelse_)
     {
         // Constructor
         setWhile(_while_);
 
         setCond(_cond_);
 
-        setDo(_do_);
-
-        setStmtWithElse(_stmtWithElse_);
+        setDoStmtWelse(_doStmtWelse_);
 
     }
 
@@ -40,8 +36,7 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
         return new AWhileElseWhileWithElse(
             cloneNode(this._while_),
             cloneNode(this._cond_),
-            cloneNode(this._do_),
-            cloneNode(this._stmtWithElse_));
+            cloneNode(this._doStmtWelse_));
     }
 
     public void apply(Switch sw)
@@ -99,16 +94,16 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
         this._cond_ = node;
     }
 
-    public TDo getDo()
+    public PDoStmtWelse getDoStmtWelse()
     {
-        return this._do_;
+        return this._doStmtWelse_;
     }
 
-    public void setDo(TDo node)
+    public void setDoStmtWelse(PDoStmtWelse node)
     {
-        if(this._do_ != null)
+        if(this._doStmtWelse_ != null)
         {
-            this._do_.parent(null);
+            this._doStmtWelse_.parent(null);
         }
 
         if(node != null)
@@ -121,32 +116,7 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
             node.parent(this);
         }
 
-        this._do_ = node;
-    }
-
-    public PStmtWithElse getStmtWithElse()
-    {
-        return this._stmtWithElse_;
-    }
-
-    public void setStmtWithElse(PStmtWithElse node)
-    {
-        if(this._stmtWithElse_ != null)
-        {
-            this._stmtWithElse_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._stmtWithElse_ = node;
+        this._doStmtWelse_ = node;
     }
 
     @Override
@@ -155,8 +125,7 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
         return ""
             + toString(this._while_)
             + toString(this._cond_)
-            + toString(this._do_)
-            + toString(this._stmtWithElse_);
+            + toString(this._doStmtWelse_);
     }
 
     @Override
@@ -175,15 +144,9 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
             return;
         }
 
-        if(this._do_ == child)
+        if(this._doStmtWelse_ == child)
         {
-            this._do_ = null;
-            return;
-        }
-
-        if(this._stmtWithElse_ == child)
-        {
-            this._stmtWithElse_ = null;
+            this._doStmtWelse_ = null;
             return;
         }
 
@@ -206,15 +169,9 @@ public final class AWhileElseWhileWithElse extends PWhileWithElse
             return;
         }
 
-        if(this._do_ == oldChild)
+        if(this._doStmtWelse_ == oldChild)
         {
-            setDo((TDo) newChild);
-            return;
-        }
-
-        if(this._stmtWithElse_ == oldChild)
-        {
-            setStmtWithElse((PStmtWithElse) newChild);
+            setDoStmtWelse((PDoStmtWelse) newChild);
             return;
         }
 

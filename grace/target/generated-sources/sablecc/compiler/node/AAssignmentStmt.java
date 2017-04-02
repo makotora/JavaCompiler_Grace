@@ -7,10 +7,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AAssignmentStmt extends PStmt
 {
-    private PLvalue _lvalue_;
-    private TAssign _assign_;
-    private PExpr _expr_;
-    private TSemicolon _semicolon_;
+    private PAssignment _assignment_;
 
     public AAssignmentStmt()
     {
@@ -18,19 +15,10 @@ public final class AAssignmentStmt extends PStmt
     }
 
     public AAssignmentStmt(
-        @SuppressWarnings("hiding") PLvalue _lvalue_,
-        @SuppressWarnings("hiding") TAssign _assign_,
-        @SuppressWarnings("hiding") PExpr _expr_,
-        @SuppressWarnings("hiding") TSemicolon _semicolon_)
+        @SuppressWarnings("hiding") PAssignment _assignment_)
     {
         // Constructor
-        setLvalue(_lvalue_);
-
-        setAssign(_assign_);
-
-        setExpr(_expr_);
-
-        setSemicolon(_semicolon_);
+        setAssignment(_assignment_);
 
     }
 
@@ -38,10 +26,7 @@ public final class AAssignmentStmt extends PStmt
     public Object clone()
     {
         return new AAssignmentStmt(
-            cloneNode(this._lvalue_),
-            cloneNode(this._assign_),
-            cloneNode(this._expr_),
-            cloneNode(this._semicolon_));
+            cloneNode(this._assignment_));
     }
 
     public void apply(Switch sw)
@@ -49,16 +34,16 @@ public final class AAssignmentStmt extends PStmt
         ((Analysis) sw).caseAAssignmentStmt(this);
     }
 
-    public PLvalue getLvalue()
+    public PAssignment getAssignment()
     {
-        return this._lvalue_;
+        return this._assignment_;
     }
 
-    public void setLvalue(PLvalue node)
+    public void setAssignment(PAssignment node)
     {
-        if(this._lvalue_ != null)
+        if(this._assignment_ != null)
         {
-            this._lvalue_.parent(null);
+            this._assignment_.parent(null);
         }
 
         if(node != null)
@@ -71,119 +56,23 @@ public final class AAssignmentStmt extends PStmt
             node.parent(this);
         }
 
-        this._lvalue_ = node;
-    }
-
-    public TAssign getAssign()
-    {
-        return this._assign_;
-    }
-
-    public void setAssign(TAssign node)
-    {
-        if(this._assign_ != null)
-        {
-            this._assign_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._assign_ = node;
-    }
-
-    public PExpr getExpr()
-    {
-        return this._expr_;
-    }
-
-    public void setExpr(PExpr node)
-    {
-        if(this._expr_ != null)
-        {
-            this._expr_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._expr_ = node;
-    }
-
-    public TSemicolon getSemicolon()
-    {
-        return this._semicolon_;
-    }
-
-    public void setSemicolon(TSemicolon node)
-    {
-        if(this._semicolon_ != null)
-        {
-            this._semicolon_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._semicolon_ = node;
+        this._assignment_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._lvalue_)
-            + toString(this._assign_)
-            + toString(this._expr_)
-            + toString(this._semicolon_);
+            + toString(this._assignment_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._lvalue_ == child)
+        if(this._assignment_ == child)
         {
-            this._lvalue_ = null;
-            return;
-        }
-
-        if(this._assign_ == child)
-        {
-            this._assign_ = null;
-            return;
-        }
-
-        if(this._expr_ == child)
-        {
-            this._expr_ = null;
-            return;
-        }
-
-        if(this._semicolon_ == child)
-        {
-            this._semicolon_ = null;
+            this._assignment_ = null;
             return;
         }
 
@@ -194,27 +83,9 @@ public final class AAssignmentStmt extends PStmt
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._lvalue_ == oldChild)
+        if(this._assignment_ == oldChild)
         {
-            setLvalue((PLvalue) newChild);
-            return;
-        }
-
-        if(this._assign_ == oldChild)
-        {
-            setAssign((TAssign) newChild);
-            return;
-        }
-
-        if(this._expr_ == oldChild)
-        {
-            setExpr((PExpr) newChild);
-            return;
-        }
-
-        if(this._semicolon_ == oldChild)
-        {
-            setSemicolon((TSemicolon) newChild);
+            setAssignment((PAssignment) newChild);
             return;
         }
 

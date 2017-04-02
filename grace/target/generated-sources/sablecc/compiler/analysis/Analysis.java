@@ -67,15 +67,21 @@ public interface Analysis extends Switch
     void caseAGtComp(AGtComp node);
     void caseACparenComp(ACparenComp node);
     void caseABlock(ABlock node);
+    void caseANoop(ANoop node);
+    void caseAAssignment(AAssignment node);
+    void caseAReturnStmt(AReturnStmt node);
     void caseANoopStmt(ANoopStmt node);
     void caseAAssignmentStmt(AAssignmentStmt node);
     void caseABlockStmt(ABlockStmt node);
     void caseAFcallStmt(AFcallStmt node);
     void caseAIfStmt(AIfStmt node);
     void caseAWhileStmt(AWhileStmt node);
-    void caseAReturnStmt(AReturnStmt node);
+    void caseAReturnStmtStmt(AReturnStmtStmt node);
     void caseANoElseIfStmt(ANoElseIfStmt node);
     void caseAElseIfStmt(AElseIfStmt node);
+    void caseAThenStmt(AThenStmt node);
+    void caseAThenStmtWelse(AThenStmtWelse node);
+    void caseAElseStmt(AElseStmt node);
     void caseANoopStmtWithElse(ANoopStmtWithElse node);
     void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node);
     void caseABlockStmtWithElse(ABlockStmtWithElse node);
@@ -84,8 +90,11 @@ public interface Analysis extends Switch
     void caseAWhileStmtWithElse(AWhileStmtWithElse node);
     void caseAReturnStmtWithElse(AReturnStmtWithElse node);
     void caseAIfElseStmt(AIfElseStmt node);
+    void caseAElseStmtWithElse(AElseStmtWithElse node);
     void caseANoElseWhileStmt(ANoElseWhileStmt node);
     void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node);
+    void caseADoStmt(ADoStmt node);
+    void caseADoStmtWelse(ADoStmtWelse node);
 
     void caseTAnd(TAnd node);
     void caseTChar(TChar node);

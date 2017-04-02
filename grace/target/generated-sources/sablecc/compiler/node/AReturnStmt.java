@@ -5,7 +5,7 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AReturnStmt extends PStmt
+public final class AReturnStmt extends PReturnStmt
 {
     private TReturn _return_;
     private PExpr _expr_;

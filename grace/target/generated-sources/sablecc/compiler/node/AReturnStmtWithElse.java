@@ -7,9 +7,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AReturnStmtWithElse extends PStmtWithElse
 {
-    private TReturn _return_;
-    private PExpr _expr_;
-    private TSemicolon _semicolon_;
+    private PReturnStmt _returnStmt_;
 
     public AReturnStmtWithElse()
     {
@@ -17,16 +15,10 @@ public final class AReturnStmtWithElse extends PStmtWithElse
     }
 
     public AReturnStmtWithElse(
-        @SuppressWarnings("hiding") TReturn _return_,
-        @SuppressWarnings("hiding") PExpr _expr_,
-        @SuppressWarnings("hiding") TSemicolon _semicolon_)
+        @SuppressWarnings("hiding") PReturnStmt _returnStmt_)
     {
         // Constructor
-        setReturn(_return_);
-
-        setExpr(_expr_);
-
-        setSemicolon(_semicolon_);
+        setReturnStmt(_returnStmt_);
 
     }
 
@@ -34,9 +26,7 @@ public final class AReturnStmtWithElse extends PStmtWithElse
     public Object clone()
     {
         return new AReturnStmtWithElse(
-            cloneNode(this._return_),
-            cloneNode(this._expr_),
-            cloneNode(this._semicolon_));
+            cloneNode(this._returnStmt_));
     }
 
     public void apply(Switch sw)
@@ -44,16 +34,16 @@ public final class AReturnStmtWithElse extends PStmtWithElse
         ((Analysis) sw).caseAReturnStmtWithElse(this);
     }
 
-    public TReturn getReturn()
+    public PReturnStmt getReturnStmt()
     {
-        return this._return_;
+        return this._returnStmt_;
     }
 
-    public void setReturn(TReturn node)
+    public void setReturnStmt(PReturnStmt node)
     {
-        if(this._return_ != null)
+        if(this._returnStmt_ != null)
         {
-            this._return_.parent(null);
+            this._returnStmt_.parent(null);
         }
 
         if(node != null)
@@ -66,87 +56,23 @@ public final class AReturnStmtWithElse extends PStmtWithElse
             node.parent(this);
         }
 
-        this._return_ = node;
-    }
-
-    public PExpr getExpr()
-    {
-        return this._expr_;
-    }
-
-    public void setExpr(PExpr node)
-    {
-        if(this._expr_ != null)
-        {
-            this._expr_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._expr_ = node;
-    }
-
-    public TSemicolon getSemicolon()
-    {
-        return this._semicolon_;
-    }
-
-    public void setSemicolon(TSemicolon node)
-    {
-        if(this._semicolon_ != null)
-        {
-            this._semicolon_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._semicolon_ = node;
+        this._returnStmt_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._return_)
-            + toString(this._expr_)
-            + toString(this._semicolon_);
+            + toString(this._returnStmt_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._return_ == child)
+        if(this._returnStmt_ == child)
         {
-            this._return_ = null;
-            return;
-        }
-
-        if(this._expr_ == child)
-        {
-            this._expr_ = null;
-            return;
-        }
-
-        if(this._semicolon_ == child)
-        {
-            this._semicolon_ = null;
+            this._returnStmt_ = null;
             return;
         }
 
@@ -157,21 +83,9 @@ public final class AReturnStmtWithElse extends PStmtWithElse
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._return_ == oldChild)
+        if(this._returnStmt_ == oldChild)
         {
-            setReturn((TReturn) newChild);
-            return;
-        }
-
-        if(this._expr_ == oldChild)
-        {
-            setExpr((PExpr) newChild);
-            return;
-        }
-
-        if(this._semicolon_ == oldChild)
-        {
-            setSemicolon((TSemicolon) newChild);
+            setReturnStmt((PReturnStmt) newChild);
             return;
         }
 

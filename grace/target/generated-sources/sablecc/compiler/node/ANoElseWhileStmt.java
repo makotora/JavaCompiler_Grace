@@ -9,8 +9,7 @@ public final class ANoElseWhileStmt extends PWhileStmt
 {
     private TWhile _while_;
     private PCond _cond_;
-    private TDo _do_;
-    private PStmt _stmt_;
+    private PDoStmt _doStmt_;
 
     public ANoElseWhileStmt()
     {
@@ -20,17 +19,14 @@ public final class ANoElseWhileStmt extends PWhileStmt
     public ANoElseWhileStmt(
         @SuppressWarnings("hiding") TWhile _while_,
         @SuppressWarnings("hiding") PCond _cond_,
-        @SuppressWarnings("hiding") TDo _do_,
-        @SuppressWarnings("hiding") PStmt _stmt_)
+        @SuppressWarnings("hiding") PDoStmt _doStmt_)
     {
         // Constructor
         setWhile(_while_);
 
         setCond(_cond_);
 
-        setDo(_do_);
-
-        setStmt(_stmt_);
+        setDoStmt(_doStmt_);
 
     }
 
@@ -40,8 +36,7 @@ public final class ANoElseWhileStmt extends PWhileStmt
         return new ANoElseWhileStmt(
             cloneNode(this._while_),
             cloneNode(this._cond_),
-            cloneNode(this._do_),
-            cloneNode(this._stmt_));
+            cloneNode(this._doStmt_));
     }
 
     public void apply(Switch sw)
@@ -99,16 +94,16 @@ public final class ANoElseWhileStmt extends PWhileStmt
         this._cond_ = node;
     }
 
-    public TDo getDo()
+    public PDoStmt getDoStmt()
     {
-        return this._do_;
+        return this._doStmt_;
     }
 
-    public void setDo(TDo node)
+    public void setDoStmt(PDoStmt node)
     {
-        if(this._do_ != null)
+        if(this._doStmt_ != null)
         {
-            this._do_.parent(null);
+            this._doStmt_.parent(null);
         }
 
         if(node != null)
@@ -121,32 +116,7 @@ public final class ANoElseWhileStmt extends PWhileStmt
             node.parent(this);
         }
 
-        this._do_ = node;
-    }
-
-    public PStmt getStmt()
-    {
-        return this._stmt_;
-    }
-
-    public void setStmt(PStmt node)
-    {
-        if(this._stmt_ != null)
-        {
-            this._stmt_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._stmt_ = node;
+        this._doStmt_ = node;
     }
 
     @Override
@@ -155,8 +125,7 @@ public final class ANoElseWhileStmt extends PWhileStmt
         return ""
             + toString(this._while_)
             + toString(this._cond_)
-            + toString(this._do_)
-            + toString(this._stmt_);
+            + toString(this._doStmt_);
     }
 
     @Override
@@ -175,15 +144,9 @@ public final class ANoElseWhileStmt extends PWhileStmt
             return;
         }
 
-        if(this._do_ == child)
+        if(this._doStmt_ == child)
         {
-            this._do_ = null;
-            return;
-        }
-
-        if(this._stmt_ == child)
-        {
-            this._stmt_ = null;
+            this._doStmt_ = null;
             return;
         }
 
@@ -206,15 +169,9 @@ public final class ANoElseWhileStmt extends PWhileStmt
             return;
         }
 
-        if(this._do_ == oldChild)
+        if(this._doStmt_ == oldChild)
         {
-            setDo((TDo) newChild);
-            return;
-        }
-
-        if(this._stmt_ == oldChild)
-        {
-            setStmt((PStmt) newChild);
+            setDoStmt((PDoStmt) newChild);
             return;
         }
 

@@ -9,8 +9,7 @@ public final class ANoElseIfStmt extends PIfStmt
 {
     private TIf _if_;
     private PCond _cond_;
-    private TThen _then_;
-    private PStmt _thenStmt_;
+    private PThenStmt _thenStmt_;
 
     public ANoElseIfStmt()
     {
@@ -20,15 +19,12 @@ public final class ANoElseIfStmt extends PIfStmt
     public ANoElseIfStmt(
         @SuppressWarnings("hiding") TIf _if_,
         @SuppressWarnings("hiding") PCond _cond_,
-        @SuppressWarnings("hiding") TThen _then_,
-        @SuppressWarnings("hiding") PStmt _thenStmt_)
+        @SuppressWarnings("hiding") PThenStmt _thenStmt_)
     {
         // Constructor
         setIf(_if_);
 
         setCond(_cond_);
-
-        setThen(_then_);
 
         setThenStmt(_thenStmt_);
 
@@ -40,7 +36,6 @@ public final class ANoElseIfStmt extends PIfStmt
         return new ANoElseIfStmt(
             cloneNode(this._if_),
             cloneNode(this._cond_),
-            cloneNode(this._then_),
             cloneNode(this._thenStmt_));
     }
 
@@ -99,37 +94,12 @@ public final class ANoElseIfStmt extends PIfStmt
         this._cond_ = node;
     }
 
-    public TThen getThen()
-    {
-        return this._then_;
-    }
-
-    public void setThen(TThen node)
-    {
-        if(this._then_ != null)
-        {
-            this._then_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._then_ = node;
-    }
-
-    public PStmt getThenStmt()
+    public PThenStmt getThenStmt()
     {
         return this._thenStmt_;
     }
 
-    public void setThenStmt(PStmt node)
+    public void setThenStmt(PThenStmt node)
     {
         if(this._thenStmt_ != null)
         {
@@ -155,7 +125,6 @@ public final class ANoElseIfStmt extends PIfStmt
         return ""
             + toString(this._if_)
             + toString(this._cond_)
-            + toString(this._then_)
             + toString(this._thenStmt_);
     }
 
@@ -172,12 +141,6 @@ public final class ANoElseIfStmt extends PIfStmt
         if(this._cond_ == child)
         {
             this._cond_ = null;
-            return;
-        }
-
-        if(this._then_ == child)
-        {
-            this._then_ = null;
             return;
         }
 
@@ -206,15 +169,9 @@ public final class ANoElseIfStmt extends PIfStmt
             return;
         }
 
-        if(this._then_ == oldChild)
-        {
-            setThen((TThen) newChild);
-            return;
-        }
-
         if(this._thenStmt_ == oldChild)
         {
-            setThenStmt((PStmt) newChild);
+            setThenStmt((PThenStmt) newChild);
             return;
         }
 

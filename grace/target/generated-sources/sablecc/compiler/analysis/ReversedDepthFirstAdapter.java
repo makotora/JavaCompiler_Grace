@@ -1495,6 +1495,89 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outABlock(node);
     }
 
+    public void inANoop(ANoop node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANoop(ANoop node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANoop(ANoop node)
+    {
+        inANoop(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outANoop(node);
+    }
+
+    public void inAAssignment(AAssignment node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAssignment(AAssignment node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAssignment(AAssignment node)
+    {
+        inAAssignment(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getAssign() != null)
+        {
+            node.getAssign().apply(this);
+        }
+        if(node.getLvalue() != null)
+        {
+            node.getLvalue().apply(this);
+        }
+        outAAssignment(node);
+    }
+
+    public void inAReturnStmt(AReturnStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAReturnStmt(AReturnStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAReturnStmt(AReturnStmt node)
+    {
+        inAReturnStmt(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getReturn() != null)
+        {
+            node.getReturn().apply(this);
+        }
+        outAReturnStmt(node);
+    }
+
     public void inANoopStmt(ANoopStmt node)
     {
         defaultIn(node);
@@ -1509,9 +1592,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseANoopStmt(ANoopStmt node)
     {
         inANoopStmt(node);
-        if(node.getSemicolon() != null)
+        if(node.getNoop() != null)
         {
-            node.getSemicolon().apply(this);
+            node.getNoop().apply(this);
         }
         outANoopStmt(node);
     }
@@ -1530,21 +1613,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAAssignmentStmt(AAssignmentStmt node)
     {
         inAAssignmentStmt(node);
-        if(node.getSemicolon() != null)
+        if(node.getAssignment() != null)
         {
-            node.getSemicolon().apply(this);
-        }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getAssign() != null)
-        {
-            node.getAssign().apply(this);
-        }
-        if(node.getLvalue() != null)
-        {
-            node.getLvalue().apply(this);
+            node.getAssignment().apply(this);
         }
         outAAssignmentStmt(node);
     }
@@ -1637,33 +1708,25 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAWhileStmt(node);
     }
 
-    public void inAReturnStmt(AReturnStmt node)
+    public void inAReturnStmtStmt(AReturnStmtStmt node)
     {
         defaultIn(node);
     }
 
-    public void outAReturnStmt(AReturnStmt node)
+    public void outAReturnStmtStmt(AReturnStmtStmt node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAReturnStmt(AReturnStmt node)
+    public void caseAReturnStmtStmt(AReturnStmtStmt node)
     {
-        inAReturnStmt(node);
-        if(node.getSemicolon() != null)
+        inAReturnStmtStmt(node);
+        if(node.getReturnStmt() != null)
         {
-            node.getSemicolon().apply(this);
+            node.getReturnStmt().apply(this);
         }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getReturn() != null)
-        {
-            node.getReturn().apply(this);
-        }
-        outAReturnStmt(node);
+        outAReturnStmtStmt(node);
     }
 
     public void inANoElseIfStmt(ANoElseIfStmt node)
@@ -1683,10 +1746,6 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         if(node.getThenStmt() != null)
         {
             node.getThenStmt().apply(this);
-        }
-        if(node.getThen() != null)
-        {
-            node.getThen().apply(this);
         }
         if(node.getCond() != null)
         {
@@ -1717,17 +1776,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getElseStmt().apply(this);
         }
-        if(node.getElse() != null)
+        if(node.getThenStmtWelse() != null)
         {
-            node.getElse().apply(this);
-        }
-        if(node.getThenStmt() != null)
-        {
-            node.getThenStmt().apply(this);
-        }
-        if(node.getThen() != null)
-        {
-            node.getThen().apply(this);
+            node.getThenStmtWelse().apply(this);
         }
         if(node.getCond() != null)
         {
@@ -1738,6 +1789,81 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getIf().apply(this);
         }
         outAElseIfStmt(node);
+    }
+
+    public void inAThenStmt(AThenStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAThenStmt(AThenStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAThenStmt(AThenStmt node)
+    {
+        inAThenStmt(node);
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        outAThenStmt(node);
+    }
+
+    public void inAThenStmtWelse(AThenStmtWelse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAThenStmtWelse(AThenStmtWelse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAThenStmtWelse(AThenStmtWelse node)
+    {
+        inAThenStmtWelse(node);
+        if(node.getStmtWithElse() != null)
+        {
+            node.getStmtWithElse().apply(this);
+        }
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        outAThenStmtWelse(node);
+    }
+
+    public void inAElseStmt(AElseStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAElseStmt(AElseStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAElseStmt(AElseStmt node)
+    {
+        inAElseStmt(node);
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        if(node.getElse() != null)
+        {
+            node.getElse().apply(this);
+        }
+        outAElseStmt(node);
     }
 
     public void inANoopStmtWithElse(ANoopStmtWithElse node)
@@ -1754,9 +1880,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseANoopStmtWithElse(ANoopStmtWithElse node)
     {
         inANoopStmtWithElse(node);
-        if(node.getSemicolon() != null)
+        if(node.getNoop() != null)
         {
-            node.getSemicolon().apply(this);
+            node.getNoop().apply(this);
         }
         outANoopStmtWithElse(node);
     }
@@ -1775,21 +1901,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
     {
         inAAssignmentStmtWithElse(node);
-        if(node.getSemicolon() != null)
+        if(node.getAssignment() != null)
         {
-            node.getSemicolon().apply(this);
-        }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getAssign() != null)
-        {
-            node.getAssign().apply(this);
-        }
-        if(node.getLvalue() != null)
-        {
-            node.getLvalue().apply(this);
+            node.getAssignment().apply(this);
         }
         outAAssignmentStmtWithElse(node);
     }
@@ -1896,17 +2010,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAReturnStmtWithElse(AReturnStmtWithElse node)
     {
         inAReturnStmtWithElse(node);
-        if(node.getSemicolon() != null)
+        if(node.getReturnStmt() != null)
         {
-            node.getSemicolon().apply(this);
-        }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getReturn() != null)
-        {
-            node.getReturn().apply(this);
+            node.getReturnStmt().apply(this);
         }
         outAReturnStmtWithElse(node);
     }
@@ -1925,21 +2031,13 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAIfElseStmt(AIfElseStmt node)
     {
         inAIfElseStmt(node);
-        if(node.getElseStmt() != null)
+        if(node.getElseStmtWithElse() != null)
         {
-            node.getElseStmt().apply(this);
+            node.getElseStmtWithElse().apply(this);
         }
-        if(node.getElse() != null)
+        if(node.getThenStmtWelse() != null)
         {
-            node.getElse().apply(this);
-        }
-        if(node.getThenStmt() != null)
-        {
-            node.getThenStmt().apply(this);
-        }
-        if(node.getThen() != null)
-        {
-            node.getThen().apply(this);
+            node.getThenStmtWelse().apply(this);
         }
         if(node.getCond() != null)
         {
@@ -1950,6 +2048,31 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getIf().apply(this);
         }
         outAIfElseStmt(node);
+    }
+
+    public void inAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        inAElseStmtWithElse(node);
+        if(node.getStmtWithElse() != null)
+        {
+            node.getStmtWithElse().apply(this);
+        }
+        if(node.getElse() != null)
+        {
+            node.getElse().apply(this);
+        }
+        outAElseStmtWithElse(node);
     }
 
     public void inANoElseWhileStmt(ANoElseWhileStmt node)
@@ -1966,13 +2089,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseANoElseWhileStmt(ANoElseWhileStmt node)
     {
         inANoElseWhileStmt(node);
-        if(node.getStmt() != null)
+        if(node.getDoStmt() != null)
         {
-            node.getStmt().apply(this);
-        }
-        if(node.getDo() != null)
-        {
-            node.getDo().apply(this);
+            node.getDoStmt().apply(this);
         }
         if(node.getCond() != null)
         {
@@ -1999,13 +2118,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
     {
         inAWhileElseWhileWithElse(node);
-        if(node.getStmtWithElse() != null)
+        if(node.getDoStmtWelse() != null)
         {
-            node.getStmtWithElse().apply(this);
-        }
-        if(node.getDo() != null)
-        {
-            node.getDo().apply(this);
+            node.getDoStmtWelse().apply(this);
         }
         if(node.getCond() != null)
         {
@@ -2016,5 +2131,55 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getWhile().apply(this);
         }
         outAWhileElseWhileWithElse(node);
+    }
+
+    public void inADoStmt(ADoStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADoStmt(ADoStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADoStmt(ADoStmt node)
+    {
+        inADoStmt(node);
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        if(node.getDo() != null)
+        {
+            node.getDo().apply(this);
+        }
+        outADoStmt(node);
+    }
+
+    public void inADoStmtWelse(ADoStmtWelse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADoStmtWelse(ADoStmtWelse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADoStmtWelse(ADoStmtWelse node)
+    {
+        inADoStmtWelse(node);
+        if(node.getStmtWithElse() != null)
+        {
+            node.getStmtWithElse().apply(this);
+        }
+        if(node.getDo() != null)
+        {
+            node.getDo().apply(this);
+        }
+        outADoStmtWelse(node);
     }
 }

@@ -1488,6 +1488,89 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outABlock(node);
     }
 
+    public void inANoop(ANoop node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANoop(ANoop node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANoop(ANoop node)
+    {
+        inANoop(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outANoop(node);
+    }
+
+    public void inAAssignment(AAssignment node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAssignment(AAssignment node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAssignment(AAssignment node)
+    {
+        inAAssignment(node);
+        if(node.getLvalue() != null)
+        {
+            node.getLvalue().apply(this);
+        }
+        if(node.getAssign() != null)
+        {
+            node.getAssign().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAAssignment(node);
+    }
+
+    public void inAReturnStmt(AReturnStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAReturnStmt(AReturnStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAReturnStmt(AReturnStmt node)
+    {
+        inAReturnStmt(node);
+        if(node.getReturn() != null)
+        {
+            node.getReturn().apply(this);
+        }
+        if(node.getExpr() != null)
+        {
+            node.getExpr().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAReturnStmt(node);
+    }
+
     public void inANoopStmt(ANoopStmt node)
     {
         defaultIn(node);
@@ -1502,9 +1585,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseANoopStmt(ANoopStmt node)
     {
         inANoopStmt(node);
-        if(node.getSemicolon() != null)
+        if(node.getNoop() != null)
         {
-            node.getSemicolon().apply(this);
+            node.getNoop().apply(this);
         }
         outANoopStmt(node);
     }
@@ -1523,21 +1606,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAAssignmentStmt(AAssignmentStmt node)
     {
         inAAssignmentStmt(node);
-        if(node.getLvalue() != null)
+        if(node.getAssignment() != null)
         {
-            node.getLvalue().apply(this);
-        }
-        if(node.getAssign() != null)
-        {
-            node.getAssign().apply(this);
-        }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getSemicolon() != null)
-        {
-            node.getSemicolon().apply(this);
+            node.getAssignment().apply(this);
         }
         outAAssignmentStmt(node);
     }
@@ -1630,33 +1701,25 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAWhileStmt(node);
     }
 
-    public void inAReturnStmt(AReturnStmt node)
+    public void inAReturnStmtStmt(AReturnStmtStmt node)
     {
         defaultIn(node);
     }
 
-    public void outAReturnStmt(AReturnStmt node)
+    public void outAReturnStmtStmt(AReturnStmtStmt node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAReturnStmt(AReturnStmt node)
+    public void caseAReturnStmtStmt(AReturnStmtStmt node)
     {
-        inAReturnStmt(node);
-        if(node.getReturn() != null)
+        inAReturnStmtStmt(node);
+        if(node.getReturnStmt() != null)
         {
-            node.getReturn().apply(this);
+            node.getReturnStmt().apply(this);
         }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getSemicolon() != null)
-        {
-            node.getSemicolon().apply(this);
-        }
-        outAReturnStmt(node);
+        outAReturnStmtStmt(node);
     }
 
     public void inANoElseIfStmt(ANoElseIfStmt node)
@@ -1680,10 +1743,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         if(node.getCond() != null)
         {
             node.getCond().apply(this);
-        }
-        if(node.getThen() != null)
-        {
-            node.getThen().apply(this);
         }
         if(node.getThenStmt() != null)
         {
@@ -1714,23 +1773,90 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getCond().apply(this);
         }
-        if(node.getThen() != null)
+        if(node.getThenStmtWelse() != null)
         {
-            node.getThen().apply(this);
-        }
-        if(node.getThenStmt() != null)
-        {
-            node.getThenStmt().apply(this);
-        }
-        if(node.getElse() != null)
-        {
-            node.getElse().apply(this);
+            node.getThenStmtWelse().apply(this);
         }
         if(node.getElseStmt() != null)
         {
             node.getElseStmt().apply(this);
         }
         outAElseIfStmt(node);
+    }
+
+    public void inAThenStmt(AThenStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAThenStmt(AThenStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAThenStmt(AThenStmt node)
+    {
+        inAThenStmt(node);
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        outAThenStmt(node);
+    }
+
+    public void inAThenStmtWelse(AThenStmtWelse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAThenStmtWelse(AThenStmtWelse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAThenStmtWelse(AThenStmtWelse node)
+    {
+        inAThenStmtWelse(node);
+        if(node.getThen() != null)
+        {
+            node.getThen().apply(this);
+        }
+        if(node.getStmtWithElse() != null)
+        {
+            node.getStmtWithElse().apply(this);
+        }
+        outAThenStmtWelse(node);
+    }
+
+    public void inAElseStmt(AElseStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAElseStmt(AElseStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAElseStmt(AElseStmt node)
+    {
+        inAElseStmt(node);
+        if(node.getElse() != null)
+        {
+            node.getElse().apply(this);
+        }
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        outAElseStmt(node);
     }
 
     public void inANoopStmtWithElse(ANoopStmtWithElse node)
@@ -1747,9 +1873,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseANoopStmtWithElse(ANoopStmtWithElse node)
     {
         inANoopStmtWithElse(node);
-        if(node.getSemicolon() != null)
+        if(node.getNoop() != null)
         {
-            node.getSemicolon().apply(this);
+            node.getNoop().apply(this);
         }
         outANoopStmtWithElse(node);
     }
@@ -1768,21 +1894,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
     {
         inAAssignmentStmtWithElse(node);
-        if(node.getLvalue() != null)
+        if(node.getAssignment() != null)
         {
-            node.getLvalue().apply(this);
-        }
-        if(node.getAssign() != null)
-        {
-            node.getAssign().apply(this);
-        }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getSemicolon() != null)
-        {
-            node.getSemicolon().apply(this);
+            node.getAssignment().apply(this);
         }
         outAAssignmentStmtWithElse(node);
     }
@@ -1889,17 +2003,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAReturnStmtWithElse(AReturnStmtWithElse node)
     {
         inAReturnStmtWithElse(node);
-        if(node.getReturn() != null)
+        if(node.getReturnStmt() != null)
         {
-            node.getReturn().apply(this);
-        }
-        if(node.getExpr() != null)
-        {
-            node.getExpr().apply(this);
-        }
-        if(node.getSemicolon() != null)
-        {
-            node.getSemicolon().apply(this);
+            node.getReturnStmt().apply(this);
         }
         outAReturnStmtWithElse(node);
     }
@@ -1926,23 +2032,40 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getCond().apply(this);
         }
-        if(node.getThen() != null)
+        if(node.getThenStmtWelse() != null)
         {
-            node.getThen().apply(this);
+            node.getThenStmtWelse().apply(this);
         }
-        if(node.getThenStmt() != null)
+        if(node.getElseStmtWithElse() != null)
         {
-            node.getThenStmt().apply(this);
+            node.getElseStmtWithElse().apply(this);
         }
+        outAIfElseStmt(node);
+    }
+
+    public void inAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        inAElseStmtWithElse(node);
         if(node.getElse() != null)
         {
             node.getElse().apply(this);
         }
-        if(node.getElseStmt() != null)
+        if(node.getStmtWithElse() != null)
         {
-            node.getElseStmt().apply(this);
+            node.getStmtWithElse().apply(this);
         }
-        outAIfElseStmt(node);
+        outAElseStmtWithElse(node);
     }
 
     public void inANoElseWhileStmt(ANoElseWhileStmt node)
@@ -1967,13 +2090,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getCond().apply(this);
         }
-        if(node.getDo() != null)
+        if(node.getDoStmt() != null)
         {
-            node.getDo().apply(this);
-        }
-        if(node.getStmt() != null)
-        {
-            node.getStmt().apply(this);
+            node.getDoStmt().apply(this);
         }
         outANoElseWhileStmt(node);
     }
@@ -2000,6 +2119,52 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getCond().apply(this);
         }
+        if(node.getDoStmtWelse() != null)
+        {
+            node.getDoStmtWelse().apply(this);
+        }
+        outAWhileElseWhileWithElse(node);
+    }
+
+    public void inADoStmt(ADoStmt node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADoStmt(ADoStmt node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADoStmt(ADoStmt node)
+    {
+        inADoStmt(node);
+        if(node.getDo() != null)
+        {
+            node.getDo().apply(this);
+        }
+        if(node.getStmt() != null)
+        {
+            node.getStmt().apply(this);
+        }
+        outADoStmt(node);
+    }
+
+    public void inADoStmtWelse(ADoStmtWelse node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADoStmtWelse(ADoStmtWelse node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADoStmtWelse(ADoStmtWelse node)
+    {
+        inADoStmtWelse(node);
         if(node.getDo() != null)
         {
             node.getDo().apply(this);
@@ -2008,6 +2173,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getStmtWithElse().apply(this);
         }
-        outAWhileElseWhileWithElse(node);
+        outADoStmtWelse(node);
     }
 }

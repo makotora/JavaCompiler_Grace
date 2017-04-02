@@ -344,6 +344,21 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+    public void caseANoop(ANoop node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAAssignment(AAssignment node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAReturnStmt(AReturnStmt node)
+    {
+        defaultCase(node);
+    }
+
     public void caseANoopStmt(ANoopStmt node)
     {
         defaultCase(node);
@@ -374,7 +389,7 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAReturnStmt(AReturnStmt node)
+    public void caseAReturnStmtStmt(AReturnStmtStmt node)
     {
         defaultCase(node);
     }
@@ -385,6 +400,21 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseAElseIfStmt(AElseIfStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAThenStmt(AThenStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAThenStmtWelse(AThenStmtWelse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAElseStmt(AElseStmt node)
     {
         defaultCase(node);
     }
@@ -429,12 +459,27 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+    public void caseAElseStmtWithElse(AElseStmtWithElse node)
+    {
+        defaultCase(node);
+    }
+
     public void caseANoElseWhileStmt(ANoElseWhileStmt node)
     {
         defaultCase(node);
     }
 
     public void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseADoStmt(ADoStmt node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseADoStmtWelse(ADoStmtWelse node)
     {
         defaultCase(node);
     }

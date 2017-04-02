@@ -174,27 +174,41 @@ Productions
     block = lbrace stmt* rbrace;
 
     //Statements
-    stmt = {noop} semicolon
-         | {assignment} lvalue assign expr semicolon
+
+    noop = semicolon;
+    assignment = lvalue assign expr semicolon;
+    return_stmt = return expr? semicolon;
+
+    stmt = {noop} noop
+         | {assignment} assignment
          | {block} block
          | {fcall} func_call semicolon
          | {if} if_stmt
          | {while} while_stmt
-         | {return} return expr? semicolon;
+         | {return_stmt} return_stmt;
 
-    if_stmt = {no_else} if cond then [then_stmt]:stmt
-            | {else} if cond then [then_stmt]:stmt_with_else else [else_stmt]:stmt;
+    if_stmt = {no_else} if cond then_stmt
+            | {else} if cond then_stmt_welse else_stmt;
 
-    stmt_with_else = {noop} semicolon
-                   | {assignment} lvalue assign expr semicolon
+    then_stmt = then stmt;
+    then_stmt_welse = then stmt_with_else;
+    else_stmt = else stmt;
+
+    stmt_with_else = {noop} noop
+                   | {assignment} assignment
                    | {block} block
                    | {fcall} func_call semicolon
                    | {if} if_else_stmt
                    | {while} while_with_else
-                   | {return} return expr? semicolon;
+                   | {return} return_stmt;
 
-    if_else_stmt = if cond then [then_stmt]:stmt_with_else else [else_stmt]:stmt_with_else;
+    if_else_stmt = if cond then_stmt_welse else_stmt_with_else;
 
-    while_stmt = {no_else} while cond do stmt;
+    else_stmt_with_else = else stmt_with_else;
 
-    while_with_else = {while_else} while cond do stmt_with_else;
+    while_stmt = {no_else} while cond do_stmt;
+
+    while_with_else = {while_else} while cond do_stmt_welse;
+
+    do_stmt = do stmt;
+    do_stmt_welse = do stmt_with_else;

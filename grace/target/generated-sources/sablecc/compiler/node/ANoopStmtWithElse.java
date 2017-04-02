@@ -7,7 +7,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ANoopStmtWithElse extends PStmtWithElse
 {
-    private TSemicolon _semicolon_;
+    private PNoop _noop_;
 
     public ANoopStmtWithElse()
     {
@@ -15,10 +15,10 @@ public final class ANoopStmtWithElse extends PStmtWithElse
     }
 
     public ANoopStmtWithElse(
-        @SuppressWarnings("hiding") TSemicolon _semicolon_)
+        @SuppressWarnings("hiding") PNoop _noop_)
     {
         // Constructor
-        setSemicolon(_semicolon_);
+        setNoop(_noop_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ANoopStmtWithElse extends PStmtWithElse
     public Object clone()
     {
         return new ANoopStmtWithElse(
-            cloneNode(this._semicolon_));
+            cloneNode(this._noop_));
     }
 
     public void apply(Switch sw)
@@ -34,16 +34,16 @@ public final class ANoopStmtWithElse extends PStmtWithElse
         ((Analysis) sw).caseANoopStmtWithElse(this);
     }
 
-    public TSemicolon getSemicolon()
+    public PNoop getNoop()
     {
-        return this._semicolon_;
+        return this._noop_;
     }
 
-    public void setSemicolon(TSemicolon node)
+    public void setNoop(PNoop node)
     {
-        if(this._semicolon_ != null)
+        if(this._noop_ != null)
         {
-            this._semicolon_.parent(null);
+            this._noop_.parent(null);
         }
 
         if(node != null)
@@ -56,23 +56,23 @@ public final class ANoopStmtWithElse extends PStmtWithElse
             node.parent(this);
         }
 
-        this._semicolon_ = node;
+        this._noop_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._semicolon_);
+            + toString(this._noop_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._semicolon_ == child)
+        if(this._noop_ == child)
         {
-            this._semicolon_ = null;
+            this._noop_ = null;
             return;
         }
 
@@ -83,9 +83,9 @@ public final class ANoopStmtWithElse extends PStmtWithElse
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._semicolon_ == oldChild)
+        if(this._noop_ == oldChild)
         {
-            setSemicolon((TSemicolon) newChild);
+            setNoop((PNoop) newChild);
             return;
         }
 
