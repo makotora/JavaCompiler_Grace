@@ -5,45 +5,45 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AVdefLocalDef extends PLocalDef
+public final class AFdefLocalDefTail extends PLocalDefTail
 {
-    private PVarDef _varDef_;
+    private PFuncDef _funcDef_;
 
-    public AVdefLocalDef()
+    public AFdefLocalDefTail()
     {
         // Constructor
     }
 
-    public AVdefLocalDef(
-        @SuppressWarnings("hiding") PVarDef _varDef_)
+    public AFdefLocalDefTail(
+        @SuppressWarnings("hiding") PFuncDef _funcDef_)
     {
         // Constructor
-        setVarDef(_varDef_);
+        setFuncDef(_funcDef_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AVdefLocalDef(
-            cloneNode(this._varDef_));
+        return new AFdefLocalDefTail(
+            cloneNode(this._funcDef_));
     }
 
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAVdefLocalDef(this);
+        ((Analysis) sw).caseAFdefLocalDefTail(this);
     }
 
-    public PVarDef getVarDef()
+    public PFuncDef getFuncDef()
     {
-        return this._varDef_;
+        return this._funcDef_;
     }
 
-    public void setVarDef(PVarDef node)
+    public void setFuncDef(PFuncDef node)
     {
-        if(this._varDef_ != null)
+        if(this._funcDef_ != null)
         {
-            this._varDef_.parent(null);
+            this._funcDef_.parent(null);
         }
 
         if(node != null)
@@ -56,23 +56,23 @@ public final class AVdefLocalDef extends PLocalDef
             node.parent(this);
         }
 
-        this._varDef_ = node;
+        this._funcDef_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._varDef_);
+            + toString(this._funcDef_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._varDef_ == child)
+        if(this._funcDef_ == child)
         {
-            this._varDef_ = null;
+            this._funcDef_ = null;
             return;
         }
 
@@ -83,9 +83,9 @@ public final class AVdefLocalDef extends PLocalDef
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._varDef_ == oldChild)
+        if(this._funcDef_ == oldChild)
         {
-            setVarDef((PVarDef) newChild);
+            setFuncDef((PFuncDef) newChild);
             return;
         }
 

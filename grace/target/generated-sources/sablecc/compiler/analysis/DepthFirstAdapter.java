@@ -117,12 +117,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getDataType().apply(this);
         }
+        if(node.getArrayBrackList() != null)
         {
-            List<PArrayBrack> copy = new ArrayList<PArrayBrack>(node.getArrayBrack());
-            for(PArrayBrack e : copy)
-            {
-                e.apply(this);
-            }
+            node.getArrayBrackList().apply(this);
         }
         outAType(node);
     }
@@ -191,12 +188,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getEmptyBrack().apply(this);
         }
+        if(node.getArrayBrackList() != null)
         {
-            List<PArrayBrack> copy = new ArrayList<PArrayBrack>(node.getArrayBrack());
-            for(PArrayBrack e : copy)
-            {
-                e.apply(this);
-            }
+            node.getArrayBrackList().apply(this);
         }
         outAStatFparType(node);
     }
@@ -226,20 +220,20 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAEmptyBrack(node);
     }
 
-    public void inAArrayBrack(AArrayBrack node)
+    public void inAArrayBrackList(AArrayBrackList node)
     {
         defaultIn(node);
     }
 
-    public void outAArrayBrack(AArrayBrack node)
+    public void outAArrayBrackList(AArrayBrackList node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAArrayBrack(AArrayBrack node)
+    public void caseAArrayBrackList(AArrayBrackList node)
     {
-        inAArrayBrack(node);
+        inAArrayBrackList(node);
         if(node.getLbrack() != null)
         {
             node.getLbrack().apply(this);
@@ -252,7 +246,43 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRbrack().apply(this);
         }
-        outAArrayBrack(node);
+        {
+            List<PArrayBrackTail> copy = new ArrayList<PArrayBrackTail>(node.getArrayBrackTail());
+            for(PArrayBrackTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAArrayBrackList(node);
+    }
+
+    public void inAArrayBrackTail(AArrayBrackTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayBrackTail(AArrayBrackTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayBrackTail(AArrayBrackTail node)
+    {
+        inAArrayBrackTail(node);
+        if(node.getLbrack() != null)
+        {
+            node.getLbrack().apply(this);
+        }
+        if(node.getNumber() != null)
+        {
+            node.getNumber().apply(this);
+        }
+        if(node.getRbrack() != null)
+        {
+            node.getRbrack().apply(this);
+        }
+        outAArrayBrackTail(node);
     }
 
     public void inAVarDef(AVarDef node)
@@ -494,12 +524,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getHeader().apply(this);
         }
+        if(node.getLocalDefList() != null)
         {
-            List<PLocalDef> copy = new ArrayList<PLocalDef>(node.getLocalDef());
-            for(PLocalDef e : copy)
-            {
-                e.apply(this);
-            }
+            node.getLocalDefList().apply(this);
         }
         if(node.getBlock() != null)
         {
@@ -533,67 +560,151 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAFuncDecl(node);
     }
 
-    public void inAFdefLocalDef(AFdefLocalDef node)
+    public void inAFdefLocalDefList(AFdefLocalDefList node)
     {
         defaultIn(node);
     }
 
-    public void outAFdefLocalDef(AFdefLocalDef node)
+    public void outAFdefLocalDefList(AFdefLocalDefList node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAFdefLocalDef(AFdefLocalDef node)
+    public void caseAFdefLocalDefList(AFdefLocalDefList node)
     {
-        inAFdefLocalDef(node);
+        inAFdefLocalDefList(node);
         if(node.getFuncDef() != null)
         {
             node.getFuncDef().apply(this);
         }
-        outAFdefLocalDef(node);
+        {
+            List<PLocalDefTail> copy = new ArrayList<PLocalDefTail>(node.getLocalDefTail());
+            for(PLocalDefTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAFdefLocalDefList(node);
     }
 
-    public void inAFdecLocalDef(AFdecLocalDef node)
+    public void inAFdecLocalDefList(AFdecLocalDefList node)
     {
         defaultIn(node);
     }
 
-    public void outAFdecLocalDef(AFdecLocalDef node)
+    public void outAFdecLocalDefList(AFdecLocalDefList node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAFdecLocalDef(AFdecLocalDef node)
+    public void caseAFdecLocalDefList(AFdecLocalDefList node)
     {
-        inAFdecLocalDef(node);
+        inAFdecLocalDefList(node);
         if(node.getFuncDecl() != null)
         {
             node.getFuncDecl().apply(this);
         }
-        outAFdecLocalDef(node);
+        {
+            List<PLocalDefTail> copy = new ArrayList<PLocalDefTail>(node.getLocalDefTail());
+            for(PLocalDefTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAFdecLocalDefList(node);
     }
 
-    public void inAVdefLocalDef(AVdefLocalDef node)
+    public void inAVdefLocalDefList(AVdefLocalDefList node)
     {
         defaultIn(node);
     }
 
-    public void outAVdefLocalDef(AVdefLocalDef node)
+    public void outAVdefLocalDefList(AVdefLocalDefList node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVdefLocalDef(AVdefLocalDef node)
+    public void caseAVdefLocalDefList(AVdefLocalDefList node)
     {
-        inAVdefLocalDef(node);
+        inAVdefLocalDefList(node);
         if(node.getVarDef() != null)
         {
             node.getVarDef().apply(this);
         }
-        outAVdefLocalDef(node);
+        {
+            List<PLocalDefTail> copy = new ArrayList<PLocalDefTail>(node.getLocalDefTail());
+            for(PLocalDefTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAVdefLocalDefList(node);
+    }
+
+    public void inAFdefLocalDefTail(AFdefLocalDefTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAFdefLocalDefTail(AFdefLocalDefTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAFdefLocalDefTail(AFdefLocalDefTail node)
+    {
+        inAFdefLocalDefTail(node);
+        if(node.getFuncDef() != null)
+        {
+            node.getFuncDef().apply(this);
+        }
+        outAFdefLocalDefTail(node);
+    }
+
+    public void inAFdecLocalDefTail(AFdecLocalDefTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAFdecLocalDefTail(AFdecLocalDefTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAFdecLocalDefTail(AFdecLocalDefTail node)
+    {
+        inAFdecLocalDefTail(node);
+        if(node.getFuncDecl() != null)
+        {
+            node.getFuncDecl().apply(this);
+        }
+        outAFdecLocalDefTail(node);
+    }
+
+    public void inAVdefLocalDefTail(AVdefLocalDefTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAVdefLocalDefTail(AVdefLocalDefTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAVdefLocalDefTail(AVdefLocalDefTail node)
+    {
+        inAVdefLocalDefTail(node);
+        if(node.getVarDef() != null)
+        {
+            node.getVarDef().apply(this);
+        }
+        outAVdefLocalDefTail(node);
     }
 
     public void inAFuncCall(AFuncCall node)

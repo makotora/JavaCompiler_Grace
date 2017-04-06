@@ -2,14 +2,13 @@
 
 package compiler.node;
 
-import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AType extends PType
 {
     private PDataType _dataType_;
-    private final LinkedList<PArrayBrack> _arrayBrack_ = new LinkedList<PArrayBrack>();
+    private PArrayBrackList _arrayBrackList_;
 
     public AType()
     {
@@ -18,12 +17,12 @@ public final class AType extends PType
 
     public AType(
         @SuppressWarnings("hiding") PDataType _dataType_,
-        @SuppressWarnings("hiding") List<PArrayBrack> _arrayBrack_)
+        @SuppressWarnings("hiding") PArrayBrackList _arrayBrackList_)
     {
         // Constructor
         setDataType(_dataType_);
 
-        setArrayBrack(_arrayBrack_);
+        setArrayBrackList(_arrayBrackList_);
 
     }
 
@@ -32,7 +31,7 @@ public final class AType extends PType
     {
         return new AType(
             cloneNode(this._dataType_),
-            cloneList(this._arrayBrack_));
+            cloneNode(this._arrayBrackList_));
     }
 
     public void apply(Switch sw)
@@ -65,24 +64,29 @@ public final class AType extends PType
         this._dataType_ = node;
     }
 
-    public LinkedList<PArrayBrack> getArrayBrack()
+    public PArrayBrackList getArrayBrackList()
     {
-        return this._arrayBrack_;
+        return this._arrayBrackList_;
     }
 
-    public void setArrayBrack(List<PArrayBrack> list)
+    public void setArrayBrackList(PArrayBrackList node)
     {
-        this._arrayBrack_.clear();
-        this._arrayBrack_.addAll(list);
-        for(PArrayBrack e : list)
+        if(this._arrayBrackList_ != null)
         {
-            if(e.parent() != null)
+            this._arrayBrackList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
+            node.parent(this);
         }
+
+        this._arrayBrackList_ = node;
     }
 
     @Override
@@ -90,7 +94,7 @@ public final class AType extends PType
     {
         return ""
             + toString(this._dataType_)
-            + toString(this._arrayBrack_);
+            + toString(this._arrayBrackList_);
     }
 
     @Override
@@ -103,8 +107,9 @@ public final class AType extends PType
             return;
         }
 
-        if(this._arrayBrack_.remove(child))
+        if(this._arrayBrackList_ == child)
         {
+            this._arrayBrackList_ = null;
             return;
         }
 
@@ -121,22 +126,10 @@ public final class AType extends PType
             return;
         }
 
-        for(ListIterator<PArrayBrack> i = this._arrayBrack_.listIterator(); i.hasNext();)
+        if(this._arrayBrackList_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PArrayBrack) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+            setArrayBrackList((PArrayBrackList) newChild);
+            return;
         }
 
         throw new RuntimeException("Not a child.");

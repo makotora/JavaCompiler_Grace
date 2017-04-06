@@ -2,7 +2,7 @@
 
 package compiler.node;
 
-public abstract class PLocalDef extends Node
+public abstract class PLocalDefList extends Node
 {
     // Empty body
 }

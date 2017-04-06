@@ -11,14 +11,32 @@ public class Main
 {
  public static void main(String[] arguments)
  {
-     Start tree = null;
+     if (arguments.length == 0)
+     {
+         System.out.println("Error! No program given for compilation.");
+         return;
+     }
+     else if (arguments.length != 1)
+     {
+         System.out.println("Error! Too many arguments");
+         return;
+     }
+
 
    // Create a Parser instance.
-    Parser p =
-    new Parser(
-    new Lexer(
-    new PushbackReader(
-    new InputStreamReader(System.in), 1024)));
+     Parser p = null;
+     Start tree = null;
+     try {
+         p =
+                 new Parser(
+                         new Lexer(
+                                 new PushbackReader(
+                                         new InputStreamReader(new FileInputStream(arguments[0])), 1024)));
+     }
+     catch (Exception e)
+     {
+         e.printStackTrace();
+     }
 
    // Parse the input.
     try

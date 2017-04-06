@@ -101,12 +101,13 @@ Productions
   //types
   data_type = {int} int
             | {char} char;
-  type      = data_type array_brack*;
+  type      = data_type array_brack_list?;
   ret_type  = {something} data_type
             | {nothing} nothing;
-  fpar_type = {stat} data_type empty_brack? array_brack*;
+  fpar_type = {stat} data_type empty_brack? array_brack_list?;
   empty_brack = lbrack rbrack;
-  array_brack = lbrack number rbrack;
+  array_brack_list = lbrack number rbrack array_brack_tail*;
+  array_brack_tail = lbrack number rbrack;
 
   //var definition
   var_def = var id_list colon type semicolon;
@@ -120,9 +121,12 @@ Productions
   par_list_tail = semicolon fpar_def;
 
   //definitions-declarations
-  func_def = header local_def* block;
+  func_def = header local_def_list? block;
   func_decl = header semicolon;
-  local_def = {fdef} func_def
+  local_def_list = {fdef} func_def local_def_tail*
+            | {fdec} func_decl local_def_tail*
+            | {vdef} var_def local_def_tail*;
+  local_def_tail = {fdef} func_def
             | {fdec} func_decl
             | {vdef} var_def;
 

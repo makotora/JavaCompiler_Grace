@@ -20,7 +20,8 @@ public interface Analysis extends Switch
     void caseANothingRetType(ANothingRetType node);
     void caseAStatFparType(AStatFparType node);
     void caseAEmptyBrack(AEmptyBrack node);
-    void caseAArrayBrack(AArrayBrack node);
+    void caseAArrayBrackList(AArrayBrackList node);
+    void caseAArrayBrackTail(AArrayBrackTail node);
     void caseAVarDef(AVarDef node);
     void caseAIdList(AIdList node);
     void caseAIdListTail(AIdListTail node);
@@ -30,9 +31,12 @@ public interface Analysis extends Switch
     void caseAParListTail(AParListTail node);
     void caseAFuncDef(AFuncDef node);
     void caseAFuncDecl(AFuncDecl node);
-    void caseAFdefLocalDef(AFdefLocalDef node);
-    void caseAFdecLocalDef(AFdecLocalDef node);
-    void caseAVdefLocalDef(AVdefLocalDef node);
+    void caseAFdefLocalDefList(AFdefLocalDefList node);
+    void caseAFdecLocalDefList(AFdecLocalDefList node);
+    void caseAVdefLocalDefList(AVdefLocalDefList node);
+    void caseAFdefLocalDefTail(AFdefLocalDefTail node);
+    void caseAFdecLocalDefTail(AFdecLocalDefTail node);
+    void caseAVdefLocalDefTail(AVdefLocalDefTail node);
     void caseAFuncCall(AFuncCall node);
     void caseAExprList(AExprList node);
     void caseAExprTail(AExprTail node);

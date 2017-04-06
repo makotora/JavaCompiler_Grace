@@ -5,18 +5,18 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AArrayBrack extends PArrayBrack
+public final class AArrayBrackTail extends PArrayBrackTail
 {
     private TLbrack _lbrack_;
     private TNumber _number_;
     private TRbrack _rbrack_;
 
-    public AArrayBrack()
+    public AArrayBrackTail()
     {
         // Constructor
     }
 
-    public AArrayBrack(
+    public AArrayBrackTail(
         @SuppressWarnings("hiding") TLbrack _lbrack_,
         @SuppressWarnings("hiding") TNumber _number_,
         @SuppressWarnings("hiding") TRbrack _rbrack_)
@@ -33,7 +33,7 @@ public final class AArrayBrack extends PArrayBrack
     @Override
     public Object clone()
     {
-        return new AArrayBrack(
+        return new AArrayBrackTail(
             cloneNode(this._lbrack_),
             cloneNode(this._number_),
             cloneNode(this._rbrack_));
@@ -41,7 +41,7 @@ public final class AArrayBrack extends PArrayBrack
 
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAArrayBrack(this);
+        ((Analysis) sw).caseAArrayBrackTail(this);
     }
 
     public TLbrack getLbrack()

@@ -2,7 +2,7 @@
 
 package compiler.node;
 
-public abstract class PArrayBrack extends Node
+public abstract class PLocalDefTail extends Node
 {
     // Empty body
 }

@@ -5,16 +5,16 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AFdecLocalDef extends PLocalDef
+public final class AFdecLocalDefTail extends PLocalDefTail
 {
     private PFuncDecl _funcDecl_;
 
-    public AFdecLocalDef()
+    public AFdecLocalDefTail()
     {
         // Constructor
     }
 
-    public AFdecLocalDef(
+    public AFdecLocalDefTail(
         @SuppressWarnings("hiding") PFuncDecl _funcDecl_)
     {
         // Constructor
@@ -25,13 +25,13 @@ public final class AFdecLocalDef extends PLocalDef
     @Override
     public Object clone()
     {
-        return new AFdecLocalDef(
+        return new AFdecLocalDefTail(
             cloneNode(this._funcDecl_));
     }
 
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAFdecLocalDef(this);
+        ((Analysis) sw).caseAFdecLocalDefTail(this);
     }
 
     public PFuncDecl getFuncDecl()

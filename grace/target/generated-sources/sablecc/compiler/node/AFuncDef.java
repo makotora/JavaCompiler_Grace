@@ -2,14 +2,13 @@
 
 package compiler.node;
 
-import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AFuncDef extends PFuncDef
 {
     private PHeader _header_;
-    private final LinkedList<PLocalDef> _localDef_ = new LinkedList<PLocalDef>();
+    private PLocalDefList _localDefList_;
     private PBlock _block_;
 
     public AFuncDef()
@@ -19,13 +18,13 @@ public final class AFuncDef extends PFuncDef
 
     public AFuncDef(
         @SuppressWarnings("hiding") PHeader _header_,
-        @SuppressWarnings("hiding") List<PLocalDef> _localDef_,
+        @SuppressWarnings("hiding") PLocalDefList _localDefList_,
         @SuppressWarnings("hiding") PBlock _block_)
     {
         // Constructor
         setHeader(_header_);
 
-        setLocalDef(_localDef_);
+        setLocalDefList(_localDefList_);
 
         setBlock(_block_);
 
@@ -36,7 +35,7 @@ public final class AFuncDef extends PFuncDef
     {
         return new AFuncDef(
             cloneNode(this._header_),
-            cloneList(this._localDef_),
+            cloneNode(this._localDefList_),
             cloneNode(this._block_));
     }
 
@@ -70,24 +69,29 @@ public final class AFuncDef extends PFuncDef
         this._header_ = node;
     }
 
-    public LinkedList<PLocalDef> getLocalDef()
+    public PLocalDefList getLocalDefList()
     {
-        return this._localDef_;
+        return this._localDefList_;
     }
 
-    public void setLocalDef(List<PLocalDef> list)
+    public void setLocalDefList(PLocalDefList node)
     {
-        this._localDef_.clear();
-        this._localDef_.addAll(list);
-        for(PLocalDef e : list)
+        if(this._localDefList_ != null)
         {
-            if(e.parent() != null)
+            this._localDefList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
+            node.parent(this);
         }
+
+        this._localDefList_ = node;
     }
 
     public PBlock getBlock()
@@ -120,7 +124,7 @@ public final class AFuncDef extends PFuncDef
     {
         return ""
             + toString(this._header_)
-            + toString(this._localDef_)
+            + toString(this._localDefList_)
             + toString(this._block_);
     }
 
@@ -134,8 +138,9 @@ public final class AFuncDef extends PFuncDef
             return;
         }
 
-        if(this._localDef_.remove(child))
+        if(this._localDefList_ == child)
         {
+            this._localDefList_ = null;
             return;
         }
 
@@ -158,22 +163,10 @@ public final class AFuncDef extends PFuncDef
             return;
         }
 
-        for(ListIterator<PLocalDef> i = this._localDef_.listIterator(); i.hasNext();)
+        if(this._localDefList_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PLocalDef) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+            setLocalDefList((PLocalDefList) newChild);
+            return;
         }
 
         if(this._block_ == oldChild)

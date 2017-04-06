@@ -4,13 +4,9 @@
 
 ## To compile
 
-   mvn compile
+   mvn clean package
 
-## To create a packaged JAR file
-
-   mvn package
-
-## To clean
-
-   mvn clean
+## To run
+	Go to directory: grace/target/classes
+	To run: java compiler.Main < program.grace
 

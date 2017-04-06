@@ -109,7 +109,12 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAArrayBrack(AArrayBrack node)
+    public void caseAArrayBrackList(AArrayBrackList node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAArrayBrackTail(AArrayBrackTail node)
     {
         defaultCase(node);
     }
@@ -159,17 +164,32 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAFdefLocalDef(AFdefLocalDef node)
+    public void caseAFdefLocalDefList(AFdefLocalDefList node)
     {
         defaultCase(node);
     }
 
-    public void caseAFdecLocalDef(AFdecLocalDef node)
+    public void caseAFdecLocalDefList(AFdecLocalDefList node)
     {
         defaultCase(node);
     }
 
-    public void caseAVdefLocalDef(AVdefLocalDef node)
+    public void caseAVdefLocalDefList(AVdefLocalDefList node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAFdefLocalDefTail(AFdefLocalDefTail node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAFdecLocalDefTail(AFdecLocalDefTail node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAVdefLocalDefTail(AVdefLocalDefTail node)
     {
         defaultCase(node);
     }
