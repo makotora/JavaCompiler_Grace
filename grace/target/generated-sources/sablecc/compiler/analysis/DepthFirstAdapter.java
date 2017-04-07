@@ -889,56 +889,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outATermExpr(node);
     }
 
-    public void inAPositiveExpr(APositiveExpr node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAPositiveExpr(APositiveExpr node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAPositiveExpr(APositiveExpr node)
-    {
-        inAPositiveExpr(node);
-        if(node.getPlus() != null)
-        {
-            node.getPlus().apply(this);
-        }
-        if(node.getTerm() != null)
-        {
-            node.getTerm().apply(this);
-        }
-        outAPositiveExpr(node);
-    }
-
-    public void inANegativeExpr(ANegativeExpr node)
-    {
-        defaultIn(node);
-    }
-
-    public void outANegativeExpr(ANegativeExpr node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseANegativeExpr(ANegativeExpr node)
-    {
-        inANegativeExpr(node);
-        if(node.getMinus() != null)
-        {
-            node.getMinus().apply(this);
-        }
-        if(node.getTerm() != null)
-        {
-            node.getTerm().apply(this);
-        }
-        outANegativeExpr(node);
-    }
-
     public void inAAddExpr(AAddExpr node)
     {
         defaultIn(node);
@@ -1105,6 +1055,27 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAModTerm(node);
     }
 
+    public void inASignedFact(ASignedFact node)
+    {
+        defaultIn(node);
+    }
+
+    public void outASignedFact(ASignedFact node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseASignedFact(ASignedFact node)
+    {
+        inASignedFact(node);
+        if(node.getSignedExpr() != null)
+        {
+            node.getSignedExpr().apply(this);
+        }
+        outASignedFact(node);
+    }
+
     public void inANumberFact(ANumberFact node)
     {
         defaultIn(node);
@@ -1216,6 +1187,56 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getRpar().apply(this);
         }
         outAParenFact(node);
+    }
+
+    public void inAPositiveSignedExpr(APositiveSignedExpr node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPositiveSignedExpr(APositiveSignedExpr node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPositiveSignedExpr(APositiveSignedExpr node)
+    {
+        inAPositiveSignedExpr(node);
+        if(node.getPlus() != null)
+        {
+            node.getPlus().apply(this);
+        }
+        if(node.getFact() != null)
+        {
+            node.getFact().apply(this);
+        }
+        outAPositiveSignedExpr(node);
+    }
+
+    public void inANegativeSignedExpr(ANegativeSignedExpr node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANegativeSignedExpr(ANegativeSignedExpr node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANegativeSignedExpr(ANegativeSignedExpr node)
+    {
+        inANegativeSignedExpr(node);
+        if(node.getMinus() != null)
+        {
+            node.getMinus().apply(this);
+        }
+        if(node.getFact() != null)
+        {
+            node.getFact().apply(this);
+        }
+        outANegativeSignedExpr(node);
     }
 
     public void inACtermCond(ACtermCond node)

@@ -229,16 +229,6 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAPositiveExpr(APositiveExpr node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANegativeExpr(ANegativeExpr node)
-    {
-        defaultCase(node);
-    }
-
     public void caseAAddExpr(AAddExpr node)
     {
         defaultCase(node);
@@ -269,6 +259,11 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
+    public void caseASignedFact(ASignedFact node)
+    {
+        defaultCase(node);
+    }
+
     public void caseANumberFact(ANumberFact node)
     {
         defaultCase(node);
@@ -290,6 +285,16 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseAParenFact(AParenFact node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAPositiveSignedExpr(APositiveSignedExpr node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseANegativeSignedExpr(ANegativeSignedExpr node)
     {
         defaultCase(node);
     }
@@ -605,6 +610,11 @@ public class AnalysisAdapter implements Analysis
     }
 
     public void caseTNumber(TNumber node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseTErrorNumber(TErrorNumber node)
     {
         defaultCase(node);
     }

@@ -5,50 +5,50 @@ package compiler.node;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ANegativeExpr extends PExpr
+public final class APositiveSignedExpr extends PSignedExpr
 {
-    private TMinus _minus_;
-    private PTerm _term_;
+    private TPlus _plus_;
+    private PFact _fact_;
 
-    public ANegativeExpr()
+    public APositiveSignedExpr()
     {
         // Constructor
     }
 
-    public ANegativeExpr(
-        @SuppressWarnings("hiding") TMinus _minus_,
-        @SuppressWarnings("hiding") PTerm _term_)
+    public APositiveSignedExpr(
+        @SuppressWarnings("hiding") TPlus _plus_,
+        @SuppressWarnings("hiding") PFact _fact_)
     {
         // Constructor
-        setMinus(_minus_);
+        setPlus(_plus_);
 
-        setTerm(_term_);
+        setFact(_fact_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ANegativeExpr(
-            cloneNode(this._minus_),
-            cloneNode(this._term_));
+        return new APositiveSignedExpr(
+            cloneNode(this._plus_),
+            cloneNode(this._fact_));
     }
 
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseANegativeExpr(this);
+        ((Analysis) sw).caseAPositiveSignedExpr(this);
     }
 
-    public TMinus getMinus()
+    public TPlus getPlus()
     {
-        return this._minus_;
+        return this._plus_;
     }
 
-    public void setMinus(TMinus node)
+    public void setPlus(TPlus node)
     {
-        if(this._minus_ != null)
+        if(this._plus_ != null)
         {
-            this._minus_.parent(null);
+            this._plus_.parent(null);
         }
 
         if(node != null)
@@ -61,19 +61,19 @@ public final class ANegativeExpr extends PExpr
             node.parent(this);
         }
 
-        this._minus_ = node;
+        this._plus_ = node;
     }
 
-    public PTerm getTerm()
+    public PFact getFact()
     {
-        return this._term_;
+        return this._fact_;
     }
 
-    public void setTerm(PTerm node)
+    public void setFact(PFact node)
     {
-        if(this._term_ != null)
+        if(this._fact_ != null)
         {
-            this._term_.parent(null);
+            this._fact_.parent(null);
         }
 
         if(node != null)
@@ -86,30 +86,30 @@ public final class ANegativeExpr extends PExpr
             node.parent(this);
         }
 
-        this._term_ = node;
+        this._fact_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._minus_)
-            + toString(this._term_);
+            + toString(this._plus_)
+            + toString(this._fact_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._minus_ == child)
+        if(this._plus_ == child)
         {
-            this._minus_ = null;
+            this._plus_ = null;
             return;
         }
 
-        if(this._term_ == child)
+        if(this._fact_ == child)
         {
-            this._term_ = null;
+            this._fact_ = null;
             return;
         }
 
@@ -120,15 +120,15 @@ public final class ANegativeExpr extends PExpr
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._minus_ == oldChild)
+        if(this._plus_ == oldChild)
         {
-            setMinus((TMinus) newChild);
+            setPlus((TPlus) newChild);
             return;
         }
 
-        if(this._term_ == oldChild)
+        if(this._fact_ == oldChild)
         {
-            setTerm((PTerm) newChild);
+            setFact((PFact) newChild);
             return;
         }
 

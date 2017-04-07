@@ -59,6 +59,7 @@ Tokens
   simple_com = '$' not_eol* eol; //one line comment
   id = letter (digit | nondigit )*; //var or fun names
   number = number;
+  error_number = digit+ nondigit+;
 
   single_char = ''' char ''' | ''' esc_seq ''';
   string = '"' (char | esc_seq)+ '"';
@@ -141,19 +142,22 @@ Productions
 
     //Expression
     expr = {term} term
-    	 | {positive} plus term
-    	 | {negative} minus term
          | {add}  expr plus term
          |{sub}  expr minus term;
     term = {fact} fact
          |{mult} term mult fact
          |{div}  term div fact
          |{mod} term mod fact;
-    fact = {number} number
+    fact = {signed} signed_expr
+         | {number} number
          | {char} single_char
          | {fcall} func_call
          | {lval} lvalue
          | {paren} lpar expr rpar;
+
+    //Signed number
+    signed_expr = {positive} plus fact
+    | {negative} minus fact;
 
     //Conditions
     cond = {cterm} cterm

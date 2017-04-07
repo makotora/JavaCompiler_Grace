@@ -51,8 +51,10 @@ compiler/node/Start.class
 compiler/node/TNeq.class
 compiler/node/TFun.class
 compiler/node/AFparDefList.class
+compiler/node/ASignedFact.class
 compiler/node/AReturnStmtWithElse.class
 compiler/node/PCond.class
+compiler/node/APositiveSignedExpr.class
 compiler/node/AHeader.class
 compiler/node/AArrayBrackTail.class
 compiler/node/ANumberFact.class
@@ -81,6 +83,7 @@ compiler/node/PCfact.class
 compiler/node/TRbrack.class
 compiler/node/AIdList.class
 compiler/node/TLeq.class
+compiler/node/PSignedExpr.class
 compiler/node/PDoStmt.class
 compiler/node/TPlus.class
 compiler/node/ACparenComp.class
@@ -116,8 +119,6 @@ compiler/node/PWhileStmt.class
 compiler/node/Switch.class
 compiler/node/TNothing.class
 compiler/node/TAnd.class
-compiler/node/ANegativeExpr.class
-compiler/node/APositiveExpr.class
 compiler/node/ACtermCond.class
 compiler/node/ANotCfact.class
 compiler/node/AAssignment.class
@@ -153,6 +154,7 @@ compiler/node/TWhile.class
 compiler/node/PIfStmt.class
 compiler/node/TNumber.class
 compiler/node/ALtComp.class
+compiler/node/TErrorNumber.class
 compiler/node/TLpar.class
 compiler/node/AIfStmtWithElse.class
 compiler/node/PBlock.class
@@ -191,5 +193,6 @@ compiler/analysis/ReversedDepthFirstAdapter.class
 compiler/node/AExprList.class
 compiler/node/PExprTail.class
 compiler/node/PIfElseStmt.class
+compiler/node/ANegativeSignedExpr.class
 compiler/node/ABlockStmt.class
 compiler/node/TColon.class

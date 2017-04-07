@@ -708,41 +708,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         indent--;
     }
 
-
-    @Override
-    public void inAPositiveExpr(APositiveExpr node)
-    {
-        for (int i = 0; i < indent; i++) {
-            System.out.print(indentation);
-        }
-
-        System.out.println("Positive Expression: +" + node.getTerm().toString());
-        indent++;
-    }
-
-    @Override
-    public void outAPositiveExpr(APositiveExpr node)
-    {
-        indent--;
-    }
-
-    @Override
-    public void inANegativeExpr(ANegativeExpr node)
-    {
-        for (int i = 0; i < indent; i++) {
-            System.out.print(indentation);
-        }
-
-        System.out.println("Negative Expression: -" + node.getTerm().toString());
-        indent++;
-    }
-
-    @Override
-    public void outANegativeExpr(ANegativeExpr node)
-    {
-        indent--;
-    }
-
     @Override
     public void inAAddExpr(AAddExpr node)
     {
@@ -843,6 +808,24 @@ public class GenericsVisitor extends DepthFirstAdapter {
         indent--;
     }
 
+
+    @Override
+    public void inASignedFact(ASignedFact node)
+    {
+        for (int i = 0; i < indent; i++) {
+            System.out.print(indentation);
+        }
+
+        System.out.println("Signed Fact: " + node.getSignedExpr().toString());
+        indent++;
+    }
+
+    @Override
+    public void outASignedFact(ASignedFact node)
+    {
+        indent--;
+    }
+
     @Override
     public void inANumberFact(ANumberFact node)
     {
@@ -873,6 +856,39 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     @Override
     public void outAParenFact(AParenFact node)
+    {
+        indent--;
+    }
+
+    public void inAPositiveSignedExpr(APositiveSignedExpr node)
+    {
+        for (int i = 0; i < indent; i++) {
+            System.out.print(indentation);
+        }
+
+        System.out.println("Positive Signed Expression: + " + node.getFact().toString());
+        indent++;
+    }
+
+    @Override
+    public void outAPositiveSignedExpr(APositiveSignedExpr node)
+    {
+        indent--;
+    }
+
+    @Override
+    public void inANegativeSignedExpr(ANegativeSignedExpr node)
+    {
+        for (int i = 0; i < indent; i++) {
+            System.out.print(indentation);
+        }
+
+        System.out.println("Negative Signed Expression: - " + node.getFact().toString());
+        indent++;
+    }
+
+    @Override
+    public void outANegativeSignedExpr(ANegativeSignedExpr node)
     {
         indent--;
     }
