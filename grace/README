@@ -10,3 +10,6 @@
 	Go to directory: grace/target/classes
 	To run: java compiler.Main < program.grace
 
+##Examples
+	Assignments examples as well as two examples of my own (whiletest.grace & ifwhiletest.grace)
+	are located in directory: grace/examples

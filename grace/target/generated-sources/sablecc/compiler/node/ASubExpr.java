@@ -7,9 +7,8 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ASubExpr extends PExpr
 {
-    private PExpr _expr_;
-    private TMinus _minus_;
-    private PTerm _term_;
+    private PExpr _left_;
+    private PExpr _right_;
 
     public ASubExpr()
     {
@@ -17,16 +16,13 @@ public final class ASubExpr extends PExpr
     }
 
     public ASubExpr(
-        @SuppressWarnings("hiding") PExpr _expr_,
-        @SuppressWarnings("hiding") TMinus _minus_,
-        @SuppressWarnings("hiding") PTerm _term_)
+        @SuppressWarnings("hiding") PExpr _left_,
+        @SuppressWarnings("hiding") PExpr _right_)
     {
         // Constructor
-        setExpr(_expr_);
+        setLeft(_left_);
 
-        setMinus(_minus_);
-
-        setTerm(_term_);
+        setRight(_right_);
 
     }
 
@@ -34,9 +30,8 @@ public final class ASubExpr extends PExpr
     public Object clone()
     {
         return new ASubExpr(
-            cloneNode(this._expr_),
-            cloneNode(this._minus_),
-            cloneNode(this._term_));
+            cloneNode(this._left_),
+            cloneNode(this._right_));
     }
 
     public void apply(Switch sw)
@@ -44,16 +39,16 @@ public final class ASubExpr extends PExpr
         ((Analysis) sw).caseASubExpr(this);
     }
 
-    public PExpr getExpr()
+    public PExpr getLeft()
     {
-        return this._expr_;
+        return this._left_;
     }
 
-    public void setExpr(PExpr node)
+    public void setLeft(PExpr node)
     {
-        if(this._expr_ != null)
+        if(this._left_ != null)
         {
-            this._expr_.parent(null);
+            this._left_.parent(null);
         }
 
         if(node != null)
@@ -66,19 +61,19 @@ public final class ASubExpr extends PExpr
             node.parent(this);
         }
 
-        this._expr_ = node;
+        this._left_ = node;
     }
 
-    public TMinus getMinus()
+    public PExpr getRight()
     {
-        return this._minus_;
+        return this._right_;
     }
 
-    public void setMinus(TMinus node)
+    public void setRight(PExpr node)
     {
-        if(this._minus_ != null)
+        if(this._right_ != null)
         {
-            this._minus_.parent(null);
+            this._right_.parent(null);
         }
 
         if(node != null)
@@ -91,62 +86,30 @@ public final class ASubExpr extends PExpr
             node.parent(this);
         }
 
-        this._minus_ = node;
-    }
-
-    public PTerm getTerm()
-    {
-        return this._term_;
-    }
-
-    public void setTerm(PTerm node)
-    {
-        if(this._term_ != null)
-        {
-            this._term_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._term_ = node;
+        this._right_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expr_)
-            + toString(this._minus_)
-            + toString(this._term_);
+            + toString(this._left_)
+            + toString(this._right_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expr_ == child)
+        if(this._left_ == child)
         {
-            this._expr_ = null;
+            this._left_ = null;
             return;
         }
 
-        if(this._minus_ == child)
+        if(this._right_ == child)
         {
-            this._minus_ = null;
-            return;
-        }
-
-        if(this._term_ == child)
-        {
-            this._term_ = null;
+            this._right_ = null;
             return;
         }
 
@@ -157,21 +120,15 @@ public final class ASubExpr extends PExpr
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expr_ == oldChild)
+        if(this._left_ == oldChild)
         {
-            setExpr((PExpr) newChild);
+            setLeft((PExpr) newChild);
             return;
         }
 
-        if(this._minus_ == oldChild)
+        if(this._right_ == oldChild)
         {
-            setMinus((TMinus) newChild);
-            return;
-        }
-
-        if(this._term_ == oldChild)
-        {
-            setTerm((PTerm) newChild);
+            setRight((PExpr) newChild);
             return;
         }
 

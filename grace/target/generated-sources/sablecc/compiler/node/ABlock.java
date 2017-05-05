@@ -8,9 +8,7 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class ABlock extends PBlock
 {
-    private TLbrace _lbrace_;
-    private final LinkedList<PStmt> _stmt_ = new LinkedList<PStmt>();
-    private TRbrace _rbrace_;
+    private final LinkedList<PStatement> _statement_ = new LinkedList<PStatement>();
 
     public ABlock()
     {
@@ -18,16 +16,10 @@ public final class ABlock extends PBlock
     }
 
     public ABlock(
-        @SuppressWarnings("hiding") TLbrace _lbrace_,
-        @SuppressWarnings("hiding") List<PStmt> _stmt_,
-        @SuppressWarnings("hiding") TRbrace _rbrace_)
+        @SuppressWarnings("hiding") List<PStatement> _statement_)
     {
         // Constructor
-        setLbrace(_lbrace_);
-
-        setStmt(_stmt_);
-
-        setRbrace(_rbrace_);
+        setStatement(_statement_);
 
     }
 
@@ -35,9 +27,7 @@ public final class ABlock extends PBlock
     public Object clone()
     {
         return new ABlock(
-            cloneNode(this._lbrace_),
-            cloneList(this._stmt_),
-            cloneNode(this._rbrace_));
+            cloneList(this._statement_));
     }
 
     public void apply(Switch sw)
@@ -45,41 +35,16 @@ public final class ABlock extends PBlock
         ((Analysis) sw).caseABlock(this);
     }
 
-    public TLbrace getLbrace()
+    public LinkedList<PStatement> getStatement()
     {
-        return this._lbrace_;
+        return this._statement_;
     }
 
-    public void setLbrace(TLbrace node)
+    public void setStatement(List<PStatement> list)
     {
-        if(this._lbrace_ != null)
-        {
-            this._lbrace_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._lbrace_ = node;
-    }
-
-    public LinkedList<PStmt> getStmt()
-    {
-        return this._stmt_;
-    }
-
-    public void setStmt(List<PStmt> list)
-    {
-        this._stmt_.clear();
-        this._stmt_.addAll(list);
-        for(PStmt e : list)
+        this._statement_.clear();
+        this._statement_.addAll(list);
+        for(PStatement e : list)
         {
             if(e.parent() != null)
             {
@@ -90,58 +55,19 @@ public final class ABlock extends PBlock
         }
     }
 
-    public TRbrace getRbrace()
-    {
-        return this._rbrace_;
-    }
-
-    public void setRbrace(TRbrace node)
-    {
-        if(this._rbrace_ != null)
-        {
-            this._rbrace_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._rbrace_ = node;
-    }
-
     @Override
     public String toString()
     {
         return ""
-            + toString(this._lbrace_)
-            + toString(this._stmt_)
-            + toString(this._rbrace_);
+            + toString(this._statement_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._lbrace_ == child)
+        if(this._statement_.remove(child))
         {
-            this._lbrace_ = null;
-            return;
-        }
-
-        if(this._stmt_.remove(child))
-        {
-            return;
-        }
-
-        if(this._rbrace_ == child)
-        {
-            this._rbrace_ = null;
             return;
         }
 
@@ -152,19 +78,13 @@ public final class ABlock extends PBlock
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._lbrace_ == oldChild)
-        {
-            setLbrace((TLbrace) newChild);
-            return;
-        }
-
-        for(ListIterator<PStmt> i = this._stmt_.listIterator(); i.hasNext();)
+        for(ListIterator<PStatement> i = this._statement_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PStmt) newChild);
+                    i.set((PStatement) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
@@ -174,12 +94,6 @@ public final class ABlock extends PBlock
                 oldChild.parent(null);
                 return;
             }
-        }
-
-        if(this._rbrace_ == oldChild)
-        {
-            setRbrace((TRbrace) newChild);
-            return;
         }
 
         throw new RuntimeException("Not a child.");

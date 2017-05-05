@@ -48,7 +48,7 @@ public class Main
     {
    	  e.printStackTrace();
     }
-
     tree.apply(new GenericsVisitor());
+
   }
 }

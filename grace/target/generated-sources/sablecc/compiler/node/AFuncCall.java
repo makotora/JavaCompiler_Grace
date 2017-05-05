@@ -2,15 +2,14 @@
 
 package compiler.node;
 
+import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AFuncCall extends PFuncCall
 {
     private TId _id_;
-    private TLpar _lpar_;
-    private PExprList _exprList_;
-    private TRpar _rpar_;
+    private final LinkedList<PExpr> _expr_ = new LinkedList<PExpr>();
 
     public AFuncCall()
     {
@@ -19,18 +18,12 @@ public final class AFuncCall extends PFuncCall
 
     public AFuncCall(
         @SuppressWarnings("hiding") TId _id_,
-        @SuppressWarnings("hiding") TLpar _lpar_,
-        @SuppressWarnings("hiding") PExprList _exprList_,
-        @SuppressWarnings("hiding") TRpar _rpar_)
+        @SuppressWarnings("hiding") List<PExpr> _expr_)
     {
         // Constructor
         setId(_id_);
 
-        setLpar(_lpar_);
-
-        setExprList(_exprList_);
-
-        setRpar(_rpar_);
+        setExpr(_expr_);
 
     }
 
@@ -39,9 +32,7 @@ public final class AFuncCall extends PFuncCall
     {
         return new AFuncCall(
             cloneNode(this._id_),
-            cloneNode(this._lpar_),
-            cloneNode(this._exprList_),
-            cloneNode(this._rpar_));
+            cloneList(this._expr_));
     }
 
     public void apply(Switch sw)
@@ -74,79 +65,24 @@ public final class AFuncCall extends PFuncCall
         this._id_ = node;
     }
 
-    public TLpar getLpar()
+    public LinkedList<PExpr> getExpr()
     {
-        return this._lpar_;
+        return this._expr_;
     }
 
-    public void setLpar(TLpar node)
+    public void setExpr(List<PExpr> list)
     {
-        if(this._lpar_ != null)
+        this._expr_.clear();
+        this._expr_.addAll(list);
+        for(PExpr e : list)
         {
-            this._lpar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
+            if(e.parent() != null)
             {
-                node.parent().removeChild(node);
+                e.parent().removeChild(e);
             }
 
-            node.parent(this);
+            e.parent(this);
         }
-
-        this._lpar_ = node;
-    }
-
-    public PExprList getExprList()
-    {
-        return this._exprList_;
-    }
-
-    public void setExprList(PExprList node)
-    {
-        if(this._exprList_ != null)
-        {
-            this._exprList_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._exprList_ = node;
-    }
-
-    public TRpar getRpar()
-    {
-        return this._rpar_;
-    }
-
-    public void setRpar(TRpar node)
-    {
-        if(this._rpar_ != null)
-        {
-            this._rpar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._rpar_ = node;
     }
 
     @Override
@@ -154,9 +90,7 @@ public final class AFuncCall extends PFuncCall
     {
         return ""
             + toString(this._id_)
-            + toString(this._lpar_)
-            + toString(this._exprList_)
-            + toString(this._rpar_);
+            + toString(this._expr_);
     }
 
     @Override
@@ -169,21 +103,8 @@ public final class AFuncCall extends PFuncCall
             return;
         }
 
-        if(this._lpar_ == child)
+        if(this._expr_.remove(child))
         {
-            this._lpar_ = null;
-            return;
-        }
-
-        if(this._exprList_ == child)
-        {
-            this._exprList_ = null;
-            return;
-        }
-
-        if(this._rpar_ == child)
-        {
-            this._rpar_ = null;
             return;
         }
 
@@ -200,22 +121,22 @@ public final class AFuncCall extends PFuncCall
             return;
         }
 
-        if(this._lpar_ == oldChild)
+        for(ListIterator<PExpr> i = this._expr_.listIterator(); i.hasNext();)
         {
-            setLpar((TLpar) newChild);
-            return;
-        }
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PExpr) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
 
-        if(this._exprList_ == oldChild)
-        {
-            setExprList((PExprList) newChild);
-            return;
-        }
-
-        if(this._rpar_ == oldChild)
-        {
-            setRpar((TRpar) newChild);
-            return;
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

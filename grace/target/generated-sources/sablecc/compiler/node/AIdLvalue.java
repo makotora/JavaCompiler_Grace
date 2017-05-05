@@ -2,12 +2,14 @@
 
 package compiler.node;
 
+import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AIdLvalue extends PLvalue
 {
     private TId _id_;
+    private final LinkedList<PExpr> _expr_ = new LinkedList<PExpr>();
 
     public AIdLvalue()
     {
@@ -15,10 +17,13 @@ public final class AIdLvalue extends PLvalue
     }
 
     public AIdLvalue(
-        @SuppressWarnings("hiding") TId _id_)
+        @SuppressWarnings("hiding") TId _id_,
+        @SuppressWarnings("hiding") List<PExpr> _expr_)
     {
         // Constructor
         setId(_id_);
+
+        setExpr(_expr_);
 
     }
 
@@ -26,7 +31,8 @@ public final class AIdLvalue extends PLvalue
     public Object clone()
     {
         return new AIdLvalue(
-            cloneNode(this._id_));
+            cloneNode(this._id_),
+            cloneList(this._expr_));
     }
 
     public void apply(Switch sw)
@@ -59,11 +65,32 @@ public final class AIdLvalue extends PLvalue
         this._id_ = node;
     }
 
+    public LinkedList<PExpr> getExpr()
+    {
+        return this._expr_;
+    }
+
+    public void setExpr(List<PExpr> list)
+    {
+        this._expr_.clear();
+        this._expr_.addAll(list);
+        for(PExpr e : list)
+        {
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+        }
+    }
+
     @Override
     public String toString()
     {
         return ""
-            + toString(this._id_);
+            + toString(this._id_)
+            + toString(this._expr_);
     }
 
     @Override
@@ -73,6 +100,11 @@ public final class AIdLvalue extends PLvalue
         if(this._id_ == child)
         {
             this._id_ = null;
+            return;
+        }
+
+        if(this._expr_.remove(child))
+        {
             return;
         }
 
@@ -87,6 +119,24 @@ public final class AIdLvalue extends PLvalue
         {
             setId((TId) newChild);
             return;
+        }
+
+        for(ListIterator<PExpr> i = this._expr_.listIterator(); i.hasNext();)
+        {
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PExpr) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

@@ -97,126 +97,222 @@ Ignored Tokens
   comment;
 
 Productions
-  program = func_def;
+  program {-> func_def} = func_def {-> func_def};
 
   //types
-  data_type = {int} int
-            | {char} char;
-  type      = data_type array_brack_list?;
-  ret_type  = {something} data_type
-            | {nothing} nothing;
-  fpar_type = {stat} data_type empty_brack? array_brack_list?;
-  empty_brack = lbrack rbrack;
-  array_brack_list = lbrack number rbrack array_brack_tail*;
-  array_brack_tail = lbrack number rbrack;
+  data_type {-> type} = {int} int {-> New type.int(int)}
+            | {char} char {-> New type.char(char)};
+
+  type {-> type number*} = data_type array_brack_list? {-> data_type.type [array_brack_list.number]};
+
+  ret_type {-> ret_type} = {something} data_type {-> New ret_type.smth(data_type.type)}
+            		 | {nothing} nothing {-> New ret_type.nothing(nothing)};
+
+  fpar_type {-> type lbrack? number*} = {stat} data_type empty_brack? array_brack_list?
+  	{-> data_type.type empty_brack.lbrack [array_brack_list.number]};
+
+  empty_brack {-> lbrack} = lbrack rbrack {-> lbrack};
+  array_brack_list {-> number*} = lbrack number rbrack array_brack_tail* {-> [number, array_brack_tail.number]};
+  array_brack_tail {-> number} = lbrack number rbrack {-> number};
 
   //var definition
-  var_def = var id_list colon type semicolon;
-  id_list = id id_list_tail*;
-  id_list_tail = comma id;
+  var_def {-> var_def} = var id_list colon type semicolon {-> New var_def([id_list.id], type.type, [type.number])};
+  id_list {-> id*} = id id_list_tail*
+  	{-> [id, id_list_tail.id]};
+
+  id_list_tail {-> id} = comma id
+  	{-> id};
 
   //function header
-  header    = fun id lpar fpar_def_list? rpar colon ret_type;
-  fpar_def_list = fpar_def par_list_tail*;
-  fpar_def = ref? id_list colon fpar_type;
-  par_list_tail = semicolon fpar_def;
+  header {-> id par* ret_type}   = fun id lpar fpar_def_list? rpar colon ret_type 
+  	{-> id [fpar_def_list.par] ret_type.ret_type};
+
+  fpar_def_list {-> par*} = fpar_def par_list_tail* 
+  	{-> [fpar_def.par, par_list_tail.par]};
+
+  fpar_def {-> par} = ref? id_list colon fpar_type 
+  	{-> New par(ref, [id_list.id], fpar_type.type, fpar_type.lbrack, [fpar_type.number])};
+  
+  par_list_tail {-> par} = semicolon fpar_def
+  	{-> fpar_def.par};
 
   //definitions-declarations
-  func_def = header local_def_list? block;
-  func_decl = header semicolon;
-  local_def_list = {fdef} func_def local_def_tail*
-            | {fdec} func_decl local_def_tail*
-            | {vdef} var_def local_def_tail*;
-  local_def_tail = {fdef} func_def
-            | {fdec} func_decl
-            | {vdef} var_def;
+  func_def = header local_def_list? block 
+  	{-> New func_def(header.id, [header.par], header.ret_type, [local_def_list.local_def], block)};
+  
+  func_decl {-> func_decl} = header semicolon {-> New func_decl(header.id, [header.par], header.ret_type)};
+  local_def_list {-> local_def*} = {fdef} func_def local_def_tail* 
+    {-> [New local_def.fdef(func_def), local_def_tail.local_def]}
+            | {fdec} func_decl local_def_tail* 
+    {-> [New local_def.fdecl(func_decl.func_decl), local_def_tail.local_def]}
+            | {var_def} var_def local_def_tail* 
+    {-> [New local_def.vdef(var_def.var_def), local_def_tail.local_def]};
+  
+  local_def_tail {-> local_def} = {fdef} func_def {-> New local_def.fdef(func_def)}
+            | {fdec} func_decl {-> New local_def.fdecl(func_decl.func_decl)}
+            | {vdef} var_def {-> New local_def.vdef(var_def.var_def)};
 
   //things we need to define statements
-  func_call = id lpar expr_list? rpar;
-  expr_list = expr expr_tail*;
-  expr_tail = comma expr;
+  func_call = id lpar expr_list? rpar {-> New func_call(id, [expr_list.expr])};
+  expr_list {-> expr*} = expr expr_tail* {-> [expr, expr_tail.expr]};
+  expr_tail {-> expr} = comma expr {-> expr};
 
-  lvalue = {id} id
-          | {string} string
-          | {lvalue} lvalue lbrack expr rbrack;
+  lvalue = {id} id lvalue_expr_list? {-> New lvalue.id(id, [lvalue_expr_list.expr])}
+          | {string} string lvalue_expr_list? {-> New lvalue.string(string, [lvalue_expr_list.expr])};
+
+  lvalue_expr_list {-> expr*} = lbrack expr rbrack lvalue_expr_tail* {-> [expr, lvalue_expr_tail.expr]};
+  lvalue_expr_tail {-> expr} = lbrack expr rbrack {-> expr};
 
     //Expression
-    expr = {term} term
-         | {add}  expr plus term
-         |{sub}  expr minus term;
-    term = {fact} fact
-         |{mult} term mult fact
-         |{div}  term div fact
-         |{mod} term mod fact;
-    fact = {signed} signed_expr
-         | {number} number
-         | {char} single_char
-         | {fcall} func_call
-         | {lval} lvalue
-         | {paren} lpar expr rpar;
+    expr {-> expr} = {term} term {-> term.expr}
+         | {add}  [left]:expr plus [right]:term {-> New expr.add(left.expr, right.expr)}
+         |{sub}  [left]:expr minus [right]:term {-> New expr.sub(left.expr, right.expr)};
+    
+    term {-> expr} = {fact} fact {-> fact.expr}
+         |{mult} [left]:term mult [right]:fact {-> New expr.mult(left.expr, right.expr)}
+         |{div}  [left]:term div [right]:fact {-> New expr.div(left.expr, right.expr)}
+         |{mod} [left]:term mod [right]:fact {-> New expr.mod(left.expr, right.expr)};
+    
+    fact {-> expr} = {number} sign_list? number {-> New expr.number([sign_list.sign], number)}
+         | {char} sign_list? single_char {-> New expr.char([sign_list.sign], single_char)}
+         | {fcall} sign_list? func_call {-> New expr.fcall([sign_list.sign], func_call)}
+         | {lval} sign_list? lvalue {-> New expr.lvalue([sign_list.sign], lvalue)}
+         | {paren} sign_list? lpar expr rpar {-> New expr.signed([sign_list.sign], expr.expr)};
 
-    //Signed number
-    signed_expr = {positive} plus fact
-    | {negative} minus fact;
+    //Sign list
+    sign_list {-> sign*} = {positive} plus sign_tail* {-> [New sign.positive(plus), sign_tail.sign]} 
+    | {negative} minus sign_tail* {-> [New sign.negative(minus), sign_tail.sign]};
+
+    sign_tail {-> sign} = {positive} plus {-> New sign.positive(plus)}
+              | {negative} minus {-> New sign.negative(minus)};
 
     //Conditions
-    cond = {cterm} cterm
-         | {or} cond or cterm;
+    cond {-> cond} = {cterm} cterm {-> cterm.cond}
+         | {or} [left]:cond or [right]:cterm {-> New cond.or(left.cond, right.cond)};
 
-    cterm = {cfact} cfact
-          | {and} cterm and cfact;
+    cterm {-> cond} = {cfact} cfact {-> cfact.cond}
+          | {and} [left]:cterm and [right]:cfact {-> New cond.and(left.cond, right.cond)};
 
-    cfact = {comp} comp
-          | {not} not cfact;
+    cfact {-> cond} = {comp} comp {-> comp.cond}
+          | {not} not cfact {-> New cond.not(cfact.cond)};
 
-    comp = {eq} [expr1]:expr eq [expr2]:expr
-         | {neq} [expr1]:expr neq [expr2]:expr
-         | {leq} [expr1]:expr leq [expr2]:expr
-         | {geq} [expr1]:expr geq [expr2]:expr
-         | {lt} [expr1]:expr lt [expr2]:expr
-         | {gt} [expr1]:expr gt [expr2]:expr
-         | {cparen} lpar cond rpar;
+    comp {-> cond} = {eq} [left]:expr eq [right]:expr {-> New cond.eq(left.expr, right.expr)}
+         | {neq} [left]:expr neq [right]:expr {-> New cond.neq(left.expr, right.expr)}
+         | {leq} [left]:expr leq [right]:expr {-> New cond.leq(left.expr, right.expr)}
+         | {geq} [left]:expr geq [right]:expr {-> New cond.geq(left.expr, right.expr)}
+         | {lt} [left]:expr lt [right]:expr {-> New cond.lt(left.expr, right.expr)}
+         | {gt} [left]:expr gt [right]:expr {-> New cond.gt(left.expr, right.expr)}
+         | {cparen} lpar cond rpar {-> cond.cond};
 
 
     //block contains statements
-    block = lbrace stmt* rbrace;
+    block = lbrace stmt* rbrace {-> New block([stmt.statement])};
 
     //Statements
 
-    noop = semicolon;
-    assignment = lvalue assign expr semicolon;
-    return_stmt = return expr? semicolon;
+    noop {-> semicolon} = semicolon {-> semicolon};
+    assignment {-> lvalue expr} = lvalue assign expr semicolon {-> lvalue expr.expr};
+    return_stmt {-> expr?} = return expr? semicolon {-> expr.expr};
 
-    stmt = {noop} noop
-         | {assignment} assignment
-         | {block} block
-         | {fcall} func_call semicolon
-         | {if} if_stmt
-         | {while} while_stmt
-         | {return_stmt} return_stmt;
+    stmt {-> statement} = {noop} noop {-> New statement.noop(noop.semicolon)}
+         | {assignment} assignment {-> New statement.assignment(assignment.lvalue, assignment.expr)}
+         | {block} block {-> New statement.block(block)}
+         | {fcall} func_call semicolon {-> New statement.fcall(func_call)}
+         | {if} if_stmt {-> New statement.if_else(if_stmt.cond, if_stmt.statement1, if_stmt.statement2)}
+         | {while} while_stmt {-> New statement.while(while_stmt.cond, while_stmt.statement)}
+         | {return_stmt} return_stmt {-> New statement.return(return_stmt.expr)};
 
-    if_stmt = {no_else} if cond then_stmt
-            | {else} if cond then_stmt_welse else_stmt;
+    if_stmt {-> cond [statement1]:statement [statement2]:statement?} = {no_else} if cond then_stmt 
+      {-> cond.cond then_stmt.statement Null}
+  | {else} if cond then_stmt_welse else_stmt
+      {-> cond.cond then_stmt_welse.statement else_stmt.statement};
 
-    then_stmt = then stmt;
-    then_stmt_welse = then stmt_with_else;
-    else_stmt = else stmt;
+    then_stmt {-> statement} = then stmt {-> stmt.statement};
+    then_stmt_welse {-> statement} = then stmt_with_else 
+      {-> stmt_with_else.statement};
+    else_stmt {-> statement} = else stmt {-> stmt.statement};
 
-    stmt_with_else = {noop} noop
-                   | {assignment} assignment
-                   | {block} block
-                   | {fcall} func_call semicolon
-                   | {if} if_else_stmt
-                   | {while} while_with_else
-                   | {return} return_stmt;
+    stmt_with_else {-> statement} = {noop} noop {-> New statement.noop(noop.semicolon)}
+                   | {assignment} assignment {-> New statement.assignment(assignment.lvalue, assignment.expr)}
+                   | {block} block {-> New statement.block(block)}
+                   | {fcall} func_call semicolon {-> New statement.fcall(func_call)}
+                   | {if} if_else_stmt 
+                      {-> New statement.if_else(if_else_stmt.cond, if_else_stmt.statement1, if_else_stmt.statement2)}
+                   | {while} while_with_else {-> New statement.while(while_with_else.cond, while_with_else.statement)}
+                   | {return} return_stmt {-> New statement.return(return_stmt.expr)};
 
-    if_else_stmt = if cond then_stmt_welse else_stmt_with_else;
+    if_else_stmt {-> cond [statement1]:statement [statement2]:statement} = if cond then_stmt_welse else_stmt_with_else
+      {-> cond.cond then_stmt_welse.statement else_stmt_with_else.statement};
 
-    else_stmt_with_else = else stmt_with_else;
+    else_stmt_with_else {-> statement} = else stmt_with_else {-> stmt_with_else.statement};
 
-    while_stmt = {no_else} while cond do_stmt;
+    while_stmt {-> cond statement} = {no_else} while cond do_stmt {-> cond.cond do_stmt.statement};
 
-    while_with_else = {while_else} while cond do_stmt_welse;
+    while_with_else {-> cond statement} = {while_else} while cond do_stmt_welse 
+      {-> cond.cond do_stmt_welse.statement};
 
-    do_stmt = do stmt;
-    do_stmt_welse = do stmt_with_else;
+    do_stmt {-> statement} = do stmt {-> stmt.statement};
+    do_stmt_welse {-> statement} = do stmt_with_else {-> stmt_with_else.statement};
+
+
+
+Abstract Syntax Tree
+
+  //Definitions
+
+  func_def = id par* ret_type local_def* block;
+
+  ret_type = {smth} type | {nothing} nothing;
+
+  type = {int} int
+     | {char} char;
+
+  par = ref? id* type lbrack? number*; 
+
+  local_def = {fdef} func_def
+        | {fdecl} func_decl
+        | {vdef} var_def;
+
+  func_decl = id par* ret_type;
+
+  var_def = id* type number*;
+
+  block = statement*;
+
+  //Statements
+
+  func_call = id expr*;
+  lvalue = {id} id expr*
+       | {string} string expr*;
+
+  statement = {noop} semicolon 
+        | {assignment} lvalue expr
+        | {block} block
+        | {fcall} func_call
+        | {if_else} cond [then]:statement [else]:statement?
+        | {while} cond statement
+        | {return} expr?;
+
+    expr = {add}  [left]:expr [right]:expr
+     | {sub}  [left]:expr [right]:expr
+     | {mult} [left]:expr [right]:expr
+     | {div}  [left]:expr [right]:expr
+     | {mod}  [left]:expr [right]:expr
+     | {number} sign* number
+     | {char} sign* single_char
+     | {fcall} sign* func_call
+     | {lvalue} sign* lvalue
+     | {signed} sign* expr;
+
+     sign = {positive} plus
+          | {negative} minus;
+
+     cond = {or} [left]:cond [right]:cond
+        | {and} [left]:cond [right]:cond
+        | {not} cond
+        | {eq} [left]:expr [right]:expr
+        | {neq} [left]:expr [right]:expr
+        | {leq} [left]:expr [right]:expr
+        | {geq} [left]:expr [right]:expr
+        | {lt} [left]:expr [right]:expr
+        | {gt} [left]:expr [right]:expr;

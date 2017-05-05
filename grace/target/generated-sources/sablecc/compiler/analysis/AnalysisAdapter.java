@@ -69,27 +69,12 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAProgram(AProgram node)
+    public void caseAFuncDef(AFuncDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAIntDataType(AIntDataType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseACharDataType(ACharDataType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAType(AType node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseASomethingRetType(ASomethingRetType node)
+    public void caseASmthRetType(ASmthRetType node)
     {
         defaultCase(node);
     }
@@ -99,62 +84,32 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAStatFparType(AStatFparType node)
+    public void caseAIntType(AIntType node)
     {
         defaultCase(node);
     }
 
-    public void caseAEmptyBrack(AEmptyBrack node)
+    public void caseACharType(ACharType node)
     {
         defaultCase(node);
     }
 
-    public void caseAArrayBrackList(AArrayBrackList node)
+    public void caseAPar(APar node)
     {
         defaultCase(node);
     }
 
-    public void caseAArrayBrackTail(AArrayBrackTail node)
+    public void caseAFdefLocalDef(AFdefLocalDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAVarDef(AVarDef node)
+    public void caseAFdeclLocalDef(AFdeclLocalDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAIdList(AIdList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAIdListTail(AIdListTail node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAHeader(AHeader node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFparDefList(AFparDefList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFparDef(AFparDef node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAParListTail(AParListTail node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFuncDef(AFuncDef node)
+    public void caseAVdefLocalDef(AVdefLocalDef node)
     {
         defaultCase(node);
     }
@@ -164,47 +119,17 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAFdefLocalDefList(AFdefLocalDefList node)
+    public void caseAVarDef(AVarDef node)
     {
         defaultCase(node);
     }
 
-    public void caseAFdecLocalDefList(AFdecLocalDefList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAVdefLocalDefList(AVdefLocalDefList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFdefLocalDefTail(AFdefLocalDefTail node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFdecLocalDefTail(AFdecLocalDefTail node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAVdefLocalDefTail(AVdefLocalDefTail node)
+    public void caseABlock(ABlock node)
     {
         defaultCase(node);
     }
 
     public void caseAFuncCall(AFuncCall node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAExprList(AExprList node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAExprTail(AExprTail node)
     {
         defaultCase(node);
     }
@@ -219,12 +144,37 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseALvalueLvalue(ALvalueLvalue node)
+    public void caseANoopStatement(ANoopStatement node)
     {
         defaultCase(node);
     }
 
-    public void caseATermExpr(ATermExpr node)
+    public void caseAAssignmentStatement(AAssignmentStatement node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseABlockStatement(ABlockStatement node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAFcallStatement(AFcallStatement node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAIfElseStatement(AIfElseStatement node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAWhileStatement(AWhileStatement node)
+    {
+        defaultCase(node);
+    }
+
+    public void caseAReturnStatement(AReturnStatement node)
     {
         defaultCase(node);
     }
@@ -239,67 +189,52 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseAFactTerm(AFactTerm node)
+    public void caseAMultExpr(AMultExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseAMultTerm(AMultTerm node)
+    public void caseADivExpr(ADivExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseADivTerm(ADivTerm node)
+    public void caseAModExpr(AModExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseAModTerm(AModTerm node)
+    public void caseANumberExpr(ANumberExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseASignedFact(ASignedFact node)
+    public void caseACharExpr(ACharExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseANumberFact(ANumberFact node)
+    public void caseAFcallExpr(AFcallExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseACharFact(ACharFact node)
+    public void caseALvalueExpr(ALvalueExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseAFcallFact(AFcallFact node)
+    public void caseASignedExpr(ASignedExpr node)
     {
         defaultCase(node);
     }
 
-    public void caseALvalFact(ALvalFact node)
+    public void caseAPositiveSign(APositiveSign node)
     {
         defaultCase(node);
     }
 
-    public void caseAParenFact(AParenFact node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAPositiveSignedExpr(APositiveSignedExpr node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANegativeSignedExpr(ANegativeSignedExpr node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseACtermCond(ACtermCond node)
+    public void caseANegativeSign(ANegativeSign node)
     {
         defaultCase(node);
     }
@@ -309,202 +244,42 @@ public class AnalysisAdapter implements Analysis
         defaultCase(node);
     }
 
-    public void caseACfactCterm(ACfactCterm node)
+    public void caseAAndCond(AAndCond node)
     {
         defaultCase(node);
     }
 
-    public void caseAAndCterm(AAndCterm node)
+    public void caseANotCond(ANotCond node)
     {
         defaultCase(node);
     }
 
-    public void caseACompCfact(ACompCfact node)
+    public void caseAEqCond(AEqCond node)
     {
         defaultCase(node);
     }
 
-    public void caseANotCfact(ANotCfact node)
+    public void caseANeqCond(ANeqCond node)
     {
         defaultCase(node);
     }
 
-    public void caseAEqComp(AEqComp node)
+    public void caseALeqCond(ALeqCond node)
     {
         defaultCase(node);
     }
 
-    public void caseANeqComp(ANeqComp node)
+    public void caseAGeqCond(AGeqCond node)
     {
         defaultCase(node);
     }
 
-    public void caseALeqComp(ALeqComp node)
+    public void caseALtCond(ALtCond node)
     {
         defaultCase(node);
     }
 
-    public void caseAGeqComp(AGeqComp node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseALtComp(ALtComp node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAGtComp(AGtComp node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseACparenComp(ACparenComp node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseABlock(ABlock node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANoop(ANoop node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAAssignment(AAssignment node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAReturnStmt(AReturnStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANoopStmt(ANoopStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAAssignmentStmt(AAssignmentStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseABlockStmt(ABlockStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFcallStmt(AFcallStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAIfStmt(AIfStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAWhileStmt(AWhileStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAReturnStmtStmt(AReturnStmtStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANoElseIfStmt(ANoElseIfStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAElseIfStmt(AElseIfStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAThenStmt(AThenStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAThenStmtWelse(AThenStmtWelse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAElseStmt(AElseStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANoopStmtWithElse(ANoopStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAAssignmentStmtWithElse(AAssignmentStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseABlockStmtWithElse(ABlockStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAFcallStmtWithElse(AFcallStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAIfStmtWithElse(AIfStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAWhileStmtWithElse(AWhileStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAReturnStmtWithElse(AReturnStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAIfElseStmt(AIfElseStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAElseStmtWithElse(AElseStmtWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseANoElseWhileStmt(ANoElseWhileStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseAWhileElseWhileWithElse(AWhileElseWhileWithElse node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseADoStmt(ADoStmt node)
-    {
-        defaultCase(node);
-    }
-
-    public void caseADoStmtWelse(ADoStmtWelse node)
+    public void caseAGtCond(AGtCond node)
     {
         defaultCase(node);
     }

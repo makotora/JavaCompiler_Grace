@@ -7,9 +7,8 @@ import compiler.analysis.*;
 @SuppressWarnings("nls")
 public final class AOrCond extends PCond
 {
-    private PCond _cond_;
-    private TOr _or_;
-    private PCterm _cterm_;
+    private PCond _left_;
+    private PCond _right_;
 
     public AOrCond()
     {
@@ -17,16 +16,13 @@ public final class AOrCond extends PCond
     }
 
     public AOrCond(
-        @SuppressWarnings("hiding") PCond _cond_,
-        @SuppressWarnings("hiding") TOr _or_,
-        @SuppressWarnings("hiding") PCterm _cterm_)
+        @SuppressWarnings("hiding") PCond _left_,
+        @SuppressWarnings("hiding") PCond _right_)
     {
         // Constructor
-        setCond(_cond_);
+        setLeft(_left_);
 
-        setOr(_or_);
-
-        setCterm(_cterm_);
+        setRight(_right_);
 
     }
 
@@ -34,9 +30,8 @@ public final class AOrCond extends PCond
     public Object clone()
     {
         return new AOrCond(
-            cloneNode(this._cond_),
-            cloneNode(this._or_),
-            cloneNode(this._cterm_));
+            cloneNode(this._left_),
+            cloneNode(this._right_));
     }
 
     public void apply(Switch sw)
@@ -44,16 +39,16 @@ public final class AOrCond extends PCond
         ((Analysis) sw).caseAOrCond(this);
     }
 
-    public PCond getCond()
+    public PCond getLeft()
     {
-        return this._cond_;
+        return this._left_;
     }
 
-    public void setCond(PCond node)
+    public void setLeft(PCond node)
     {
-        if(this._cond_ != null)
+        if(this._left_ != null)
         {
-            this._cond_.parent(null);
+            this._left_.parent(null);
         }
 
         if(node != null)
@@ -66,19 +61,19 @@ public final class AOrCond extends PCond
             node.parent(this);
         }
 
-        this._cond_ = node;
+        this._left_ = node;
     }
 
-    public TOr getOr()
+    public PCond getRight()
     {
-        return this._or_;
+        return this._right_;
     }
 
-    public void setOr(TOr node)
+    public void setRight(PCond node)
     {
-        if(this._or_ != null)
+        if(this._right_ != null)
         {
-            this._or_.parent(null);
+            this._right_.parent(null);
         }
 
         if(node != null)
@@ -91,62 +86,30 @@ public final class AOrCond extends PCond
             node.parent(this);
         }
 
-        this._or_ = node;
-    }
-
-    public PCterm getCterm()
-    {
-        return this._cterm_;
-    }
-
-    public void setCterm(PCterm node)
-    {
-        if(this._cterm_ != null)
-        {
-            this._cterm_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._cterm_ = node;
+        this._right_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._cond_)
-            + toString(this._or_)
-            + toString(this._cterm_);
+            + toString(this._left_)
+            + toString(this._right_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._cond_ == child)
+        if(this._left_ == child)
         {
-            this._cond_ = null;
+            this._left_ = null;
             return;
         }
 
-        if(this._or_ == child)
+        if(this._right_ == child)
         {
-            this._or_ = null;
-            return;
-        }
-
-        if(this._cterm_ == child)
-        {
-            this._cterm_ = null;
+            this._right_ = null;
             return;
         }
 
@@ -157,21 +120,15 @@ public final class AOrCond extends PCond
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._cond_ == oldChild)
+        if(this._left_ == oldChild)
         {
-            setCond((PCond) newChild);
+            setLeft((PCond) newChild);
             return;
         }
 
-        if(this._or_ == oldChild)
+        if(this._right_ == oldChild)
         {
-            setOr((TOr) newChild);
-            return;
-        }
-
-        if(this._cterm_ == oldChild)
-        {
-            setCterm((PCterm) newChild);
+            setRight((PCond) newChild);
             return;
         }
 
