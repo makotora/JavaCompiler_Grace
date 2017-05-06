@@ -7,52 +7,126 @@ import compiler.SymbolTable.SymbolTable;
 import compiler.Definition.*;
 
 import java.awt.*;
+import java.awt.List;
 import java.lang.String;
 import java.lang.Object;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 
 public class GenericsVisitor extends DepthFirstAdapter {
     private int indent = 0;
     private String indentation = "  ";
-    private SymbolTable st = new SymbolTable();
+    private SymbolTable symbolTable = new SymbolTable();
+
+    @Override
+    public void inStart(Start node)
+    {
+        symbolTable.enter();
+    }
+
+    @Override
+    public void outStart(Start node)
+    {
+        symbolTable.exit();
+    }
+
 
     @Override
     public void inAFuncDef(AFuncDef node)
     {
-        st.enter();
-
         LinkedList<PPar> pars = node.getPar();
-
-        ArrayList vars = new ArrayList();
-        int i = 0;
-        while (i < pars.size())
-        {
-            PPar parameter = pars.get(i);
-            System.out.println(parameter);
-            i++;
-        }
         
         System.out.println("In a func_def of " + node.getId() + "returning " + node.getRetType());
-        LinkedList<PLocalDef> l = node.getLocalDef();
+        //System.out.println("Local def: " + node.getLocalDef());
+        //System.out.println("Parameters:" + node.getPar());
+        //System.out.println(node.getPar().getFirst().getClass());
 
-        System.out.println("Local def: " + node.getLocalDef());
-        i = 0;
-        while (i < l.size()) {
-            System.out.println(l.get(i));
-            i++;
+        APar tmpParameter;
+        ArrayList variableList = new ArrayList();
+        ArrayList dimensionList = new ArrayList();
+
+
+        for (PPar pPar : pars) {
+             tmpParameter = (APar) pPar;
+             String type = tmpParameter.getType().toString();
+             if (tmpParameter.getLbrack() != null)
+             {
+                 dimensionList.add(0);
+             }
+
+            for (TNumber tNumber : tmpParameter.getNumber()) {
+                dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
+            }
+
+            for (TId tId : tmpParameter.getId()) {
+                variableList.add(new Variable(tId.toString(), type, dimensionList));
+             }
+
         }
 
-        System.out.println("Parameters:" + node.getPar());
-        System.out.println();
+        symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, true);
+        symbolTable.enter();
+        System.out.println(symbolTable);
     }
 
     @Override
     public void outAFuncDef(AFuncDef node)
     {
-;       st.exit();
+       symbolTable.exit();
+    }
+
+    @Override
+    public void inAFuncDecl(AFuncDecl node)
+    {
+        LinkedList<PPar> pars = node.getPar();
+
+        System.out.println("In a func_decl of " + node.getId() + "returning " + node.getRetType());
+        //System.out.println("Local def: " + node.getLocalDef());
+        //System.out.println("Parameters:" + node.getPar());
+        //System.out.println(node.getPar().getFirst().getClass());
+
+        APar tmpParameter;
+        ArrayList variableList = new ArrayList();
+        ArrayList dimensionList = new ArrayList();
+
+
+        for (PPar pPar : pars) {
+            tmpParameter = (APar) pPar;
+            String type = tmpParameter.getType().toString();
+            if (tmpParameter.getLbrack() != null)
+            {
+                dimensionList.add(0);
+            }
+
+            for (TNumber tNumber : tmpParameter.getNumber()) {
+                dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
+            }
+
+            for (TId tId : tmpParameter.getId()) {
+                variableList.add(new Variable(tId.toString().trim(), type, dimensionList));
+            }
+
+        }
+
+        symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, false);
+        System.out.println(symbolTable);
+    }
+
+    public void inAVarDef(AVarDef node) {
+
+        String type = node.getType().toString().trim();
+
+        ArrayList dimensionList = new ArrayList();
+
+        for (TNumber tNumber : node.getNumber()) {
+            dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
+        }
+
+        for (TId tId : node.getId()) {
+            symbolTable.insertAVariable(tId.toString(), type, dimensionList);
+        }
+        System.out.println(symbolTable);;
+
     }
 
 }

@@ -17,11 +17,11 @@ public class Variable extends Definition {
     @Override
     public String toString()
     {
-        String str = "Variable: " + id + " Type: " + type + " ";
-        if(dimensions != null)
+        String str = "Variable: " + id + " Type: " + type;
+        if(! dimensions.isEmpty())
         {
             for (Object dimension : dimensions) {
-                str+= "[" + dimension + "] ";
+                str+= "[" + dimension + "]";
             }
         }
         return str;

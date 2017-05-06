@@ -13,5 +13,8 @@ abstract public class Definition {
         this.id = id;
         this.type = type;
     }
-    
+
+    public String getType() {
+        return type;
+    }
 }

@@ -1,12 +1,18 @@
 $comment
 
-fun main (argc : int; ref argv : char[]) : nothing
+fun main (argc : int; ref argv : char[][2]) : int
+	fun main (rings : char; ref source, target, auxiliary : char[]) : nothing;
 	var x1,x2,x3 : int;
 	var y : char[2][5];
-	fun hanoi (rings : int; ref source, target, auxiliary : char[]) : nothing
+	var hanoi : int [5];
+	fun main (rings : char; ref source, target, auxiliary : char[]) : nothing
+	var x1,x2,x3 : int;
+	var y : char[2][5];
+	var hanoi : int [5];
 	{
-		;
 	}
+
+
 {
 
 $$ multiple

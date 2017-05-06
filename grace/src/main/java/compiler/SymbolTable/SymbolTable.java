@@ -25,28 +25,68 @@ public class SymbolTable {
 
     public int insertAVariable(String id, String type, List dimensions)
     {
-        Definition newVar = new Variable(id, type, dimensions);
+        id = id.trim();
+        type = type.trim();
         Hashtable tmpHash = this.symbolTable.lastElement();
-        if(tmpHash.put(id, newVar) != null)
+        if(tmpHash.containsKey(id))
         {
-            System.out.println("Variable: " + id + " is already defined in this scope." );
+            System.out.println("Variable or Function '" + id + "' is already defined in this scope." );
             return -1;
 
+        }
+        else
+        {
+            Definition newVar = new Variable(id, type, dimensions);
+            tmpHash.put(id, newVar);
         }
 
         return 0;
     }
 
-    public int insertAFunction(String id, String type, List parameters)
+    public int insertAFunction(String id, String type, List parameters, boolean isDefinition)
     {
-        Definition newVar = new Function(id, type, parameters);
+        id = id.trim();
+        type = type.trim();
         Hashtable tmpHash = this.symbolTable.lastElement();
-        if(tmpHash.put(id, newVar) != null)
+        if(tmpHash.containsKey(id))
         {
-            symbolTable.push(tmpHash);
-            System.out.println("Function : " + id + " is already defined in this scope." );
-            return -1;
+            Definition tmpDef = (Definition) tmpHash.get(id);
+            if ( tmpDef instanceof Variable)
+            {
+                System.out.printf("Error cannot define function '" + id + "'.There is a variable definition with that id");
+                return  -1;
+            }
+            else
+            {
+                Function func = (Function) tmpDef;
 
+                if (func.isDefinition() == true)
+                {
+                    System.out.println("Function : " + id + " is already defined in this scope." );
+                    return  -1;
+                }
+                else
+                {
+                    if (isDefinition == true)
+                    {
+                        if (parameters.equals(func.getParameters()) && type == func.getType()) {
+                            func.setDefinition(true);
+                            return 0;
+                        }
+                        else
+                        {
+                            System.out.println("Function '" + id + "' was declared with different parameters or type");
+                            return  -1;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            System.out.println("PUTTING FUN");
+            Definition newFunc = new Function(id, type, parameters, isDefinition);
+            tmpHash.put(id, newFunc);
         }
 
         return 0;
@@ -72,9 +112,10 @@ public class SymbolTable {
         int i = 0;
         String ret = "Symbol Table\n";
         for (Hashtable hashtable : this.symbolTable) {
-            for (int i1 = 0; i1< i; i++)
+            for (int i1 = 0; i1< i; i1++)
                 ret+="  ";
             ret += hashtable.toString();
+            ret+="\n";
         }
         return ret;
     }
