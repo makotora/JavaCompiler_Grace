@@ -7,7 +7,7 @@ import compiler.SymbolTable.SymbolTable;
 import compiler.Definition.*;
 
 import java.awt.*;
-import java.awt.List;
+import java.util.List;
 import java.lang.String;
 import java.lang.Object;
 import java.util.*;
@@ -42,13 +42,17 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //System.out.println(node.getPar().getFirst().getClass());
 
         APar tmpParameter;
-        ArrayList variableList = new ArrayList();
-        ArrayList dimensionList = new ArrayList();
+        List<Variable> variableList = new ArrayList();
 
 
         for (PPar pPar : pars) {
              tmpParameter = (APar) pPar;
-             String type = tmpParameter.getType().toString();
+             String type = tmpParameter.getType().toString().trim();
+             if (tmpParameter.getRef() != null)
+                 type = "ref " + type;
+
+             List<Integer> dimensionList = new ArrayList();
+
              if (tmpParameter.getLbrack() != null)
              {
                  dimensionList.add(0);
@@ -86,13 +90,16 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //System.out.println(node.getPar().getFirst().getClass());
 
         APar tmpParameter;
-        ArrayList variableList = new ArrayList();
-        ArrayList dimensionList = new ArrayList();
-
+        List<Variable> variableList = new ArrayList();
 
         for (PPar pPar : pars) {
             tmpParameter = (APar) pPar;
-            String type = tmpParameter.getType().toString();
+            String type = tmpParameter.getType().toString().trim();
+            if (tmpParameter.getRef() != null)
+                type = "ref " + type;
+
+            List<Integer> dimensionList = new ArrayList();
+
             if (tmpParameter.getLbrack() != null)
             {
                 dimensionList.add(0);
@@ -103,7 +110,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
 
             for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString().trim(), type, dimensionList));
+                variableList.add(new Variable(tId.toString(), type, dimensionList));
             }
 
         }
@@ -116,7 +123,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         String type = node.getType().toString().trim();
 
-        ArrayList dimensionList = new ArrayList();
+        List<Integer> dimensionList = new ArrayList();
 
         for (TNumber tNumber : node.getNumber()) {
             dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
@@ -125,7 +132,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         for (TId tId : node.getId()) {
             symbolTable.insertAVariable(tId.toString(), type, dimensionList);
         }
-        System.out.println(symbolTable);;
+        System.out.println(symbolTable);
 
     }
 

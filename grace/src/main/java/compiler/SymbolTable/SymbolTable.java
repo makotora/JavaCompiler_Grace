@@ -3,6 +3,7 @@ package compiler.SymbolTable;
 import compiler.Definition.*;
 
 import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -23,7 +24,7 @@ public class SymbolTable {
         this.symbolTable.push(tmpHash);
     }
 
-    public int insertAVariable(String id, String type, List dimensions)
+    public int insertAVariable(String id, String type, List<Integer> dimensions)
     {
         id = id.trim();
         type = type.trim();
@@ -43,7 +44,7 @@ public class SymbolTable {
         return 0;
     }
 
-    public int insertAFunction(String id, String type, List parameters, boolean isDefinition)
+    public int insertAFunction(String id, String type, List<Variable> parameters, boolean isDefinition)
     {
         id = id.trim();
         type = type.trim();
@@ -69,7 +70,7 @@ public class SymbolTable {
                 {
                     if (isDefinition == true)
                     {
-                        if (parameters.equals(func.getParameters()) && type == func.getType()) {
+                        if (func.sameParameters(parameters) && type.equals(func.getType())) {
                             func.setDefinition(true);
                             return 0;
                         }

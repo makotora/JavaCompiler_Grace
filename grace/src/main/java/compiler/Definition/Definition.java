@@ -10,8 +10,8 @@ abstract public class Definition {
     protected String type;
     
     public Definition(String id, String type) {
-        this.id = id;
-        this.type = type;
+        this.id = id.trim();
+        this.type = type.trim();
     }
 
     public String getType() {

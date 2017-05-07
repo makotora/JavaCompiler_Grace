@@ -90,6 +90,7 @@ compiler/node/AFdeclLocalDef.class
 compiler/node/ABlockStatement.class
 compiler/node/PBlock.class
 compiler/node/TComma.class
+compiler/SymbolTable/STException.class
 compiler/node/PVarDef.class
 compiler/node/ABlock.class
 compiler/node/AGtCond.class

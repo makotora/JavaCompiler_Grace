@@ -32,6 +32,26 @@ public class Function extends Definition {
         return parameters;
     }
 
+    public boolean sameParameters (List<Variable> otherParams)
+    {
+        if (parameters.size() != otherParams.size())
+            return false;
+
+        int i = 0;
+        for (i=0; i<parameters.size(); i++)
+        {
+            Variable par1 = parameters.get(i);
+            Variable par2 = otherParams.get(i);
+
+            if (!par1.getType().equals(par2.getType()))
+                return false;
+            if (!par1.sameDimensions(par2.getDimensions()))
+                return  false;
+        }
+
+        return true;
+    }
+
     @Override
     public String toString()
     {

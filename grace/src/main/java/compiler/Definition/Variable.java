@@ -7,11 +7,33 @@ import java.util.List;
  */
 
 public class Variable extends Definition {
-    private List dimensions;
+    private List<Integer> dimensions;
 
-    public Variable(String id, String type, List dimensions) {
+    public Variable(String id, String type, List<Integer> dimensions) {
         super(id, type);
         this.dimensions = dimensions;
+    }
+
+    public List<Integer> getDimensions() {
+        return dimensions;
+    }
+
+    public boolean sameDimensions(List<Integer> otherDimensions)
+    {
+        if (dimensions.size() != otherDimensions.size())
+            return false;
+
+        int i;
+        for (i=0; i<dimensions.size(); i++)
+        {
+            Integer dim1 = dimensions.get(i);
+            Integer dim2 = otherDimensions.get(i);
+
+            if (dim1 != dim2)
+                return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -20,10 +42,11 @@ public class Variable extends Definition {
         String str = "Variable: " + id + " Type: " + type;
         if(! dimensions.isEmpty())
         {
-            for (Object dimension : dimensions) {
+            for (Integer dimension : dimensions) {
                 str+= "[" + dimension + "]";
             }
         }
         return str;
     }
+
 }
