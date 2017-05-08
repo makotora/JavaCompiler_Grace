@@ -32,7 +32,7 @@ public class SymbolTable {
         if(tmpHash.containsKey(id))
         {
             System.out.println("Variable or Function '" + id + "' is already defined in this scope." );
-            return -1;
+            System.exit(-1);
 
         }
         else
@@ -55,7 +55,7 @@ public class SymbolTable {
             if ( tmpDef instanceof Variable)
             {
                 System.out.printf("Error cannot define function '" + id + "'.There is a variable definition with that id");
-                return  -1;
+                System.exit(-1);
             }
             else
             {
@@ -64,7 +64,7 @@ public class SymbolTable {
                 if (func.isDefinition() == true)
                 {
                     System.out.println("Function : " + id + " is already defined in this scope." );
-                    return  -1;
+                    System.exit(-1);
                 }
                 else
                 {
@@ -77,7 +77,7 @@ public class SymbolTable {
                         else
                         {
                             System.out.println("Function '" + id + "' was declared with different parameters or type");
-                            return  -1;
+                            System.exit(-1);
                         }
                     }
                 }
@@ -85,7 +85,6 @@ public class SymbolTable {
         }
         else
         {
-            System.out.println("PUTTING FUN");
             Definition newFunc = new Function(id, type, parameters, isDefinition);
             tmpHash.put(id, newFunc);
         }
@@ -93,13 +92,17 @@ public class SymbolTable {
         return 0;
     }
 
-    public boolean lookup(String id)
+    public Definition lookup(String id)
     {
-        for (Hashtable hashtable : this.symbolTable) {
+        int i;
+
+        for (i=this.symbolTable.size()-1; i !=0; i--)
+        {
+            Hashtable hashtable = this.symbolTable.get(i);
             if (hashtable.containsKey(id))
-                return true;
+                return (Definition) hashtable.get(id);
         }
-        return false;
+        return null;
     }
 
     public void exit()

@@ -5,6 +5,7 @@ import compiler.analysis.DepthFirstAdapter;
 import compiler.node.*;
 import compiler.SymbolTable.SymbolTable;
 import compiler.Definition.*;
+import compiler.Others.*;
 
 import java.awt.*;
 import java.util.List;
@@ -16,7 +17,22 @@ import java.util.*;
 public class GenericsVisitor extends DepthFirstAdapter {
     private int indent = 0;
     private String indentation = "  ";
+    private Type type = null;
     private SymbolTable symbolTable = new SymbolTable();
+
+    public void visit(Node node)
+    {
+        node.apply(this);
+    }
+
+    private Type getTypeEvaluation(Node node)
+    {
+        visit(node);
+        Type typeEvaluation = this.type;
+        this.type = null;
+        return typeEvaluation;
+    }
+
 
     @Override
     public void inStart(Start node)
@@ -135,5 +151,117 @@ public class GenericsVisitor extends DepthFirstAdapter {
         System.out.println(symbolTable);
 
     }
+
+    public void inAIdLvalue(AIdLvalue node)
+    {
+        Definition definition = symbolTable.lookup(node.getId().getText());
+
+        if (definition != null)
+        {
+            if (definition instanceof Variable)
+            {
+                Variable var = (Variable) definition;
+
+                Integer dimensionNum = var.getDimensions().size();
+                Integer givenDimensions = node.getExpr().size();
+
+                if (dimensionNum != givenDimensions)
+                {
+                    System.out.println("Error.Var '" + node.getId().getText() + "' was defined with " + dimensionNum + " dimensions." +
+                    givenDimensions + " given.");
+                    System.exit(-1);
+                }
+            }
+            else
+            {
+                System.out.println("Error.'" + node.getId().getText() + "' was defined as a function.It's not a variable.");
+                System.exit(-1);
+            }
+        }
+        else
+        {
+            System.out.println("Error.Undefined variable '" + node.getId().getText() + "'");
+            System.exit(-1);
+        }
+    }
+
+    public void inAFuncCall(AFuncCall node)
+    {
+        Definition definition = symbolTable.lookup(node.getId().getText());
+
+        if (definition != null)
+        {
+            if (definition instanceof Function)
+            {
+                Function fun = (Function) definition;
+
+                Integer paramsNum = fun.getParameters().size();
+                Integer givenParams = node.getExpr().size();
+
+                if (paramsNum != givenParams)
+                {
+                    System.out.println("Error.Function '" + node.getId().getText() + "' was defined with " + paramsNum + " parameters." +
+                            givenParams + " given.");
+                    System.exit(-1);
+                }
+            }
+            else
+            {
+                System.out.println("Error.'" + node.getId().getText() + "' was defined as a variable.It's not a function.");
+                System.exit(-1);
+            }
+        }
+        else
+        {
+            System.out.println("Error.Undefined function '" + node.getId().getText() + "'");
+            System.exit(-1);
+        }
+    }
+
+    @Override
+    public void caseAAddExpr(AAddExpr node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Add expressions error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Add expressions error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Error!You can only add integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    public void caseANumberExpr(ANumberExpr node)
+    {
+        this.type = new Type("int");
+        {
+            List<PSign> copy = new ArrayList<PSign>(node.getSign());
+            for(PSign e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getNumber() != null)
+        {
+            node.getNumber().apply(this);
+        }
+    }
+
+
 
 }
