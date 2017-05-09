@@ -12,6 +12,7 @@ fun main (argc : int; ref argv : char[][2]) : int
 	var hanoi : int [5];
 	{
 		y[2][5] <- 2 + 3 + 5 + 6 + 7 + x[2];
+		return;
 	}
 
 
@@ -30,6 +31,8 @@ $$
 	x[5] <- x2 + 1;
 	main('t', 2);
 	x[2] <- hanoi[2];
+	
+	return x[0];
 		
 
 }

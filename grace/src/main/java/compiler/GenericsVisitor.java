@@ -18,6 +18,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     private int indent = 0;
     private String indentation = "  ";
     private Type type = null;
+    private Stack<Type> returnTypes = new Stack();
     private SymbolTable symbolTable = new SymbolTable();
 
     public void visit(Node node)
@@ -56,9 +57,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         LinkedList<PPar> pars = node.getPar();
         
         System.out.println("In a func_def of " + node.getId() + "returning " + node.getRetType());
-        //System.out.println("Local def: " + node.getLocalDef());
-        //System.out.println("Parameters:" + node.getPar());
-        //System.out.println(node.getPar().getFirst().getClass());
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
@@ -87,6 +85,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         }
 
+        returnTypes.push(new Type(node.getRetType().toString().trim()));
         symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, true);
         symbolTable.enter();
         System.out.println(symbolTable);
@@ -95,7 +94,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void outAFuncDef(AFuncDef node)
     {
-       symbolTable.exit();
+        returnTypes.pop();
+        symbolTable.exit();
     }
 
     @Override
@@ -219,7 +219,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 Integer paramsNum = function.getParameters().size();
                 Integer givenParams = node.getExpr().size();
 
-                if (paramsNum != givenParams)
+                if (!paramsNum.equals(givenParams))
                 {
                     System.out.println("Error.Function '" + node.getId().getText() + "' was defined with " + paramsNum + " parameters." +
                             givenParams + " given.");
@@ -389,6 +389,32 @@ public class GenericsVisitor extends DepthFirstAdapter {
         {
             System.out.println("Assignment error!Expecting '" + left.toString() + "' as expression!('" + right + "' given)");
             System.exit(-1);
+        }
+    }
+
+    //a return Expr should return the most resent Return type (saved from the most resent function definition*/
+    @Override
+    public void caseAReturnStatement(AReturnStatement node)
+    {
+        Type retType = null;
+        Type latestReturnType = returnTypes.lastElement();
+
+        if(node.getExpr() != null)
+        {
+            retType = getTypeEvaluation(node.getExpr());
+            if (!retType.sameType(latestReturnType))
+            {
+                System.out.println("Invalid return type!Expecting '" + latestReturnType + "'.(" + retType + " given)");
+                System.exit(-1);
+            }
+        }
+        else //if its a plain 'return' (returns nothing), make sure that the function returns 'nothing'
+        {
+            if (!latestReturnType.getType().equals("nothing"))
+            {
+                System.out.println("Invalid return type!Expecting '" + latestReturnType + "'.You returned nothing!");
+                System.exit(-1);
+            }
         }
     }
 

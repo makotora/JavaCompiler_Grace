@@ -117,6 +117,7 @@ compiler/node/PFuncDef.class
 compiler/node/PLvalue.class
 compiler/Definition/Function.class
 compiler/analysis/ReversedDepthFirstAdapter.class
+compiler/Others/Type.class
 compiler/node/TIf.class
 compiler/node/ANothingRetType.class
 compiler/node/ANumberExpr.class
