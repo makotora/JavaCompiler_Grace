@@ -47,6 +47,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
     }
 
 
+
+    /*HANDLE FUNCTION DEFINITIONS/DECLARATIONS AND VAR DEFINITIONS*/
+    /*Save them (scopes as well) at the symbol table*/
     @Override
     public void inAFuncDef(AFuncDef node)
     {
@@ -101,9 +104,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         LinkedList<PPar> pars = node.getPar();
 
         System.out.println("In a func_decl of " + node.getId() + "returning " + node.getRetType());
-        //System.out.println("Local def: " + node.getLocalDef());
-        //System.out.println("Parameters:" + node.getPar());
-        //System.out.println(node.getPar().getFirst().getClass());
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
@@ -152,50 +152,71 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     }
 
-    public void inAIdLvalue(AIdLvalue node)
+
+    /*DEFINITION CHECKING! WHEN A FUNCTION CALL OCCURS ,OR A VARIABLE (the id of an lvalue) IS USED*/
+    /*Check if the function is defined/declared and if its being called with the right NUMBER of parameters*/
+    /*Check if the variable is defined and if the right number of dimensions is applied*/
+    //AND
+    /*TYPE CHECKING!THIS INCLUDES LOTS OF STUFF LIKE :*/
+    /*checking if a function is called with the right TYPE of parameters*/
+    /*checking if a variables dimensions used are ints!*/
+    /*checking if an expression (e.g plus) is applied to the right type of constants/variables*/
+    /*checking if a condition is valid*/
+
+
+    /*Start with the basic productions*/
+    /*By basic we mean that they are used for the rest expressions as operands*/
+    /*These are: (a)constant numbers (b)constant chars (c)functions (d)variables*/
+    /*we know the type of functions and variables thanks to the symbol table*/
+
+    @Override
+    public void caseANumberExpr(ANumberExpr node)
     {
-        Definition definition = symbolTable.lookup(node.getId().getText());
-
-        if (definition != null)
+        this.type = new Type("int");
         {
-            if (definition instanceof Variable)
+            List<PSign> copy = new ArrayList<PSign>(node.getSign());
+            for(PSign e : copy)
             {
-                Variable var = (Variable) definition;
-
-                Integer dimensionNum = var.getDimensions().size();
-                Integer givenDimensions = node.getExpr().size();
-
-                if (dimensionNum != givenDimensions)
-                {
-                    System.out.println("Error.Var '" + node.getId().getText() + "' was defined with " + dimensionNum + " dimensions." +
-                    givenDimensions + " given.");
-                    System.exit(-1);
-                }
-            }
-            else
-            {
-                System.out.println("Error.'" + node.getId().getText() + "' was defined as a function.It's not a variable.");
-                System.exit(-1);
+                e.apply(this);
             }
         }
-        else
+        if(node.getNumber() != null)
         {
-            System.out.println("Error.Undefined variable '" + node.getId().getText() + "'");
-            System.exit(-1);
+            node.getNumber().apply(this);
         }
     }
 
-    public void inAFuncCall(AFuncCall node)
+    @Override
+    public void caseACharExpr(ACharExpr node)
     {
+        this.type = new Type("char");
+        {
+            List<PSign> copy = new ArrayList<PSign>(node.getSign());
+            for(PSign e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getSingleChar() != null)
+        {
+            node.getSingleChar().apply(this);
+        }
+    }
+
+    @Override
+    public void caseAFuncCall(AFuncCall node)
+    {
+        //check if the function is defined and called with the right number of parameters*/
         Definition definition = symbolTable.lookup(node.getId().getText());
+        Function function = null;
 
         if (definition != null)
         {
             if (definition instanceof Function)
             {
-                Function fun = (Function) definition;
+                function = (Function) definition;
 
-                Integer paramsNum = fun.getParameters().size();
+                Integer paramsNum = function.getParameters().size();
                 Integer givenParams = node.getExpr().size();
 
                 if (paramsNum != givenParams)
@@ -216,8 +237,162 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.out.println("Error.Undefined function '" + node.getId().getText() + "'");
             System.exit(-1);
         }
+
+        if(node.getId() != null)
+        {
+            node.getId().apply(this);
+        }
+
+        List<Variable> definedParams = function.getParameters();
+
+        {
+            //visit every argument given to this function call
+            //check if each one of them is of the correct type depending on this functions definition
+            int i = 0;
+            List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+            for(PExpr e : copy)
+            {
+                Type givenParamType = getTypeEvaluation(e);
+                Variable definedParam = definedParams.get(i);//get respective type of parameter from function definition
+
+                if (!givenParamType.matchesParameter(definedParam))
+                {
+                    System.out.println("Invalid function call of '" + node.getId().getText() +
+                            "'.Expecting '" + definedParam.toString() + "' as parameter in position: " + (i+1) );
+                    System.out.println(givenParamType + " was given.");
+                    System.exit(-1);
+                }
+
+                i++;
+            }
+        }
+
+        //if we are here,the function was called in a correct way
+        this.type = new Type(function.getType());//type of function call (result) is the type of the function
     }
 
+    public void caseAIdLvalue(AIdLvalue node)
+    {
+        //first check if the variable/lvalue is defined and called with a valid number of dimensions
+        Definition definition = symbolTable.lookup(node.getId().getText());
+        Variable var = null;
+        Integer dimensionNum = 0;
+        Integer givenDimensions = 0;
+
+        if (definition != null)
+        {
+            if (definition instanceof Variable)
+            {
+                var = (Variable) definition;
+
+                dimensionNum = var.getDimensions().size();
+                givenDimensions = node.getExpr().size();
+
+                if (dimensionNum < givenDimensions)
+                {
+                    System.out.println("Error.Var '" + node.getId().getText() + "' was defined with " + dimensionNum + " dimensions." +
+                            givenDimensions + " given.");
+                    System.exit(-1);
+                }
+            }
+            else
+            {
+                System.out.println("Error.'" + node.getId().getText() + "' was defined as a function.It's not a variable.");
+                System.exit(-1);
+            }
+        }
+        else
+        {
+            System.out.println("Error.Undefined variable '" + node.getId().getText() + "'");
+            System.exit(-1);
+        }
+
+        //variable is defined and called with the right number of dimensions (not more than those needed)
+        //check for each expression given in dimensions if its an int!
+        if(node.getId() != null)
+        {
+            node.getId().apply(this);
+        }
+        {
+            List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+            for(PExpr e : copy)
+            {
+                Type type = getTypeEvaluation(e);
+
+                if (!type.isInt())
+                {
+                    System.out.println(e.toString());
+                    System.out.println("Error!Expressions for array accessing must be of type 'int'!");
+                }
+            }
+        }
+        //type of variable/id use (result) is the type of the variable (depending of how many dimensions were used*/
+        //the resulting type of an lvalue depends on the number of dimensions given and the dimension themselfs
+        //to explain what I am doing below consider the following example.
+
+        //if a variable x is defined as follows:
+        // var x : int[5][10];
+        //then :
+        // x is of type int[5][10]
+        // x[2] is of type int[10]
+        // x[2][0] is of type int
+
+        //dimensions given are less then the total dimensions
+        if (givenDimensions < dimensionNum)
+        {
+            List<Integer> dimensions = var.getDimensions();
+            List<Integer> dimensionsUnused = new ArrayList();
+
+            Integer unusedNum = dimensionNum - givenDimensions;
+            Integer totalDimensions = dimensions.size();
+            int i;
+
+            for (i = unusedNum - 1; i<totalDimensions; i++)
+                dimensionsUnused.add(dimensions.get(i));
+
+            this.type = new Type(var.getType(), dimensionsUnused);
+        }
+        else//all dimensions given
+        {
+            this.type = new Type(var.getType());
+        }
+
+    }
+
+    //the right part of an assignment should be the same type as the left part
+    @Override
+    public void caseAAssignmentStatement(AAssignmentStatement node)
+    {
+        Type left = null;
+        Type right = null;
+
+        if(node.getLvalue() != null)
+        {
+            left = getTypeEvaluation(node.getLvalue());
+        }
+        else
+        {
+            System.out.println("Assignment left is null error!");
+            System.exit(-1);
+        }
+        if(node.getExpr() != null)
+        {
+            right = getTypeEvaluation(node.getExpr());
+        }
+        else
+        {
+            System.out.println("Assignment right is null error!");
+            System.exit(-1);
+        }
+
+        if (!left.sameType(right))
+        {
+            System.out.println("Assignment error!Expecting '" + left.toString() + "' as expression!('" + right + "' given)");
+            System.exit(-1);
+        }
+    }
+
+    /*Make sure that 'math' things (e.g addition) are being done between the right type of 'nodes' (ints)*/
     @Override
     public void caseAAddExpr(AAddExpr node)
     {
@@ -226,12 +401,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         if (left == null)
         {
-            System.out.println("Add expressions error.Left part is null!");
+            System.out.println("Add expression error.Left part is null!");
             System.exit(-1);
         }
         else if (right == null)
         {
-            System.out.println("Add expressions error.Right part is null!");
+            System.out.println("Add expression error.Right part is null!");
             System.exit(-1);
         }
         else
@@ -246,22 +421,117 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
     }
 
-    public void caseANumberExpr(ANumberExpr node)
+    @Override
+    public void caseASubExpr(ASubExpr node)
     {
-        this.type = new Type("int");
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
         {
-            List<PSign> copy = new ArrayList<PSign>(node.getSign());
-            for(PSign e : copy)
-            {
-                e.apply(this);
-            }
+            System.out.println("Subtract expression error.Left part is null!");
+            System.exit(-1);
         }
-        if(node.getNumber() != null)
+        else if (right == null)
         {
-            node.getNumber().apply(this);
+            System.out.println("Subtract expression error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Error!You can only subtract integers!");
+                System.exit(-1);
+            }
         }
     }
 
+    @Override
+    public void caseAMultExpr(AMultExpr node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Multiplication expression error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Multiplication expression error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Error!You can only multiply integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    public void caseADivExpr(ADivExpr node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Division expression error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Division expression error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Error!You can only divide integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    public void caseAModExpr(AModExpr node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Mod expression error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Mod expression error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Error!You can only mod integers!");
+                System.exit(-1);
+            }
+        }
+    }
 
 
 }

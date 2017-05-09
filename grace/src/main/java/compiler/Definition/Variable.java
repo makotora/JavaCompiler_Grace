@@ -29,7 +29,9 @@ public class Variable extends Definition {
             Integer dim1 = dimensions.get(i);
             Integer dim2 = otherDimensions.get(i);
 
-            if (dim1 != dim2)
+            //if dim1*dim2 is 0,then at least one of them is 0
+            //if one of them is 0 than the dimensions match
+            if (dim1*dim2 != 0 && dim1 != dim2)
                 return false;
         }
 
@@ -39,7 +41,7 @@ public class Variable extends Definition {
     @Override
     public String toString()
     {
-        String str = "Variable: " + id + " Type: " + type;
+        String str = type;
         if(! dimensions.isEmpty())
         {
             for (Integer dimension : dimensions) {
