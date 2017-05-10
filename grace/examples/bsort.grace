@@ -27,12 +27,13 @@ fun main () : nothing
    }
 
    fun putArray (ref msg : char[]; n : int; ref x : int[]) : nothing
-      var i : int
+      var i : int;
    {
       puts(msg);
       i <- 0;
       while i < n do {
-        if i > 0 then writeString(", ");
+        if i > 0 then $writeString(", ");
+		puts(", ");
         puti(x[i]);
         i <- i+1;
       }

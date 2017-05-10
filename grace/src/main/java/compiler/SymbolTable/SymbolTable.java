@@ -37,7 +37,27 @@ public class SymbolTable {
         }
         else
         {
-            Definition newVar = new Variable(id, type, dimensions);
+            Definition newVar = new Variable(id, type, dimensions, false, false);
+            tmpHash.put(id, newVar);
+        }
+
+        return 0;
+    }
+
+    public int insertAParameter(String id, String type, List<Integer> dimensions, boolean isReference)
+    {
+        id = id.trim();
+        type = type.trim();
+        Hashtable tmpHash = this.symbolTable.lastElement();
+        if(tmpHash.containsKey(id))
+        {
+            System.out.println("Variable or Function '" + id + "' is already defined in this scope." );
+            System.exit(-1);
+
+        }
+        else
+        {
+            Definition newVar = new Variable(id, type, dimensions, true, isReference);
             tmpHash.put(id, newVar);
         }
 
@@ -96,7 +116,7 @@ public class SymbolTable {
     {
         int i;
 
-        for (i=this.symbolTable.size()-1; i !=0; i--)
+        for (i=this.symbolTable.size()-1; i>-1; i--)
         {
             Hashtable hashtable = this.symbolTable.get(i);
             if (hashtable.containsKey(id))

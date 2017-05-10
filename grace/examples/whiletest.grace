@@ -28,10 +28,9 @@ multiple
 comment
 $$
 
-	x[5] <- x2 + 1;
+	x[2] <- x2 + 1;
 	main('t', 2);
 	x[2] <- hanoi[2];
-	
 	return x[0];
 		
 

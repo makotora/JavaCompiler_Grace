@@ -8,10 +8,23 @@ import java.util.List;
 
 public class Variable extends Definition {
     private List<Integer> dimensions;
+    private boolean isAParameter;
+    private boolean isReference;
 
-    public Variable(String id, String type, List<Integer> dimensions) {
+    public boolean isAParameter() {
+        return isAParameter;
+    }
+
+    public boolean isReference() {
+        return isReference;
+    }
+
+    public Variable(String id, String type, List<Integer> dimensions, boolean isAParameter, boolean isReference) {
         super(id, type);
         this.dimensions = dimensions;
+        this.isAParameter = isAParameter;
+        this.isReference = isReference;
+
     }
 
     public List<Integer> getDimensions() {
@@ -31,8 +44,8 @@ public class Variable extends Definition {
 
             //if dim1*dim2 is 0,then at least one of them is 0
             //if one of them is 0 than the dimensions match
-            if (dim1*dim2 != 0 && dim1 != dim2)
-                return false;
+//            if (dim1*dim2 != 0 && dim1 != dim2)
+//                return false;
         }
 
         return true;

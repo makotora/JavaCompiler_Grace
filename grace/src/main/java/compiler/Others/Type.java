@@ -47,7 +47,7 @@ public class Type
     public boolean matchesParameter(Variable variable)
     {
         //'ref int' parameter should accept 'int' (and 'ref char' should accept 'char'
-        if (variable.getType().equals(type) || variable.getType().equals("ref " + type))
+        if (variable.getType().equals(type))
         {
             if (dimensions == null)//if this instance 'Type' has no dimensions
             {

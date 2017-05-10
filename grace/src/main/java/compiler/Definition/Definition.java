@@ -14,7 +14,12 @@ abstract public class Definition {
         this.type = type.trim();
     }
 
+    public String getId() {
+        return id;
+    }
+
     public String getType() {
+
         return type;
     }
 }

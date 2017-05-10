@@ -38,13 +38,122 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void inStart(Start node)
     {
+        //create the first scope (for or main func to be defined in
         symbolTable.enter();
+
+        //define grace's standard functions
+        List<Variable> params;
+        List<Integer> dimensions;
+
+        //puti
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        params.add(new Variable("n", "int", dimensions, true, false));
+        symbolTable.insertAFunction("puti", "nothing", params, true);
+
+        //putc
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        params.add(new Variable("c", "char", dimensions, true, false));
+        symbolTable.insertAFunction("putc", "nothing", params, true);
+
+        //puts
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("s", "char", dimensions, true, true));
+        symbolTable.insertAFunction("puts", "nothing", params, true);
+
+        //geti
+        params = new ArrayList();
+        symbolTable.insertAFunction("geti", "int", params, true);
+
+        //getc
+        params = new ArrayList();
+        symbolTable.insertAFunction("getc", "char", params, true);
+
+        //gets
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        params.add(new Variable("n", "int", dimensions, true, false));
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("s", "char", dimensions, true, true));
+        symbolTable.insertAFunction("gets", "nothing", params, true);
+
+        //abs
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        params.add(new Variable("n", "int", dimensions, true, false));
+        symbolTable.insertAFunction("abs", "int", params, true);
+
+        //ord
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        params.add(new Variable("c", "char", dimensions, true, false));
+        symbolTable.insertAFunction("ord", "int", params, true);
+
+        //chr
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        params.add(new Variable("n", "int", dimensions, true, false));
+        symbolTable.insertAFunction("chr", "char", params, true);
+
+        //strlen
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("s", "char", dimensions, true, true));
+        symbolTable.insertAFunction("strlen", "int", params, true);
+
+        //strcmp
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("s1", "char", dimensions, true, true));
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("s2", "char", dimensions, true, true));
+        symbolTable.insertAFunction("strcmp", "int", params, true);
+
+        //strcpy
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("trg", "char", dimensions, true, true));
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("src", "char", dimensions, true, true));
+        symbolTable.insertAFunction("strcpy", "nothing", params, true);
+
+        //strcat
+        params = new ArrayList();
+
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("trg", "char", dimensions, true, true));
+        dimensions = new ArrayList();
+        dimensions.add(0);
+        params.add(new Variable("src", "char", dimensions, true, true));
+        symbolTable.insertAFunction("strcat", "nothing", params, true);
+
+
     }
 
     @Override
     public void outStart(Start node)
     {
-        symbolTable.exit();
+            symbolTable.exit();
     }
 
 
@@ -55,8 +164,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     public void inAFuncDef(AFuncDef node)
     {
         LinkedList<PPar> pars = node.getPar();
-        
-        System.out.println("In a func_def of " + node.getId() + "returning " + node.getRetType());
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
@@ -65,8 +172,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
         for (PPar pPar : pars) {
              tmpParameter = (APar) pPar;
              String type = tmpParameter.getType().toString().trim();
+             boolean isReference;
+
              if (tmpParameter.getRef() != null)
-                 type = "ref " + type;
+                 isReference = true;
+             else
+                 isReference = false;
 
              List<Integer> dimensionList = new ArrayList();
 
@@ -80,15 +191,22 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
 
             for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString(), type, dimensionList));
+                variableList.add(new Variable(tId.toString(), type, dimensionList, true, isReference));
              }
 
         }
 
         returnTypes.push(new Type(node.getRetType().toString().trim()));
+        //define function
         symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, true);
         symbolTable.enter();
-        System.out.println(symbolTable);
+        //define the functions parameters inside the scope of the function
+        int i;
+        for (i=0; i<variableList.size(); i++)
+        {
+            Variable var = variableList.get(i);
+            symbolTable.insertAParameter(var.getId(), var.getType(), var.getDimensions(), var.isReference());
+        }
     }
 
     @Override
@@ -103,16 +221,18 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         LinkedList<PPar> pars = node.getPar();
 
-        System.out.println("In a func_decl of " + node.getId() + "returning " + node.getRetType());
-
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
 
         for (PPar pPar : pars) {
             tmpParameter = (APar) pPar;
             String type = tmpParameter.getType().toString().trim();
+            boolean isReference;
+
             if (tmpParameter.getRef() != null)
-                type = "ref " + type;
+                isReference = true;
+            else
+                isReference = false;
 
             List<Integer> dimensionList = new ArrayList();
 
@@ -126,13 +246,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
 
             for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString(), type, dimensionList));
+                variableList.add(new Variable(tId.toString(), type, dimensionList, true, isReference));
             }
 
         }
 
         symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, false);
-        System.out.println(symbolTable);
     }
 
     public void inAVarDef(AVarDef node) {
@@ -148,7 +267,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         for (TId tId : node.getId()) {
             symbolTable.insertAVariable(tId.toString(), type, dimensionList);
         }
-        System.out.println(symbolTable);
 
     }
 
@@ -250,6 +368,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
             //check if each one of them is of the correct type depending on this functions definition
             int i = 0;
             List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+
             for(PExpr e : copy)
             {
                 Type givenParamType = getTypeEvaluation(e);
@@ -265,6 +384,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
                 i++;
             }
+
         }
 
         //if we are here,the function was called in a correct way
@@ -358,6 +478,43 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
     }
+
+
+    @Override
+    public void caseAStringLvalue(AStringLvalue node)
+    {
+        inAStringLvalue(node);
+        Integer dimensionsGiven;
+        if(node.getString() != null)
+        {
+            node.getString().apply(this);
+        }
+        {
+            List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+            dimensionsGiven =  copy.size();
+
+            if (dimensionsGiven > 1)
+            {
+                System.out.println("Error.A string only has one dimension to access!");
+            }
+            for(PExpr e : copy)
+            {
+                e.apply(this);
+            }
+        }
+
+        if (dimensionsGiven == 0)
+        {
+            List<Integer> dimensions = new ArrayList();
+            dimensions.add(0);
+            this.type = new Type("char", dimensions);
+        }
+        else//one dimension given
+        {
+            this.type = new Type("char");
+        }
+    }
+
 
     //the right part of an assignment should be the same type as the left part
     @Override
@@ -554,6 +711,176 @@ public class GenericsVisitor extends DepthFirstAdapter {
             else
             {
                 System.out.println("Error!You can only mod integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    /*Make sure that comparisions (e.g >=) are being done between the right type of 'nodes' (ints)*/
+    @Override
+    public void caseAEqCond(AEqCond node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Equal condition error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Equal condition error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Equal condition error!You can only compare integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    public void caseANeqCond(ANeqCond node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Not equal condition error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Not equal condition error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Not equal condition error!You can only compare integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    public void caseALeqCond(ALeqCond node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Less equal condition error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Less equal condition error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Less equal condition error!You can only compare integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    public void caseAGeqCond(AGeqCond node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Greater equal condition error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Greater equal condition error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Greater equal condition error!You can only compare integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+
+    @Override
+    public void caseALtCond(ALtCond node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Less than condition error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Less than condition error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Less than condition error!You can only compare integers!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    @Override
+    public void caseAGtCond(AGtCond node)
+    {
+        Type left = getTypeEvaluation(node.getLeft());
+        Type right = getTypeEvaluation(node.getRight());
+
+        if (left == null)
+        {
+            System.out.println("Greater than condition error.Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("Greater than condition error.Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (left.isInt() && right.isInt())
+                this.type = left;//result is also an int
+            else
+            {
+                System.out.println("Greater than condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
