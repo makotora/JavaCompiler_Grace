@@ -96,9 +96,9 @@ public class Type
             }
             else
             {
-                if (dimensions == otherType.dimensions)//if they are both not null check if they are the same
+                if (dimensions != null && otherType.dimensions != null)//if they are both not null check if they are the same
                 {
-                    if (dimensions.equals(otherType.dimensions))
+                    if (dimensions.size() == otherType.dimensions.size())
                         return true;
                     else
                         return  false;

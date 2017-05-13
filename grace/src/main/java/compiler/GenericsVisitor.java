@@ -287,90 +287,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     /*Start with the basic productions*/
     /*By basic we mean that they are used for the rest expressions as operands*/
-    /*These are: (a)constant numbers (b)constant chars (c)functions (d)variables*/
+    /*These are: function_calls and variables aka lvalues*/
     /*we know the type of functions and variables thanks to the symbol table*/
-
-    @Override
-    public void caseASignedExpr(ASignedExpr node) {
-        System.out.println("edwwwwwwwwwww\n\n");
-        inASignedExpr(node);
-        {
-            List<PSign> copy = new ArrayList<PSign>(node.getSign());
-            int minuses = 0;
-            for (PSign e : copy) {
-                if (e instanceof compiler.node.ANegativeSign)
-                    minuses++;
-
-                e.apply(this);
-            }
-            if (minuses % 2 != 0) {
-                quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
-                String zero = "$" + tmpVars;
-                String num = "$" + (tmpVars - 1);
-                tmpVars++;
-
-                quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
-                tmpVars++;
-            }
-
-        }
-        if (node.getExpr() != null) {
-            node.getExpr().apply(this);
-        }
-        outASignedExpr(node);
-    }
-
-    @Override
-    public void caseANumberExpr(ANumberExpr node)
-    {
-        this.type = new Type("int", "$" + tmpVars);
-        quads.add(new Quadruple("load", node.getNumber().toString(), null, "$" + tmpVars));
-        tmpVars++;
-//        System.out.println("made a new tmpVar = $"+tmpVars);
-        {
-            List<PSign> copy = new ArrayList<PSign>(node.getSign());
-            int minuses = 0;
-            for(PSign e : copy)
-            {
-                if (e instanceof compiler.node.ANegativeSign)
-                    minuses++;
-                e.apply(this);
-            }
-            if (minuses % 2 != 0) {
-                quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
-                String zero = "$" + tmpVars;
-                String num = "$" + (tmpVars - 1);
-                tmpVars++;
-
-                quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
-                tmpVars++;
-            }
-        }
-        if(node.getNumber() != null)
-        {
-            node.getNumber().apply(this);
-        }
-    }
-
-    @Override
-    public void caseACharExpr(ACharExpr node)
-    {
-        this.type = new Type("char", "$" + tmpVars);
-        quads.add(new Quadruple("load", node.toString(), null, "$" + tmpVars));
-        tmpVars++;
-
-        {
-            List<PSign> copy = new ArrayList<PSign>(node.getSign());
-            for(PSign e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        if(node.getSingleChar() != null)
-        {
-            node.getSingleChar().apply(this);
-        }
-    }
 
     @Override
     public void caseAFuncCall(AFuncCall node)
@@ -529,7 +447,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     }
 
-
     @Override
     public void caseAStringLvalue(AStringLvalue node)
     {
@@ -562,6 +479,192 @@ public class GenericsVisitor extends DepthFirstAdapter {
         else//one dimension given
         {
             this.type = new Type("char");
+        }
+    }
+
+
+    /*Expressions start here*/
+
+    @Override
+    public void caseANumberExpr(ANumberExpr node)
+    {
+        this.type = new Type("int", "$" + tmpVars);
+        quads.add(new Quadruple("load", node.getNumber().getText(), null, "$" + tmpVars));
+        tmpVars++;
+//        System.out.println("made a new tmpVar = $"+tmpVars);
+        {
+            List<PSign> copy = new ArrayList<PSign>(node.getSign());
+            int minuses = 0;
+            for(PSign e : copy)
+            {
+                if (e instanceof compiler.node.ANegativeSign)
+                    minuses++;
+                e.apply(this);
+            }
+            if (minuses % 2 != 0) {
+                quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
+                String zero = "$" + tmpVars;
+                String num = "$" + (tmpVars - 1);
+                tmpVars++;
+
+                quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
+                tmpVars++;
+            }
+        }
+        if(node.getNumber() != null)
+        {
+            node.getNumber().apply(this);
+        }
+    }
+
+    @Override
+    public void caseACharExpr(ACharExpr node)
+    {
+        this.type = new Type("char", "$" + tmpVars);
+        quads.add(new Quadruple("load", node.toString(), null, "$" + tmpVars));
+        tmpVars++;
+
+        if(node.getSingleChar() != null)
+        {
+            node.getSingleChar().apply(this);
+        }
+    }
+
+    @Override
+    public void caseAFcallExpr(AFcallExpr node) {
+        Type type = getTypeEvaluation(node.getFuncCall());
+        if (node.getSign().size() != 0) {
+            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
+            {
+                System.out.println("Error!You can only put a sign in front of an 'int'!");
+                System.exit(-1);
+            } else {
+                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+                quads.add(new Quadruple("load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
+                tmpVars++;
+//        System.out.println("made a new tmpVar = $"+tmpVars);
+                {
+                    List<PSign> copy = new ArrayList<PSign>(node.getSign());
+                    int minuses = 0;
+                    for (PSign e : copy) {
+                        if (e instanceof compiler.node.ANegativeSign)
+                            minuses++;
+                        e.apply(this);
+                    }
+                    if (minuses % 2 != 0) {
+                        quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
+                        String zero = "$" + tmpVars;
+                        String num = "$" + (tmpVars - 1);
+                        tmpVars++;
+
+                        quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
+                        tmpVars++;
+                    }
+                }
+            }
+        }
+        else
+        {
+            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+            quads.add(new Quadruple("load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
+            tmpVars++;
+        }
+    }
+
+    @Override
+    public void caseALvalueExpr(ALvalueExpr node) {
+        this.inALvalueExpr(node);
+        Type type = getTypeEvaluation(node.getLvalue());
+        if (node.getSign().size() != 0)
+        {
+            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
+            {
+                System.out.println("Error!You can only put a sign in front of an 'int'!");
+                System.exit(-1);
+            }
+            else
+            {
+                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+                quads.add(new Quadruple("load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
+                tmpVars++;
+//        System.out.println("made a new tmpVar = $"+tmpVars);
+                {
+                    List<PSign> copy = new ArrayList<PSign>(node.getSign());
+                    int minuses = 0;
+                    for(PSign e : copy)
+                    {
+                        if (e instanceof compiler.node.ANegativeSign)
+                            minuses++;
+                        e.apply(this);
+                    }
+                    if (minuses % 2 != 0) {
+                        quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
+                        String zero = "$" + tmpVars;
+                        String num = "$" + (tmpVars - 1);
+                        tmpVars++;
+
+                        quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
+                        tmpVars++;
+                    }
+                }
+            }
+        }
+        else
+        {
+            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+            quads.add(new Quadruple("load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
+            tmpVars++;
+        }
+
+
+        this.outALvalueExpr(node);
+    }
+
+
+    @Override
+    public void caseASignedExpr(ASignedExpr node) {
+        System.out.println("edwwwwwwwwwww\n\n");
+        Type type = getTypeEvaluation(node.getExpr());
+
+        if (node.getSign().size() != 0)
+        {
+            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
+            {
+                System.out.println("Error!You can only put a sign in front of an 'int'!");
+                System.exit(-1);
+            }
+            else
+            {
+                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+                quads.add(new Quadruple("load", node.getExpr().toString().trim(), null, "$" + tmpVars));
+                tmpVars++;
+                {
+                    List<PSign> copy = new ArrayList<PSign>(node.getSign());
+                    int minuses = 0;
+                    for (PSign e : copy) {
+                        if (e instanceof compiler.node.ANegativeSign)
+                            minuses++;
+
+                        e.apply(this);
+                    }
+                    if (minuses % 2 != 0) {
+                        quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
+                        String zero = "$" + tmpVars;
+                        String num = "$" + (tmpVars - 1);
+                        tmpVars++;
+
+                        quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
+                        tmpVars++;
+                    }
+
+                }
+            }
+        }
+        else
+        {
+            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+            quads.add(new Quadruple("load", node.getExpr().toString().trim(), null, "$" + tmpVars));
+            tmpVars++;
         }
     }
 
@@ -800,7 +903,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.out.println("Error!You can only mod integers!");
                 System.exit(-1);
             }
-            quads.add(new Quadruple("div", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
+            quads.add(new Quadruple("mod", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
             tmpVars++;
 
         }

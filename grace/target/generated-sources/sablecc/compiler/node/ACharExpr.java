@@ -2,13 +2,11 @@
 
 package compiler.node;
 
-import java.util.*;
 import compiler.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ACharExpr extends PExpr
 {
-    private final LinkedList<PSign> _sign_ = new LinkedList<PSign>();
     private TSingleChar _singleChar_;
 
     public ACharExpr()
@@ -17,12 +15,9 @@ public final class ACharExpr extends PExpr
     }
 
     public ACharExpr(
-        @SuppressWarnings("hiding") List<PSign> _sign_,
         @SuppressWarnings("hiding") TSingleChar _singleChar_)
     {
         // Constructor
-        setSign(_sign_);
-
         setSingleChar(_singleChar_);
 
     }
@@ -31,33 +26,12 @@ public final class ACharExpr extends PExpr
     public Object clone()
     {
         return new ACharExpr(
-            cloneList(this._sign_),
             cloneNode(this._singleChar_));
     }
 
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseACharExpr(this);
-    }
-
-    public LinkedList<PSign> getSign()
-    {
-        return this._sign_;
-    }
-
-    public void setSign(List<PSign> list)
-    {
-        this._sign_.clear();
-        this._sign_.addAll(list);
-        for(PSign e : list)
-        {
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-        }
     }
 
     public TSingleChar getSingleChar()
@@ -89,7 +63,6 @@ public final class ACharExpr extends PExpr
     public String toString()
     {
         return ""
-            + toString(this._sign_)
             + toString(this._singleChar_);
     }
 
@@ -97,11 +70,6 @@ public final class ACharExpr extends PExpr
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._sign_.remove(child))
-        {
-            return;
-        }
-
         if(this._singleChar_ == child)
         {
             this._singleChar_ = null;
@@ -115,24 +83,6 @@ public final class ACharExpr extends PExpr
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PSign> i = this._sign_.listIterator(); i.hasNext();)
-        {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PSign) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
         if(this._singleChar_ == oldChild)
         {
             setSingleChar((TSingleChar) newChild);

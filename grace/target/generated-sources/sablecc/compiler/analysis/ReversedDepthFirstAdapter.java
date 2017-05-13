@@ -790,14 +790,6 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getSingleChar().apply(this);
         }
-        {
-            List<PSign> copy = new ArrayList<PSign>(node.getSign());
-            Collections.reverse(copy);
-            for(PSign e : copy)
-            {
-                e.apply(this);
-            }
-        }
         outACharExpr(node);
     }
 

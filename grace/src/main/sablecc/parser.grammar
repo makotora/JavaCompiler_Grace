@@ -174,7 +174,7 @@ Productions
          |{mod} [left]:term mod [right]:fact {-> New expr.mod(left.expr, right.expr)};
     
     fact {-> expr} = {number} sign_list? number {-> New expr.number([sign_list.sign], number)}
-         | {char} sign_list? single_char {-> New expr.char([sign_list.sign], single_char)}
+         | {char} single_char {-> New expr.char(single_char)}
          | {fcall} sign_list? func_call {-> New expr.fcall([sign_list.sign], func_call)}
          | {lval} sign_list? lvalue {-> New expr.lvalue([sign_list.sign], lvalue)}
          | {paren} sign_list? lpar expr rpar {-> New expr.signed([sign_list.sign], expr.expr)};
@@ -299,7 +299,7 @@ Abstract Syntax Tree
      | {div}  [left]:expr [right]:expr
      | {mod}  [left]:expr [right]:expr
      | {number} sign* number
-     | {char} sign* single_char
+     | {char} single_char
      | {fcall} sign* func_call
      | {lvalue} sign* lvalue
      | {signed} sign* expr;

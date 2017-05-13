@@ -774,13 +774,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseACharExpr(ACharExpr node)
     {
         inACharExpr(node);
-        {
-            List<PSign> copy = new ArrayList<PSign>(node.getSign());
-            for(PSign e : copy)
-            {
-                e.apply(this);
-            }
-        }
         if(node.getSingleChar() != null)
         {
             node.getSingleChar().apply(this);
