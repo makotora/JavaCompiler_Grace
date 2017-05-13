@@ -8,10 +8,30 @@ public class Type
     private String type;
     private List<Integer> dimensions;
 
-    public Type(String type, List<Integer> dimensions)
-    {
+    private String tempVar;
+
+    public Type(String type, List<Integer> dimensions, String tempVar) {
         this.type = type;
         this.dimensions = dimensions;
+        this.tempVar = tempVar;
+    }
+
+    public Type(String type, List<Integer> dimensions)
+    {
+
+        this.type = type;
+        this.dimensions = dimensions;
+    }
+
+    public Type(String type) {
+        this.type = type;
+        this.dimensions = null;
+    }
+
+    public Type(String type, String tempVar) {
+
+        this.type = type;
+        this.tempVar = tempVar;
     }
 
     public String getType() {
@@ -20,12 +40,6 @@ public class Type
 
     public List<Integer> getDimensions() {
         return dimensions;
-    }
-
-    public Type(String type)
-    {
-        this.type = type;
-        this.dimensions = null;
     }
 
     public boolean isInt()
@@ -109,5 +123,13 @@ public class Type
             }
         }
         return str;
+    }
+
+    public String getTempVar() {
+        return tempVar;
+    }
+
+    public void setTempVar(String tempVar) {
+        this.tempVar = tempVar;
     }
 }
