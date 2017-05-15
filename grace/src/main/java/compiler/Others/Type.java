@@ -9,11 +9,32 @@ public class Type
     private List<Integer> dimensions;
 
     private String tempVar;
+    private boolean isArray;
 
     public Type(String type, List<Integer> dimensions, String tempVar) {
         this.type = type;
         this.dimensions = dimensions;
         this.tempVar = tempVar;
+        this.isArray = false;
+    }
+
+    public boolean isArray() {
+        return isArray;
+    }
+
+    public Type(String type, String tempVar, boolean isArray) {
+
+        this.type = type;
+        this.tempVar = tempVar;
+        this.isArray = isArray;
+    }
+
+    public Type(String type, List<Integer> dimensions, String tempVar, boolean isArray) {
+
+        this.type = type;
+        this.dimensions = dimensions;
+        this.tempVar = tempVar;
+        this.isArray = isArray;
     }
 
     public Type(String type, List<Integer> dimensions)
@@ -21,17 +42,22 @@ public class Type
 
         this.type = type;
         this.dimensions = dimensions;
+        this.isArray = false;
+
     }
 
     public Type(String type) {
         this.type = type;
         this.dimensions = null;
+        this.isArray = false;
+
     }
 
     public Type(String type, String tempVar) {
-
         this.type = type;
         this.tempVar = tempVar;
+        this.isArray = false;
+
     }
 
     public String getType() {
@@ -60,7 +86,7 @@ public class Type
 
     public boolean matchesParameter(Variable variable)
     {
-        //'ref int' parameter should accept 'int' (and 'ref char' should accept 'char'
+        //'ref int' parameter should accept 'int' (and 'ref char' should accept 'char')
         if (variable.getType().equals(type))
         {
             if (dimensions == null)//if this instance 'Type' has no dimensions

@@ -6,23 +6,27 @@ import javax.print.DocFlavor;
  * Created by valyo95 on 12/5/2017.
  */
 public class Quadruple {
+    int num;
     String op;
     String arg1;
     String arg2;
     String result;
 
-    public Quadruple(String op, String arg1, String arg2, String result) {
+
+    public Quadruple(int num, String op, String arg1, String arg2, String result) {
+        this.num = num;
         this.op = op;
         this.arg1 = arg1;
         this.arg2 = arg2;
         this.result = result;
-        System.out.println(this);
+        System.out.println(this );
     }
 
     @Override
     public String toString() {
         return "Quadruple{" +
-                "op='" + op + '\'' +
+                "num=" + num +
+                ", op='" + op + '\'' +
                 ", arg1='" + arg1 + '\'' +
                 ", arg2='" + arg2 + '\'' +
                 ", result='" + result + '\'' +

@@ -342,13 +342,66 @@ public class GenericsVisitor extends DepthFirstAdapter {
             {
                 Type givenParamType = getTypeEvaluation(e);
                 Variable definedParam = definedParams.get(i);//get respective type of parameter from function definition
+                String definedType;
+                if (definedParam.isReference())
+                    definedType = "ref " + definedParam.getType();
+                else
+                    definedType = definedParam.getType();
 
                 if (!givenParamType.matchesParameter(definedParam))
                 {
                     System.out.println("Invalid function call of '" + node.getId().getText() +
-                            "'.Expecting '" + definedParam.toString() + "' as parameter in position: " + (i+1) );
+                            "'.Expecting '" + definedType + "' as parameter in position: " + (i+1) );
                     System.out.println(givenParamType + " was given.");
                     System.exit(-1);
+                }
+                //DETAIL! If function is expecting a reference.we need to make sure that the passed parameter is a variable
+                //make sure that the caller passes an lvalue
+                if ( definedParam.isReference()) {
+                    if (!(e instanceof ALvalueExpr)) {
+                        System.out.println("Invalid function call of '" + node.getId().getText() +
+                                "'.Expecting '" + definedType + "' as parameter in position: " + (i + 1));
+                        System.out.println("Ref expects an lvalue,not an expression! ('" + e.toString().trim() + "')"); 
+                        System.exit(-1);
+                    }
+                }
+
+                //if function is not expecting an array
+                if (definedParam.getDimensions().size() == 0)
+                {
+                    String par;
+                    if (definedParam.isReference())
+                    {
+                        if (givenParamType.isArray()) //if we already have and address (due to array quadaple)
+                        {
+                            par = givenParamType.getTempVar();
+                        }
+                        else //if we have a value, we need the address {} of that variable
+                        {
+                            par = "{" + givenParamType.getTempVar() + "}";
+                        }
+
+                        quads.add(new Quadruple(quads.size() + 1, "par", par, "R", null));
+                    }
+                    else
+                    {
+
+                        if (givenParamType.isArray()) //if we have an address we need the content
+                        {
+                            par = "[" + givenParamType.getTempVar() + "]";
+                        }
+                        else //if we already have a "value"
+                        {
+                            par = givenParamType.getTempVar();
+                        }
+                        quads.add(new Quadruple(quads.size() + 1, "par", par, "V", null));
+                    }
+                }
+                else //if function is expecting an array ALWAYS pass by reference
+                {
+                    String par = givenParamType.getTempVar();
+
+                    quads.add(new Quadruple(quads.size() + 1, "par", par, "R", null));
                 }
 
                 i++;
@@ -362,12 +415,18 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     public void caseAIdLvalue(AIdLvalue node)
     {
+        boolean isArray = false;
         //first check if the variable/lvalue is defined and called with a valid number of dimensions
         Definition definition = symbolTable.lookup(node.getId().getText());
         Variable var = null;
         Integer dimensionNum = 0;
         Integer givenDimensions = 0;
+/*
 
+        System.out.println("idLvalue");
+        System.out.println(node.getId());
+        System.out.println(node.getExpr());
+*/
         if (definition != null)
         {
             if (definition instanceof Variable)
@@ -398,15 +457,31 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         //variable is defined and called with the right number of dimensions (not more than those needed)
         //check for each expression given in dimensions if its an int!
+        String tmpVar = node.getId().toString().trim();
         if(node.getId() != null)
         {
             node.getId().apply(this);
         }
         {
             List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+
             for(PExpr e : copy)
             {
+                isArray = true;
                 Type type = getTypeEvaluation(e);
+                String tmpVar2;
+                if (type.isArray())
+                {
+                    tmpVar2 = "[" + type.getTempVar() + "]";
+                }
+                else
+                {
+                    tmpVar2 = type.getTempVar();
+                }
+
+                quads.add(new Quadruple(quads.size() + 1, "array", tmpVar, tmpVar2, "$" + tmpVars));
+                tmpVar = "$" + tmpVars;
+                tmpVars++;
 
                 if (!type.isInt())
                 {
@@ -438,11 +513,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
             for (i = givenDimensions; i < totalDimensions; i++)
                 dimensionsUnused.add(dimensions.get(i));
 
-            this.type = new Type(var.getType(), dimensionsUnused);
+            this.type = new Type(var.getType(), dimensionsUnused, tmpVar, isArray);
         }
         else//all dimensions given
         {
-            this.type = new Type(var.getType());
+            this.type = new Type(var.getType(), tmpVar, isArray);
         }
 
     }
@@ -488,26 +563,21 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void caseANumberExpr(ANumberExpr node)
     {
-        this.type = new Type("int", "$" + tmpVars);
-        quads.add(new Quadruple("load", node.getNumber().getText(), null, "$" + tmpVars));
-        tmpVars++;
-//        System.out.println("made a new tmpVar = $"+tmpVars);
+        String tmpVar = node.getNumber().getText();
         {
             List<PSign> copy = new ArrayList<PSign>(node.getSign());
             int minuses = 0;
             for(PSign e : copy)
             {
-                if (e instanceof compiler.node.ANegativeSign)
+                if (e instanceof compiler.node.ANegativeSign) {
                     minuses++;
+                }
                 e.apply(this);
             }
             if (minuses % 2 != 0) {
-                quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
-                String zero = "$" + tmpVars;
-                String num = "$" + (tmpVars - 1);
-                tmpVars++;
 
-                quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
+                quads.add(new Quadruple(quads.size() + 1, "-", "0", tmpVar, "$" + tmpVars));
+                tmpVar = "$" + tmpVars;
                 tmpVars++;
             }
         }
@@ -515,13 +585,14 @@ public class GenericsVisitor extends DepthFirstAdapter {
         {
             node.getNumber().apply(this);
         }
+        this.type = new Type("int", tmpVar);
     }
 
     @Override
     public void caseACharExpr(ACharExpr node)
     {
         this.type = new Type("char", "$" + tmpVars);
-        quads.add(new Quadruple("load", node.toString(), null, "$" + tmpVars));
+        quads.add(new Quadruple(quads.size() + 1, "load", node.toString(), null, "$" + tmpVars));
         tmpVars++;
 
         if(node.getSingleChar() != null)
@@ -540,7 +611,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.exit(-1);
             } else {
                 this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-                quads.add(new Quadruple("load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
+                quads.add(new Quadruple(quads.size() + 1, "load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
                 tmpVars++;
 //        System.out.println("made a new tmpVar = $"+tmpVars);
                 {
@@ -552,12 +623,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
                         e.apply(this);
                     }
                     if (minuses % 2 != 0) {
-                        quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
+                        quads.add(new Quadruple(quads.size() + 1, "load", "0", null, "$" + tmpVars));
                         String zero = "$" + tmpVars;
                         String num = "$" + (tmpVars - 1);
                         tmpVars++;
 
-                        quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
+                        quads.add(new Quadruple(quads.size() + 1, "-", zero, num, "$" + tmpVars));
                         tmpVars++;
                     }
                 }
@@ -566,65 +637,75 @@ public class GenericsVisitor extends DepthFirstAdapter {
         else
         {
             this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-            quads.add(new Quadruple("load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
+            quads.add(new Quadruple(quads.size() + 1, "load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
             tmpVars++;
         }
     }
-
-    @Override
-    public void caseALvalueExpr(ALvalueExpr node) {
-        this.inALvalueExpr(node);
-        Type type = getTypeEvaluation(node.getLvalue());
-        if (node.getSign().size() != 0)
-        {
-            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
-            {
-                System.out.println("Error!You can only put a sign in front of an 'int'!");
-                System.exit(-1);
-            }
-            else
-            {
-                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-                quads.add(new Quadruple("load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
-                tmpVars++;
-//        System.out.println("made a new tmpVar = $"+tmpVars);
-                {
-                    List<PSign> copy = new ArrayList<PSign>(node.getSign());
-                    int minuses = 0;
-                    for(PSign e : copy)
-                    {
-                        if (e instanceof compiler.node.ANegativeSign)
-                            minuses++;
-                        e.apply(this);
-                    }
-                    if (minuses % 2 != 0) {
-                        quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
-                        String zero = "$" + tmpVars;
-                        String num = "$" + (tmpVars - 1);
-                        tmpVars++;
-
-                        quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
-                        tmpVars++;
-                    }
-                }
-            }
-        }
-        else
-        {
-            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-            quads.add(new Quadruple("load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
-            tmpVars++;
-        }
-
-
-        this.outALvalueExpr(node);
-    }
+//
+//    @Override
+//    public void caseALvalueExpr(ALvalueExpr node) {
+//        this.inALvalueExpr(node);
+//        Type type = getTypeEvaluation(node.getLvalue());
+//        System.out.println(node.getLvalue().getClass()+" \nhahaha");
+//        if (node.getSign().size() != 0)
+//        {
+//            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
+//            {
+//                System.out.println("Error!You can only put a sign in front of an 'int'!");
+//                System.exit(-1);
+//            }
+//            else
+//            {
+//                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+//                quads.add(new Quadruple(quads.size() + 1, "load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
+//                tmpVars++;
+////        System.out.println("made a new tmpVar = $"+tmpVars);
+//                {
+//                    List<PSign> copy = new ArrayList<PSign>(node.getSign());
+//                    int minuses = 0;
+//                    for(PSign e : copy)
+//                    {
+//                        if (e instanceof compiler.node.ANegativeSign)
+//                            minuses++;
+//                        e.apply(this);
+//                    }
+//                    if (minuses % 2 != 0) {
+//                        quads.add(new Quadruple(quads.size() + 1, "load", "0", null, "$" + tmpVars));
+//                        String zero = "$" + tmpVars;
+//                        String num = "$" + (tmpVars - 1);
+//                        tmpVars++;
+//
+//                        quads.add(new Quadruple(quads.size() + 1, "-", zero, num, "$" + tmpVars));
+//                        tmpVars++;
+//                    }
+//                }
+//            }
+//        }
+//        else
+//        {
+//            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
+//            quads.add(new Quadruple(quads.size() + 1, "load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
+//            tmpVars++;
+//        }
+//
+//
+//        this.outALvalueExpr(node);
+//    }
 
 
     @Override
     public void caseASignedExpr(ASignedExpr node) {
-        System.out.println("edwwwwwwwwwww\n\n");
         Type type = getTypeEvaluation(node.getExpr());
+
+        String tmpVar;
+        if (type.isArray())
+        {
+            tmpVar = "[" + type.getTempVar() + "]";
+        }
+        else
+        {
+            tmpVar = type.getTempVar();
+        }
 
         if (node.getSign().size() != 0)
         {
@@ -635,37 +716,27 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
             else
             {
-                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-                quads.add(new Quadruple("load", node.getExpr().toString().trim(), null, "$" + tmpVars));
-                tmpVars++;
                 {
                     List<PSign> copy = new ArrayList<PSign>(node.getSign());
                     int minuses = 0;
                     for (PSign e : copy) {
-                        if (e instanceof compiler.node.ANegativeSign)
+                        if (e instanceof compiler.node.ANegativeSign) {
                             minuses++;
+                        }
 
                         e.apply(this);
                     }
                     if (minuses % 2 != 0) {
-                        quads.add(new Quadruple("load", "0", null, "$" + tmpVars));
-                        String zero = "$" + tmpVars;
-                        String num = "$" + (tmpVars - 1);
+                        quads.add(new Quadruple(quads.size() + 1, "-", "0", tmpVar, "$" + tmpVars));
+                        tmpVar = "$"+tmpVars;
                         tmpVars++;
 
-                        quads.add(new Quadruple("-", zero, num, "$" + tmpVars));
-                        tmpVars++;
                     }
 
                 }
             }
         }
-        else
-        {
-            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-            quads.add(new Quadruple("load", node.getExpr().toString().trim(), null, "$" + tmpVars));
-            tmpVars++;
-        }
+        this.type = new Type(type.getType(), type.getDimensions(), tmpVar);
     }
 
 
@@ -677,8 +748,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         System.out.println("tha kanw assign\n");
         System.out.println(node.getExpr().getClass());
         System.out.println(node.getLvalue());
-
-
 
         Type left = null;
         Type right = null;
@@ -707,6 +776,28 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.out.println("Assignment error!Expecting '" + left.toString() + "' as expression!('" + right + "' given)");
             System.exit(-1);
         }
+
+        String tmpLeft;
+        if (left.isArray())
+        {
+            tmpLeft = "[" + left.getTempVar() + "]";
+        }
+        else
+        {
+            tmpLeft = left.getTempVar();
+        }
+
+        String tmpRight;
+        if (right.isArray())
+        {
+            tmpRight = "[" + right.getTempVar() + "]";
+        }
+        else
+        {
+            tmpRight = right.getTempVar();
+        }
+
+        quads.add(new Quadruple(quads.size() + 1, ":=", tmpRight,null,tmpLeft));
     }
 
     //a return Expr should return the most resent Return type (saved from the most resent function definition*/
@@ -742,13 +833,16 @@ public class GenericsVisitor extends DepthFirstAdapter {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
 
+
+
 /*
         System.out.println("Add expression");
         System.out.println(node);
-        System.out.println("Left: " + node.getLeft());
-        System.out.println("Right: " + node.getRight());
+        System.out.println("Left: " + node.getLeft().getClass());
+        System.out.println("Right: " + node.getRight().getClass());
         System.out.println("tmpVars = " + tmpVars);
 */
+
         if (left == null)
         {
             System.out.println("Add expression Error. Left part is null!");
@@ -769,7 +863,28 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.out.println("Error!You can only add integers!");
                 System.exit(-1);
             }
-            quads.add(new Quadruple("+", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
+
+            String tmpLeft;
+            if (left.isArray())
+            {
+                tmpLeft = "[" + left.getTempVar() + "]";
+            }
+            else
+            {
+                tmpLeft = left.getTempVar();
+            }
+
+            String tmpRight;
+            if (right.isArray())
+            {
+                tmpRight = "[" + right.getTempVar() + "]";
+            }
+            else
+            {
+                tmpRight = right.getTempVar();
+            }
+
+            quads.add(new Quadruple(quads.size() + 1, "+", tmpLeft, tmpRight, "$" + tmpVars));
             tmpVars++;
         }
     }
@@ -800,7 +915,28 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.out.println("Error!You can only subtract integers!");
                 System.exit(-1);
             }
-            quads.add(new Quadruple("-", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
+
+            String tmpLeft;
+            if (left.isArray())
+            {
+                tmpLeft = "[" + left.getTempVar() + "]";
+            }
+            else
+            {
+                tmpLeft = left.getTempVar();
+            }
+
+            String tmpRight;
+            if (right.isArray())
+            {
+                tmpRight = "[" + right.getTempVar() + "]";
+            }
+            else
+            {
+                tmpRight = right.getTempVar();
+            }
+
+            quads.add(new Quadruple(quads.size() + 1, "-", tmpLeft, tmpRight, "$" + tmpVars));
             tmpVars++;
         }
     }
@@ -840,7 +976,28 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.out.println("Error!You can only multiply integers!");
                 System.exit(-1);
             }
-            quads.add(new Quadruple("*", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
+
+            String tmpLeft;
+            if (left.isArray())
+            {
+                tmpLeft = "[" + left.getTempVar() + "]";
+            }
+            else
+            {
+                tmpLeft = left.getTempVar();
+            }
+
+            String tmpRight;
+            if (right.isArray())
+            {
+                tmpRight = "[" + right.getTempVar() + "]";
+            }
+            else
+            {
+                tmpRight = right.getTempVar();
+            }
+
+            quads.add(new Quadruple(quads.size() + 1, "*", tmpLeft, tmpRight, "$" + tmpVars));
             tmpVars++;
         }
     }
@@ -873,7 +1030,27 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.exit(-1);
             }
 
-            quads.add(new Quadruple("div", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
+            String tmpLeft;
+            if (left.isArray())
+            {
+                tmpLeft = "[" + left.getTempVar() + "]";
+            }
+            else
+            {
+                tmpLeft = left.getTempVar();
+            }
+
+            String tmpRight;
+            if (right.isArray())
+            {
+                tmpRight = "[" + right.getTempVar() + "]";
+            }
+            else
+            {
+                tmpRight = right.getTempVar();
+            }
+
+            quads.add(new Quadruple(quads.size() + 1, "div", tmpLeft, tmpRight, "$" + tmpVars));
             tmpVars++;
         }
     }
@@ -903,7 +1080,27 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.out.println("Error!You can only mod integers!");
                 System.exit(-1);
             }
-            quads.add(new Quadruple("mod", left.getTempVar(), right.getTempVar(), "$" + tmpVars));
+
+            String tmpLeft;
+            if (left.isArray())
+            {
+                tmpLeft = "[" + left.getTempVar() + "]";
+            }
+            else
+            {
+                tmpLeft = left.getTempVar();
+            }
+
+            String tmpRight;
+            if (right.isArray())
+            {
+                tmpRight = "[" + right.getTempVar() + "]";
+            }
+            else
+            {
+                tmpRight = right.getTempVar();
+            }
+            quads.add(new Quadruple(quads.size() + 1, "mod", tmpLeft, tmpRight, "$" + tmpVars));
             tmpVars++;
 
         }
