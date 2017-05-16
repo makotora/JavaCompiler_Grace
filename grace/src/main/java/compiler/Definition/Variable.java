@@ -19,8 +19,8 @@ public class Variable extends Definition {
         return isReference;
     }
 
-    public Variable(String id, String type, List<Integer> dimensions, boolean isAParameter, boolean isReference) {
-        super(id, type);
+    public Variable(String id, String type, List<Integer> dimensions, int scopeNumber, boolean isAParameter, boolean isReference) {
+        super(id, type, scopeNumber);
         this.dimensions = dimensions;
         this.isAParameter = isAParameter;
         this.isReference = isReference;

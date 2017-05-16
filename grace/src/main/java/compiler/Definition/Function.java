@@ -9,8 +9,8 @@ public class Function extends Definition {
     private List <Variable> parameters;
     private  boolean isDefinition;
 
-    public Function(String id, String type, List<Variable> parameters, boolean isDefinition) {
-        super(id, type);
+    public Function(String id, String type, List<Variable> parameters, int scopeNumber, boolean isDefinition) {
+        super(id, type, scopeNumber);
         this.parameters = parameters;
         this.isDefinition = isDefinition;
     }

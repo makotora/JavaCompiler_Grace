@@ -8,10 +8,17 @@ import java.util.List;
 abstract public class Definition {
     protected String id;
     protected String type;
-    
-    public Definition(String id, String type) {
+    protected int scopeNumber;
+
+    public int getScopeNumber() {
+        return scopeNumber;
+    }
+
+    public Definition(String id, String type, int scopeNumber) {
         this.id = id.trim();
         this.type = type.trim();
+        this.scopeNumber = scopeNumber;
+
     }
 
     public String getId() {

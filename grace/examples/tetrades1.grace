@@ -12,10 +12,11 @@ fun main (argc : int; ref argv : char[][2]) : int
 	var y : int[2][5];
 	var hanoi : int [5];
 	{
+		x1 <- 2;
 	}
 	fun add_function(x :int; y :int) : int
 	{
-		$return x+y;
+		return x+y;
 	}
 
 {

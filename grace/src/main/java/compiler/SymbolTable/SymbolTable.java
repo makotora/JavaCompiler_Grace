@@ -37,11 +37,15 @@ public class SymbolTable {
         }
         else
         {
-            Definition newVar = new Variable(id, type, dimensions, false, false);
+            Definition newVar = new Variable(id, type, dimensions, this.symbolTable.size(), false, false);
             tmpHash.put(id, newVar);
         }
 
         return 0;
+    }
+
+    public int getSize() {
+        return symbolTable.size();
     }
 
     public int insertAParameter(String id, String type, List<Integer> dimensions, boolean isReference)
@@ -57,7 +61,7 @@ public class SymbolTable {
         }
         else
         {
-            Definition newVar = new Variable(id, type, dimensions, true, isReference);
+            Definition newVar = new Variable(id, type, dimensions,this.symbolTable.size(), true, isReference);
             tmpHash.put(id, newVar);
         }
 
@@ -105,7 +109,7 @@ public class SymbolTable {
         }
         else
         {
-            Definition newFunc = new Function(id, type, parameters, isDefinition);
+            Definition newFunc = new Function(id, type, parameters,this.symbolTable.size(), isDefinition);
             tmpHash.put(id, newFunc);
         }
 
