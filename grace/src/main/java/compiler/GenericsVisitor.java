@@ -19,7 +19,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
     private String indentation = "  ";
     private Type type = null;
     private int tmpVars;
-    private Stack<Type> returnTypes = new Stack();
+    private Stack<Type> returnTypes = new Stack<Type>();
+    private Stack<ConditionList> conditionLists = new Stack<ConditionList>();
     private SymbolTable symbolTable = new SymbolTable();
     private List<Quadruple> quads = new ArrayList<Quadruple>();
 
@@ -1147,14 +1148,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else
         {
-            if (left.isInt() && right.isInt())
-                this.type = left;//result is also an int
-            else
+            if (!(left.isInt() && right.isInt()))
             {
                 System.out.println("Equal condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
+        relopQuad("=", left, right);
     }
 
     @Override
@@ -1175,14 +1175,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else
         {
-            if (left.isInt() && right.isInt())
-                this.type = left;//result is also an int
-            else
+            if (!(left.isInt() && right.isInt()))
             {
                 System.out.println("Not equal condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
+        relopQuad("#", left, right);
     }
 
     @Override
@@ -1203,14 +1202,14 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else
         {
-            if (left.isInt() && right.isInt())
-                this.type = left;//result is also an int
-            else
+            if (!(left.isInt() && right.isInt()))
             {
                 System.out.println("Less equal condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
+        relopQuad("<=", left, right);
+
     }
 
     @Override
@@ -1231,14 +1230,14 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else
         {
-            if (left.isInt() && right.isInt())
-                this.type = left;//result is also an int
-            else
+            if (!(left.isInt() && right.isInt()))
             {
                 System.out.println("Greater equal condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
+        relopQuad(">=", left, right);
+
     }
 
 
@@ -1247,6 +1246,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
+
+        System.out.println(left.getTempVar());
+        System.out.println(right.getTempVar());
 
         if (left == null)
         {
@@ -1260,42 +1262,106 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else
         {
-            if (left.isInt() && right.isInt())
-                this.type = left;//result is also an int
-            else
+            if (!(left.isInt() && right.isInt()))
             {
                 System.out.println("Less than condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
+
+        relopQuad("<", left, right);
+
     }
 
     @Override
-    public void caseAGtCond(AGtCond node)
-    {
+    public void caseAGtCond(AGtCond node) {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
 
-        if (left == null)
-        {
+        if (left == null) {
             System.out.println("Greater than condition Error. Left part is null!");
             System.exit(-1);
-        }
-        else if (right == null)
-        {
+        } else if (right == null) {
             System.out.println("Greater than condition Error. Right part is null!");
             System.exit(-1);
-        }
-        else
-        {
-            if (left.isInt() && right.isInt())
-                this.type = left;//result is also an int
-            else
-            {
+        } else {
+            if (!(left.isInt() && right.isInt())) {
                 System.out.println("Greater than condition error!You can only compare integers!");
                 System.exit(-1);
             }
         }
+        relopQuad(">", left, right);
+    }
+
+    @Override
+    public void caseAIfElseStatement(AIfElseStatement node) {
+        Type cond = null;
+
+        System.out.println("---caseAIfElseStatement---");
+        System.out.println(conditionLists.empty());
+        conditionLists.push(new ConditionList());
+
+        //        System.out.println(node.getCond().getClass());
+
+        inAIfElseStatement(node);
+        if (node.getCond() != null) {
+            cond = getTypeEvaluation(node.getCond());
+        }
+
+        System.out.println(node.getThen());
+        System.out.println(node.getElse().getClass());
+
+        backpatch(cond.getTrueList(), nextQuad());
+
+        System.out.println(node.getCond().getClass());
+
+
+        if (node.getThen() != null) {
+            node.getThen().apply(this);
+        }
+
+        backpatch(cond.getFalseList(), nextQuad());
+        if (node.getElse() != null) {
+            node.getElse().apply(this);
+        }
+        outAIfElseStatement(node);
+
+        for (Quadruple quad : quads) {
+            System.out.println(quad);
+        }
+    }
+
+    public void caseANotCond(ANotCond node) {
+        Type cond = null;
+        inANotCond(node);
+        if (node.getCond() != null) {
+            cond = getTypeEvaluation(node.getCond());
+        }
+        outANotCond(node);
+
+        List<Quadruple> tmp = cond.getTrueList();
+        cond.setTrueList(cond.getFalseList());
+        cond.setFalseList(tmp);
+        this.type = cond;
+    }
+
+    String nextQuad() {
+        return Integer.toString(quads.size() + 1);
+    }
+
+    public void backpatch(List<Quadruple> list, String label) {
+        for (Quadruple quadruple : list) {
+            quadruple.setResult(label);
+        }
+    }
+
+    public void relopQuad(String relop, Type left, Type right) {
+        Type tmpType = new Type(left.getType(), left.getDimensions());
+        quads.add(new Quadruple(quads.size() + 1, relop, left.getTempVar(), right.getTempVar(), "*"));
+        tmpType.getTrueList().add(quads.get(quads.size() - 1));
+        quads.add(new Quadruple(quads.size() + 1, "jump", null, null, "*"));
+        tmpType.getFalseList().add(quads.get(quads.size() - 1));
+        this.type = tmpType;
     }
 
 }

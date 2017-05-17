@@ -11,8 +11,6 @@ public class Quadruple {
     String arg1;
     String arg2;
     String result;
-
-
     public Quadruple(int num, String op, String arg1, String arg2, String result) {
         this.num = num;
         this.op = op;
@@ -20,6 +18,14 @@ public class Quadruple {
         this.arg2 = arg2;
         this.result = result;
         System.out.println(this );
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
     }
 
     @Override

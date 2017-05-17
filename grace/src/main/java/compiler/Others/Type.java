@@ -1,6 +1,9 @@
 package compiler.Others;
 
 import compiler.Definition.*;
+import compiler.Quadruple;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Type
@@ -11,15 +14,17 @@ public class Type
     private String tempVar;
     private boolean isArray;
 
+    private List<Quadruple> trueList;
+    private List<Quadruple> falseList;
+
+
     public Type(String type, List<Integer> dimensions, String tempVar) {
         this.type = type;
         this.dimensions = dimensions;
         this.tempVar = tempVar;
         this.isArray = false;
-    }
-
-    public boolean isArray() {
-        return isArray;
+        this.trueList = new ArrayList<Quadruple>();
+        this.falseList = new ArrayList<Quadruple>();
     }
 
     public Type(String type, String tempVar, boolean isArray) {
@@ -27,6 +32,9 @@ public class Type
         this.type = type;
         this.tempVar = tempVar;
         this.isArray = isArray;
+        this.trueList = new ArrayList<Quadruple>();
+        this.falseList = new ArrayList<Quadruple>();
+
     }
 
     public Type(String type, List<Integer> dimensions, String tempVar, boolean isArray) {
@@ -35,6 +43,9 @@ public class Type
         this.dimensions = dimensions;
         this.tempVar = tempVar;
         this.isArray = isArray;
+        this.trueList = new ArrayList<Quadruple>();
+        this.falseList = new ArrayList<Quadruple>();
+
     }
 
     public Type(String type, List<Integer> dimensions)
@@ -43,6 +54,8 @@ public class Type
         this.type = type;
         this.dimensions = dimensions;
         this.isArray = false;
+        this.trueList = new ArrayList<Quadruple>();
+        this.falseList = new ArrayList<Quadruple>();
 
     }
 
@@ -50,6 +63,8 @@ public class Type
         this.type = type;
         this.dimensions = null;
         this.isArray = false;
+        this.trueList = new ArrayList<Quadruple>();
+        this.falseList = new ArrayList<Quadruple>();
 
     }
 
@@ -57,11 +72,33 @@ public class Type
         this.type = type;
         this.tempVar = tempVar;
         this.isArray = false;
+        this.trueList = new ArrayList<Quadruple>();
+        this.falseList = new ArrayList<Quadruple>();
 
+    }
+
+    public boolean isArray() {
+        return isArray;
     }
 
     public String getType() {
         return type;
+    }
+
+    public List<Quadruple> getTrueList() {
+        return trueList;
+    }
+
+    public void setTrueList(List<Quadruple> trueList) {
+        this.trueList = trueList;
+    }
+
+    public List<Quadruple> getFalseList() {
+        return falseList;
+    }
+
+    public void setFalseList(List<Quadruple> falseList) {
+        this.falseList = falseList;
     }
 
     public List<Integer> getDimensions() {
