@@ -16,6 +16,7 @@ public class Type
 
     private List<Quadruple> trueList;
     private List<Quadruple> falseList;
+    private List<Quadruple> nextList;
 
 
     public Type(String type, List<Integer> dimensions, String tempVar) {
@@ -25,6 +26,7 @@ public class Type
         this.isArray = false;
         this.trueList = new ArrayList<Quadruple>();
         this.falseList = new ArrayList<Quadruple>();
+        this.nextList = new ArrayList<Quadruple>();
     }
 
     public Type(String type, String tempVar, boolean isArray) {
@@ -34,6 +36,7 @@ public class Type
         this.isArray = isArray;
         this.trueList = new ArrayList<Quadruple>();
         this.falseList = new ArrayList<Quadruple>();
+        this.nextList = new ArrayList<Quadruple>();
 
     }
 
@@ -45,6 +48,7 @@ public class Type
         this.isArray = isArray;
         this.trueList = new ArrayList<Quadruple>();
         this.falseList = new ArrayList<Quadruple>();
+        this.nextList = new ArrayList<Quadruple>();
 
     }
 
@@ -56,6 +60,7 @@ public class Type
         this.isArray = false;
         this.trueList = new ArrayList<Quadruple>();
         this.falseList = new ArrayList<Quadruple>();
+        this.nextList = new ArrayList<Quadruple>();
 
     }
 
@@ -65,6 +70,7 @@ public class Type
         this.isArray = false;
         this.trueList = new ArrayList<Quadruple>();
         this.falseList = new ArrayList<Quadruple>();
+        this.nextList = new ArrayList<Quadruple>();
 
     }
 
@@ -74,6 +80,7 @@ public class Type
         this.isArray = false;
         this.trueList = new ArrayList<Quadruple>();
         this.falseList = new ArrayList<Quadruple>();
+        this.nextList = new ArrayList<Quadruple>();
 
     }
 
@@ -83,6 +90,14 @@ public class Type
 
     public String getType() {
         return type;
+    }
+
+    public List<Quadruple> getNextList() {
+        return nextList;
+    }
+
+    public void setNextList(List<Quadruple> nextList) {
+        this.nextList = nextList;
     }
 
     public List<Quadruple> getTrueList() {
@@ -111,6 +126,18 @@ public class Type
             return true;
         else
             return  false;
+    }
+
+    @Override
+    public String toString() {
+        return "Type{" +
+                "type='" + type + '\'' +
+                ", dimensions=" + dimensions +
+                ", tempVar='" + tempVar + '\'' +
+                ", isArray=" + isArray +
+                ", trueList=" + trueList +
+                ", falseList=" + falseList +
+                '}';
     }
 
     public boolean isChar()
@@ -174,18 +201,6 @@ public class Type
         }
         else //type string is not the same.types surely different
             return false;
-    }
-
-    public String toString()
-    {
-        String str = type;
-        if( dimensions != null)
-        {
-            for (Integer dimension : dimensions) {
-                str+= "[" + dimension + "]";
-            }
-        }
-        return str;
     }
 
     public String getTempVar() {

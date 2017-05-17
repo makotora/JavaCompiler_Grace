@@ -20,7 +20,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     private Type type = null;
     private int tmpVars;
     private Stack<Type> returnTypes = new Stack<Type>();
-    private Stack<ConditionList> conditionLists = new Stack<ConditionList>();
     private SymbolTable symbolTable = new SymbolTable();
     private List<Quadruple> quads = new ArrayList<Quadruple>();
 
@@ -1294,36 +1293,86 @@ public class GenericsVisitor extends DepthFirstAdapter {
     }
 
     @Override
+    public void caseAOrCond(AOrCond node) {
+        Type left = null;
+        Type right = null;
+
+        inAOrCond(node);
+        if (node.getLeft() != null) {
+            left = getTypeEvaluation(node.getLeft());
+        }
+
+        backpatch(left.getFalseList(), nextQuad());
+        if (node.getRight() != null) {
+            right = getTypeEvaluation(node.getRight());
+        }
+        Type thisType = new Type(left.getType(), left.getDimensions(), left.getTempVar());
+
+        left.getTrueList().addAll(right.getTrueList());
+        thisType.setTrueList(left.getTrueList());
+        thisType.setFalseList(right.getFalseList());
+
+
+        this.type = thisType;
+        outAOrCond(node);
+    }
+
+    @Override
+    public void caseAAndCond(AAndCond node) {
+        Type left = null;
+        Type right = null;
+
+        inAAndCond(node);
+        if (node.getLeft() != null) {
+            left = getTypeEvaluation(node.getLeft());
+        }
+
+        backpatch(left.getTrueList(), nextQuad());
+        if (node.getRight() != null) {
+            right = getTypeEvaluation(node.getRight());
+        }
+        Type thisType = new Type(left.getType(), left.getDimensions(), left.getTempVar());
+
+        left.getFalseList().addAll(right.getFalseList());
+        thisType.setTrueList(right.getTrueList());
+        thisType.setFalseList(left.getFalseList());
+
+
+        this.type = thisType;
+        outAAndCond(node);
+    }
+
+    @Override
     public void caseAIfElseStatement(AIfElseStatement node) {
         Type cond = null;
+        List<Quadruple> L1 = new ArrayList<Quadruple>();
+        List<Quadruple> L2;
 
         System.out.println("---caseAIfElseStatement---");
-        System.out.println(conditionLists.empty());
-        conditionLists.push(new ConditionList());
-
-        //        System.out.println(node.getCond().getClass());
 
         inAIfElseStatement(node);
         if (node.getCond() != null) {
             cond = getTypeEvaluation(node.getCond());
         }
 
-        System.out.println(node.getThen());
-        System.out.println(node.getElse().getClass());
-
-        backpatch(cond.getTrueList(), nextQuad());
-
-        System.out.println(node.getCond().getClass());
-
+        backpatch(cond.getTrueList(), nextQuad());      //Backpath if the condition is true
 
         if (node.getThen() != null) {
             node.getThen().apply(this);
         }
 
-        backpatch(cond.getFalseList(), nextQuad());
+        backpatch(cond.getFalseList(), nextQuad());     //If it is false go jump after the "then" block
+
         if (node.getElse() != null) {
+            quads.add(new Quadruple(quads.size() + 1, "jump", null, null, "*"));    //If there is an else block u must jump to the and of it (if condition was true)
+            L1.add(quads.get(quads.size() - 1));
+            backpatch(cond.getFalseList(), nextQuad());
+
             node.getElse().apply(this);
+
+            backpatch(L1, nextQuad());
         }
+
         outAIfElseStatement(node);
 
         for (Quadruple quad : quads) {

@@ -30,15 +30,21 @@ line comment
 comment comment
 sdadada $$
 
-if not 1 # x5() then
+if 2 > 3  then
 {
-
-x1 <- 5;		
-x1 <- 5;		
-x1 <- 5;		
+	if 5=5 then
+	{
+		if x2 < 3 then
+			x1<-000;		
+	}
+	else
+	{
+		x1<-100;
+	}
 }
 else
 {
-	x2 <- 6;
+	x3<-2000;
 }
+
 }
