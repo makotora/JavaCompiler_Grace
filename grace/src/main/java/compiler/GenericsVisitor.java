@@ -428,13 +428,19 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
         //if we are here,the function was called in a correct way
-        //make a temp var for function to return result too
-        quads.add(new Quadruple(quads.size() + 1, "par", "$" + tmpVars, "RET", null));
-        this.type = new Type(function.getType(), "$" + (tmpVars));//type of function call (result) is the type of the function
-        tmpVars++;
+        //make a temp var for function to return result too (if it returns something)
+        if (!function.getType().equals("nothing")) {
+            quads.add(new Quadruple(quads.size() + 1, "par", "$" + tmpVars, "RET", null));
+            this.type = new Type(function.getType(), "$" + (tmpVars));//type of function call (result) is the type of the function
+            tmpVars++;
+        }
+        else
+        {
+            this.type = new Type(function.getType());
+        }
         //make the call
         quads.add(new Quadruple(quads.size() + 1, "call", null, null, definition.getId() + definition.getScopeNumber()));
-        System.out.println(symbolTable);
+
     }
 
     public void caseAIdLvalue(AIdLvalue node)
@@ -633,11 +639,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
             {
                 System.out.println("Error!You can only put a sign in front of an 'int'!");
                 System.exit(-1);
-            } else {
-                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-                quads.add(new Quadruple(quads.size() + 1, "load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
-                tmpVars++;
-//        System.out.println("made a new tmpVar = $"+tmpVars);
+            }
+            else //ok.type is int so we can have a sign.if it turns out to be a minus.do (0 - function_result)
+            {
+                this.type = type;//fcallExpression type is the same as the fcall's type
                 {
                     List<PSign> copy = new ArrayList<PSign>(node.getSign());
                     int minuses = 0;
@@ -647,12 +652,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                         e.apply(this);
                     }
                     if (minuses % 2 != 0) {
-                        quads.add(new Quadruple(quads.size() + 1, "load", "0", null, "$" + tmpVars));
-                        String zero = "$" + tmpVars;
-                        String num = "$" + (tmpVars - 1);
-                        tmpVars++;
-
-                        quads.add(new Quadruple(quads.size() + 1, "-", zero, num, "$" + tmpVars));
+                        quads.add(new Quadruple(quads.size() + 1, "-", "0", type.getTempVar(), "$" + tmpVars));
                         tmpVars++;
                     }
                 }
@@ -660,9 +660,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else
         {
-            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-            quads.add(new Quadruple(quads.size() + 1, "load", node.getFuncCall().toString().trim(), null, "$" + tmpVars));
-            tmpVars++;
+            this.type = type;//fcallExpression type is the same as the fcall's type
         }
     }
 //
@@ -858,61 +856,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
+        exprQuad("+", left, right);
 
-
-
-/*
-        System.out.println("Add expression");
-        System.out.println(node);
-        System.out.println("Left: " + node.getLeft().getClass());
-        System.out.println("Right: " + node.getRight().getClass());
-        System.out.println("tmpVars = " + tmpVars);
-*/
-
-        if (left == null)
-        {
-            System.out.println("Add expression Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Add expression Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (left.isInt() && right.isInt()) {
-                this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
-            }
-            else
-            {
-                System.out.println("Error!You can only add integers!");
-                System.exit(-1);
-            }
-
-            String tmpLeft;
-            if (left.isArray())
-            {
-                tmpLeft = "[" + left.getTempVar() + "]";
-            }
-            else
-            {
-                tmpLeft = left.getTempVar();
-            }
-
-            String tmpRight;
-            if (right.isArray())
-            {
-                tmpRight = "[" + right.getTempVar() + "]";
-            }
-            else
-            {
-                tmpRight = right.getTempVar();
-            }
-
-            quads.add(new Quadruple(quads.size() + 1, "+", tmpLeft, tmpRight, "$" + tmpVars));
-            tmpVars++;
-        }
     }
 
     @Override
@@ -920,51 +865,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Subtract expression Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Subtract expression Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (left.isInt() && right.isInt()) {
-                this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
-            }
-            else
-            {
-                System.out.println("Error!You can only subtract integers!");
-                System.exit(-1);
-            }
-
-            String tmpLeft;
-            if (left.isArray())
-            {
-                tmpLeft = "[" + left.getTempVar() + "]";
-            }
-            else
-            {
-                tmpLeft = left.getTempVar();
-            }
-
-            String tmpRight;
-            if (right.isArray())
-            {
-                tmpRight = "[" + right.getTempVar() + "]";
-            }
-            else
-            {
-                tmpRight = right.getTempVar();
-            }
-
-            quads.add(new Quadruple(quads.size() + 1, "-", tmpLeft, tmpRight, "$" + tmpVars));
-            tmpVars++;
-        }
+        exprQuad("-", left, right);
     }
 
     @Override
@@ -972,60 +873,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-/*
-        System.out.println("Mult expression");
-        System.out.println(node);
-        System.out.println("Left: " + node.getLeft());
-        System.out.println("Right: " + node.getRight());
-        System.out.println("tmpVars = " + tmpVars);
-*/
-
-        if (left == null)
-        {
-            System.out.println("Multiplication expression Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Multiplication expression Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-
-            if (left.isInt() && right.isInt()) {
-                this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
-            }
-            else
-            {
-                System.out.println("Error!You can only multiply integers!");
-                System.exit(-1);
-            }
-
-            String tmpLeft;
-            if (left.isArray())
-            {
-                tmpLeft = "[" + left.getTempVar() + "]";
-            }
-            else
-            {
-                tmpLeft = left.getTempVar();
-            }
-
-            String tmpRight;
-            if (right.isArray())
-            {
-                tmpRight = "[" + right.getTempVar() + "]";
-            }
-            else
-            {
-                tmpRight = right.getTempVar();
-            }
-
-            quads.add(new Quadruple(quads.size() + 1, "*", tmpLeft, tmpRight, "$" + tmpVars));
-            tmpVars++;
-        }
+        exprQuad("*", left, right);
     }
 
     @Override
@@ -1033,52 +881,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Division expression Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Division expression Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-
-            if (left.isInt() && right.isInt()) {
-                this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
-            }
-            else
-            {
-                System.out.println("Error!You can only divide integers!");
-                System.exit(-1);
-            }
-
-            String tmpLeft;
-            if (left.isArray())
-            {
-                tmpLeft = "[" + left.getTempVar() + "]";
-            }
-            else
-            {
-                tmpLeft = left.getTempVar();
-            }
-
-            String tmpRight;
-            if (right.isArray())
-            {
-                tmpRight = "[" + right.getTempVar() + "]";
-            }
-            else
-            {
-                tmpRight = right.getTempVar();
-            }
-
-            quads.add(new Quadruple(quads.size() + 1, "div", tmpLeft, tmpRight, "$" + tmpVars));
-            tmpVars++;
-        }
+        exprQuad("div", left, right);
     }
 
     @Override
@@ -1086,50 +889,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Mod expression Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Mod expression Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (left.isInt() && right.isInt())
-                this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
-            else
-            {
-                System.out.println("Error!You can only mod integers!");
-                System.exit(-1);
-            }
-
-            String tmpLeft;
-            if (left.isArray())
-            {
-                tmpLeft = "[" + left.getTempVar() + "]";
-            }
-            else
-            {
-                tmpLeft = left.getTempVar();
-            }
-
-            String tmpRight;
-            if (right.isArray())
-            {
-                tmpRight = "[" + right.getTempVar() + "]";
-            }
-            else
-            {
-                tmpRight = right.getTempVar();
-            }
-            quads.add(new Quadruple(quads.size() + 1, "mod", tmpLeft, tmpRight, "$" + tmpVars));
-            tmpVars++;
-
-        }
+        exprQuad("mod", left, right);
     }
 
     /*Make sure that comparisions (e.g >=) are being done between the right type of 'nodes' (ints)*/
@@ -1138,25 +898,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Equal condition Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Equal condition Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (!(left.isInt() && right.isInt()))
-            {
-                System.out.println("Equal condition error!You can only compare integers!");
-                System.exit(-1);
-            }
-        }
         relopQuad("=", left, right);
     }
 
@@ -1165,25 +906,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Not equal condition Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Not equal condition Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (!(left.isInt() && right.isInt()))
-            {
-                System.out.println("Not equal condition error!You can only compare integers!");
-                System.exit(-1);
-            }
-        }
         relopQuad("#", left, right);
     }
 
@@ -1192,25 +914,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Less equal condition Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Less equal condition Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (!(left.isInt() && right.isInt()))
-            {
-                System.out.println("Less equal condition error!You can only compare integers!");
-                System.exit(-1);
-            }
-        }
         relopQuad("<=", left, right);
 
     }
@@ -1220,25 +923,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null)
-        {
-            System.out.println("Greater equal condition Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Greater equal condition Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (!(left.isInt() && right.isInt()))
-            {
-                System.out.println("Greater equal condition error!You can only compare integers!");
-                System.exit(-1);
-            }
-        }
         relopQuad(">=", left, right);
 
     }
@@ -1249,50 +933,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        System.out.println(left.getTempVar());
-        System.out.println(right.getTempVar());
-
-        if (left == null)
-        {
-            System.out.println("Less than condition Error. Left part is null!");
-            System.exit(-1);
-        }
-        else if (right == null)
-        {
-            System.out.println("Less than condition Error. Right part is null!");
-            System.exit(-1);
-        }
-        else
-        {
-            if (!(left.isInt() && right.isInt()))
-            {
-                System.out.println("Less than condition error!You can only compare integers!");
-                System.exit(-1);
-            }
-        }
-
         relopQuad("<", left, right);
-
     }
 
     @Override
     public void caseAGtCond(AGtCond node) {
         Type left = getTypeEvaluation(node.getLeft());
         Type right = getTypeEvaluation(node.getRight());
-
-        if (left == null) {
-            System.out.println("Greater than condition Error. Left part is null!");
-            System.exit(-1);
-        } else if (right == null) {
-            System.out.println("Greater than condition Error. Right part is null!");
-            System.exit(-1);
-        } else {
-            if (!(left.isInt() && right.isInt())) {
-                System.out.println("Greater than condition error!You can only compare integers!");
-                System.exit(-1);
-            }
-        }
         relopQuad(">", left, right);
     }
 
@@ -1444,6 +1091,50 @@ public class GenericsVisitor extends DepthFirstAdapter {
         this.type = cond;
     }
 
+    public void exprQuad(String expr, Type left, Type right)
+    {
+        if (left == null)
+        {
+            System.out.println("'" + expr + "' expression error. Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("'" + expr + "' expression error. Right part is null!");
+            System.exit(-1);
+        }
+
+        if (! (left.isInt() && right.isInt()) )
+        {
+            System.out.println("'" + expr + "' expression error.Left and right need to be ints!");
+            System.exit(-1);
+        }
+
+        String tmpLeft;
+        if (left.isArray())
+        {
+            tmpLeft = "[" + left.getTempVar() + "]";
+        }
+        else
+        {
+            tmpLeft = left.getTempVar();
+        }
+
+        String tmpRight;
+        if (right.isArray())
+        {
+            tmpRight = "[" + right.getTempVar() + "]";
+        }
+        else
+        {
+            tmpRight = right.getTempVar();
+        }
+
+        this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
+        quads.add(new Quadruple(quads.size() + 1, expr, tmpLeft, tmpRight, "$" + tmpVars));
+        tmpVars++;
+    }
+
     String nextQuad() {
         return Integer.toString(quads.size() + 1);
     }
@@ -1458,8 +1149,41 @@ public class GenericsVisitor extends DepthFirstAdapter {
     }
 
     public void relopQuad(String relop, Type left, Type right) {
+        //error checking
+        if (left == null)
+        {
+            System.out.println("'" + relop + "' condition Error. Left part is null!");
+            System.exit(-1);
+        }
+        else if (right == null)
+        {
+            System.out.println("'" + relop + "' condition Error. Right part is null!");
+            System.exit(-1);
+        }
+        else
+        {
+            if (!(left.isInt() && right.isInt()))
+            {
+                System.out.println("'" + relop + "' condition error!You can only compare integers!");
+                System.exit(-1);
+            }
+        }
+
+        String leftTmp;
+        String rightTmp;
+
+        if (left.isArray())
+            leftTmp = "[" + left.getTempVar() + "]";
+        else
+            leftTmp = left.getTempVar();
+
+        if (right.isArray())
+            rightTmp = "[" + right.getTempVar() + "]";
+        else
+            rightTmp = right.getTempVar();
+
         Type tmpType = new Type(left.getType(), left.getDimensions());
-        quads.add(new Quadruple(quads.size() + 1, relop, left.getTempVar(), right.getTempVar(), "*"));
+        quads.add(new Quadruple(quads.size() + 1, relop, leftTmp, rightTmp, "*"));
         tmpType.getTrueList().add(quads.get(quads.size() - 1));
         quads.add(new Quadruple(quads.size() + 1, "jump", null, null, "*"));
         tmpType.getFalseList().add(quads.get(quads.size() - 1));
