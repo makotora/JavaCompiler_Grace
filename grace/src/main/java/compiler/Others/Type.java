@@ -92,6 +92,19 @@ public class Type
         return type;
     }
 
+    @Override
+    public String toString() {
+        return "Type{" +
+                "type='" + type + '\'' +
+                ", dimensions=" + dimensions +
+                ", tempVar='" + tempVar + '\'' +
+                ", isArray=" + isArray +
+                ", trueList=" + trueList +
+                ", falseList=" + falseList +
+                ", nextList=" + nextList +
+                '}';
+    }
+
     public List<Quadruple> getNextList() {
         return nextList;
     }
@@ -126,18 +139,6 @@ public class Type
             return true;
         else
             return  false;
-    }
-
-    @Override
-    public String toString() {
-        return "Type{" +
-                "type='" + type + '\'' +
-                ", dimensions=" + dimensions +
-                ", tempVar='" + tempVar + '\'' +
-                ", isArray=" + isArray +
-                ", trueList=" + trueList +
-                ", falseList=" + falseList +
-                '}';
     }
 
     public boolean isChar()

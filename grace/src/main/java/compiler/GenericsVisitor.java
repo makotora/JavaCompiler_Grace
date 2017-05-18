@@ -155,6 +155,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void outStart(Start node)
     {
+        System.out.println("---------\n--------");
+        for (Quadruple quad : quads) {
+            System.out.println(quad);
+        }
             symbolTable.exit();
     }
 
@@ -375,7 +379,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                     if (!(e instanceof ALvalueExpr)) {
                         System.out.println("Invalid function call of '" + node.getId().getText() +
                                 "'.Expecting '" + definedType + "' as parameter in position: " + (i + 1));
-                        System.out.println("Ref expects an lvalue,not an expression! ('" + e.toString().trim() + "')"); 
+                        System.out.println("Ref expects an lvalue,not an expression! ('" + e.toString().trim() + "')");
                         System.exit(-1);
                     }
                 }
@@ -1343,10 +1347,43 @@ public class GenericsVisitor extends DepthFirstAdapter {
     }
 
     @Override
+    public void caseAWhileStatement(AWhileStatement node) {
+        Type cond = null;
+        Type stmt = null;
+
+        String Q = nextQuad();
+
+
+        inAWhileStatement(node);
+        if (node.getCond() != null) {
+            cond = getTypeEvaluation(node.getCond());
+            backpatch(cond.getTrueList(), nextQuad());
+        }
+
+        if (node.getStatement() != null) {
+            stmt = getTypeEvaluation(node.getStatement());
+        }
+        outAWhileStatement(node);
+
+        quads.add(new Quadruple(quads.size() + 1, "jump", null, null, Q));    //If there is an else block u must jump to the and of it (if condition was true)
+
+        backpatch(cond.getFalseList(), nextQuad());
+        if (stmt != null) {
+            backpatch(stmt.getNextList(), Q);
+        }
+
+
+        Type thisType = new Type(null, null, null);
+        thisType.setNextList(cond.getNextList());
+    }
+
+
+    @Override
     public void caseAIfElseStatement(AIfElseStatement node) {
         Type cond = null;
+        Type elseStmt = null;
         List<Quadruple> L1 = new ArrayList<Quadruple>();
-        List<Quadruple> L2;
+        List<Quadruple> L2 = new ArrayList<Quadruple>();
 
         System.out.println("---caseAIfElseStatement---");
 
@@ -1356,28 +1393,39 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
         backpatch(cond.getTrueList(), nextQuad());      //Backpath if the condition is true
+        L1 = cond.getFalseList();
 
         if (node.getThen() != null) {
             node.getThen().apply(this);
         }
 
-        backpatch(cond.getFalseList(), nextQuad());     //If it is false go jump after the "then" block
 
         if (node.getElse() != null) {
             quads.add(new Quadruple(quads.size() + 1, "jump", null, null, "*"));    //If there is an else block u must jump to the and of it (if condition was true)
+            L1 = new ArrayList<Quadruple>();
             L1.add(quads.get(quads.size() - 1));
-            backpatch(cond.getFalseList(), nextQuad());
+            backpatch(cond.getFalseList(), nextQuad());     //If it is false go jump after the "then" block
 
-            node.getElse().apply(this);
+            elseStmt = getTypeEvaluation(node.getElse());
 
-            backpatch(L1, nextQuad());
+            L2 = elseStmt.getNextList();
         }
-
         outAIfElseStatement(node);
 
-        for (Quadruple quad : quads) {
-            System.out.println(quad);
-        }
+        Type thisType = new Type(cond.getType(), cond.getDimensions(), cond.getTempVar());
+        List<Quadruple> tmp = new ArrayList<Quadruple>();
+        tmp.addAll(L1);
+        tmp.addAll(L2);
+        thisType.setNextList(tmp);
+        this.type = thisType;
+        System.out.println("\n\n\n\n\n\n-----to ekana------");
+        System.out.println(tmp);
+        backpatch(this.type.getNextList(), nextQuad());
+
+        System.out.println("---------IF.nextList():----------");
+        System.out.println(node);
+        System.out.println(thisType);
+        System.out.println();
     }
 
     public void caseANotCond(ANotCond node) {
@@ -1399,6 +1447,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
     }
 
     public void backpatch(List<Quadruple> list, String label) {
+        System.out.println("Bainw gia backpatch me lista: ");
+        System.out.println(list);
+        System.out.println("timi label = " + label);
         for (Quadruple quadruple : list) {
             quadruple.setResult(label);
         }
