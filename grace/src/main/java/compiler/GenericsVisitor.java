@@ -155,7 +155,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void outStart(Start node)
     {
-        System.out.println("---------\n--------");
+        System.out.println("\n------Compiling End------");
         for (Quadruple quad : quads) {
             System.out.println(quad);
         }
@@ -1348,6 +1348,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     @Override
     public void caseAWhileStatement(AWhileStatement node) {
+
+//        System.out.println("---AWhileStatement Start---");
+
         Type cond = null;
         Type stmt = null;
 
@@ -1375,6 +1378,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         Type thisType = new Type(null, null, null);
         thisType.setNextList(cond.getNextList());
+
+//        System.out.println("---AWhileStatement END");
     }
 
 
@@ -1385,7 +1390,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         List<Quadruple> L1 = new ArrayList<Quadruple>();
         List<Quadruple> L2 = new ArrayList<Quadruple>();
 
-        System.out.println("---caseAIfElseStatement---");
+//        System.out.println("---caseAIfElseStatement---");
 
         inAIfElseStatement(node);
         if (node.getCond() != null) {
@@ -1408,7 +1413,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
             elseStmt = getTypeEvaluation(node.getElse());
 
-            L2 = elseStmt.getNextList();
+            if (elseStmt != null)
+                L2 = elseStmt.getNextList();
         }
         outAIfElseStatement(node);
 
@@ -1418,14 +1424,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
         tmp.addAll(L2);
         thisType.setNextList(tmp);
         this.type = thisType;
-        System.out.println("\n\n\n\n\n\n-----to ekana------");
-        System.out.println(tmp);
         backpatch(this.type.getNextList(), nextQuad());
 
-        System.out.println("---------IF.nextList():----------");
-        System.out.println(node);
-        System.out.println(thisType);
-        System.out.println();
+//        System.out.println("---caseAIfElseStatement END");
+
     }
 
     public void caseANotCond(ANotCond node) {
