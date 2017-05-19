@@ -1,3 +1,4 @@
+fun main():nothing
 fun quicksort(ref a : int[]; m, n : int) : nothing
 var i, j, temp : int;
 {
@@ -12,4 +13,7 @@ var i, j, temp : int;
 			}
 		}
 	}
+}
+{
+	
 }

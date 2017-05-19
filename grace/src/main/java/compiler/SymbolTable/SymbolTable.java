@@ -2,10 +2,7 @@ package compiler.SymbolTable;
 
 import compiler.Definition.*;
 
-import java.util.Hashtable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by valyo95 on 5/5/2017.
@@ -129,8 +126,40 @@ public class SymbolTable {
         return null;
     }
 
+    private void checkForPendingDeclarations(Hashtable scope)
+    {
+        Set<String> keys = scope.keySet();
+        Iterator<String> itr = keys.iterator();
+        String currentId;
+        Definition definition;
+        Function function;
+
+        while (itr.hasNext())
+        {
+            currentId = itr.next();
+            definition = (Definition) scope.get(currentId);
+
+            if (definition instanceof Function)
+            {
+                function = (Function) definition;
+
+                //if function is on this scope but it is not defined,it was declared but never defined!
+                if (!function.isDefinition())
+                {
+                    System.out.println("Error!Function '" + function.getId() + "' was declared but wasn't defined in that scope!");
+                    System.exit(-1);
+                }
+            }
+
+        }
+    }
+
+
     public void exit()
     {
+        //check if the most resent scope (the one we are about to 'destroy'/pop)
+        //has functions that were declared but not defined!
+        checkForPendingDeclarations(this.symbolTable.lastElement());
         this.symbolTable.pop();
     }
 

@@ -1,4 +1,10 @@
 fun p():nothing
+var x,y : int;
+fun func(x :int):int;
+fun func(x :int):int
+{
+	
+}
 { 
 	if x>5 and not not y<1 or x +1 # y mod 2 div 3 then
 	{ 
@@ -12,4 +18,4 @@ fun p():nothing
 		}
 	} 
 	else 
-		x <- "this is a string\0\n\t"; }
+		x <- 2; }

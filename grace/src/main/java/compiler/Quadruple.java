@@ -30,14 +30,35 @@ public class Quadruple {
 
     @Override
     public String toString() {
-        return "Quadruple{" +
-                "num=" + num +
-                ", op='" + op + '\'' +
-                ", arg1='" + arg1 + '\'' +
-                ", arg2='" + arg2 + '\'' +
-                ", result='" + result + '\'' +
-                '}';
+        String arg1Str,arg2Str,resultStr;
+        if (arg1 == null)
+            arg1Str = "-";
+        else
+            arg1Str = arg1;
+
+        if (arg2 == null)
+            arg2Str = "-";
+        else
+            arg2Str = arg2;
+
+        if (result == null)
+            resultStr = "-";
+        else
+            resultStr = result;
+
+        return num + ": " + op + "," + arg1Str + "," + arg2Str + "," + resultStr;
     }
+
+//    @Override
+//    public String toString() {
+//        return "Quadruple{" +
+//                "num=" + num +
+//                ", op='" + op + '\'' +
+//                ", arg1='" + arg1 + '\'' +
+//                ", arg2='" + arg2 + '\'' +
+//                ", result='" + result + '\'' +
+//                '}';
+//    }
 
     public String getOp() {
         return op;

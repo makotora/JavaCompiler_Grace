@@ -1,6 +1,6 @@
 $comment
 
-fun main (argc : int; ref argv : char[][2]) : int
+fun main () : nothing
 	fun main (par1 : char; ref par2 : int) : nothing;
 	var x : int[10][10];
 	var array : int[2];

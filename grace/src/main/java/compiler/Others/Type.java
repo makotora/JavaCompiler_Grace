@@ -92,6 +92,14 @@ public class Type
         return type;
     }
 
+    public String makeReadable()
+    {
+        if (dimensions != null && dimensions.size() != 0)
+            return (type + dimensions);
+        else
+            return type;
+    }
+
     @Override
     public String toString() {
         return "Type{" +

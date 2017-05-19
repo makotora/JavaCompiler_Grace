@@ -44,6 +44,22 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //create the first scope (for or main func to be defined in
         symbolTable.enter();
 
+        //check if main (the first function defined) meets the specifications
+        //that is : (1)it has no args (2)returns nothing
+        AFuncDef main = (AFuncDef) node.getPFuncDef();
+
+        if (main.getPar().size() != 0)
+        {
+            System.out.println("Error! Program's main function is not allowed to take parameters!");
+            System.exit(-1);
+        }
+
+        if (!main.getRetType().toString().trim().equals("nothing"))
+        {
+            System.out.println("Error! Program's main function must return 'nothing'!");
+            System.exit(-1);
+        }
+
         //define grace's standard functions
         List<Variable> params;
         List<Integer> dimensions;
@@ -766,11 +782,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void caseAAssignmentStatement(AAssignmentStatement node)
     {
-
-//        System.out.println("tha kanw assign\n");
-//        System.out.println(node.getExpr().getClass());
-//        System.out.println(node.getLvalue());
-
         Type left = null;
         Type right = null;
 
@@ -793,21 +804,19 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.exit(-1);
         }
 
-        if (!left.sameType(right))
+        if (left.getDimensions() != null && left.getDimensions().size() != 0)
         {
-            System.out.println("Assignment error!Expecting '" + left.toString() + "' as expression!('" + right + "' given)");
+            System.out.println("Assignment error!Left lvalue cannot be an array!");
             System.exit(-1);
         }
 
-        String tmpLeft;
-        if (left.isArray())
+        if (!left.sameType(right))
         {
-            tmpLeft = "[" + left.getTempVar() + "]";
+            System.out.println("Assignment error!Expecting '" + left.makeReadable() + "' as expression!('" + right.makeReadable() + "' given)");
+            System.exit(-1);
         }
-        else
-        {
-            tmpLeft = left.getTempVar();
-        }
+
+        String tmpLeft = left.getTempVar();
 
         String tmpRight;
         if (right.isArray())
