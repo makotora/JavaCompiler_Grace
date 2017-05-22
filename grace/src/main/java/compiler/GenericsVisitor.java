@@ -15,12 +15,13 @@ import java.util.*;
 
 
 public class GenericsVisitor extends DepthFirstAdapter {
-    private int indent = 0;
-    private String indentation = "  ";
     private Type type = null;
     private int tmpVars;
     private Stack<Type> returnTypes = new Stack<Type>();
+    private Stack<Boolean> returnFound = new Stack<Boolean>();
+
     private SymbolTable symbolTable = new SymbolTable();
+
     private List<Quadruple> quads = new ArrayList<Quadruple>();
 
     public void visit(Node node)
@@ -242,6 +243,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //create unit quadaple
         quads.add(new Quadruple(quads.size() + 1,"unit", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
         returnTypes.push(new Type(node.getRetType().toString().trim()));//push return type to be checked when we find 'return' in the block
+        returnFound.push(new Boolean(false));
         //visit the function's block
         if(node.getBlock() != null) {
             node.getBlock().apply(this);
@@ -249,6 +251,14 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         //unit ends after the functions block
         returnTypes.pop();
+        Boolean returnWasFound = returnFound.pop();
+        //if this functions is supposed to return something (int/char) and it didnt.Error!
+        if (!node.getRetType().toString().trim().equals("nothing") && returnWasFound.equals(false))
+        {
+            System.out.println("No return in function '" + node.getId().getText() +
+                    "' returning '" + node.getRetType().toString().trim() + "'.");
+            System.exit(-1);
+        }
         quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
         symbolTable.exit();
     }
@@ -843,7 +853,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
             retType = getTypeEvaluation(node.getExpr());
             if (!retType.sameType(latestReturnType))
             {
-                System.out.println("Invalid return type!Expecting '" + latestReturnType + "'.(" + retType + " given)");
+                System.out.println("Invalid return type!Expecting '" + latestReturnType.makeReadable() + "'.(" + retType.makeReadable() + " given)");
                 System.exit(-1);
             }
             quads.add(new Quadruple(quads.size() + 1, "ret", retType.getTempVar(), null, null));
@@ -852,11 +862,15 @@ public class GenericsVisitor extends DepthFirstAdapter {
         {
             if (!latestReturnType.getType().equals("nothing"))
             {
-                System.out.println("Invalid return type!Expecting '" + latestReturnType + "'.You returned nothing!");
+                System.out.println("Invalid return type!Expecting '" + latestReturnType.makeReadable() + "'.You returned 'nothing'!");
                 System.exit(-1);
             }
             quads.add(new Quadruple(quads.size() + 1, "ret", null, null, null));
         }
+
+        //everything is ok.note that we found a (valid) return in the most recent function
+        returnFound.pop();
+        returnFound.push(new Boolean(true));
     }
 
     /*Make sure that 'math' things (e.g addition) are being done between the right type of 'nodes' (ints)*/
