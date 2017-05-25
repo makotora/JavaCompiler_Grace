@@ -525,6 +525,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
             {
                 isArray = true;
                 Type type = getTypeEvaluation(e);
+
+                if (!type.isInt())
+                {
+                    System.out.println(e.toString());
+                    System.out.println("Error!Expressions for array accessing must be of type 'int'!");
+                }
+
                 String tmpVar2;
                 if (type.isArray())
                 {
@@ -539,11 +546,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 tmpVar = "$" + tmpVars;
                 tmpVars++;
 
-                if (!type.isInt())
-                {
-                    System.out.println(e.toString());
-                    System.out.println("Error!Expressions for array accessing must be of type 'int'!");
-                }
             }
         }
         //type of variable/id use (result) is the type of the variable (depending of how many dimensions were used*/
@@ -583,6 +585,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         inAStringLvalue(node);
         Integer dimensionsGiven;
+        Type type = null;
+
         if(node.getString() != null)
         {
             node.getString().apply(this);
@@ -595,6 +599,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
             {
                 System.out.println("Error. A string only has one dimension to access!");
             }
+            else if (dimensionsGiven == 1)
+            {
+                type = getTypeEvaluation(copy.get(0));
+            }
             for(PExpr e : copy)
             {
                 e.apply(this);
@@ -605,11 +613,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
         {
             List<Integer> dimensions = new ArrayList();
             dimensions.add(0);
-            this.type = new Type("char", dimensions);
+            this.type = new Type("char", dimensions, node.getString().toString());
         }
         else//one dimension given
         {
-            this.type = new Type("char");
+            quads.add(new Quadruple(quads.size() + 1, "array", node.getString().toString(), type.getTempVar(), "$" + tmpVars));
+            this.type = new Type("char", "$" + tmpVars, true);
+            tmpVars++;
         }
     }
 
@@ -647,9 +657,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void caseACharExpr(ACharExpr node)
     {
-        this.type = new Type("char", "$" + tmpVars);
-        quads.add(new Quadruple(quads.size() + 1, "load", node.toString(), null, "$" + tmpVars));
-        tmpVars++;
+        this.type = new Type("char", node.getSingleChar().getText());
 
         if(node.getSingleChar() != null)
         {
@@ -856,7 +864,15 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 System.out.println("Invalid return type!Expecting '" + latestReturnType.makeReadable() + "'.(" + retType.makeReadable() + " given)");
                 System.exit(-1);
             }
-            quads.add(new Quadruple(quads.size() + 1, "ret", retType.getTempVar(), null, null));
+
+            String typeStr;
+            if (retType.isArray())
+                typeStr = "[" + retType.getTempVar() + "]";
+            else
+                typeStr = retType.getTempVar();
+
+            quads.add(new Quadruple(quads.size() + 1, ":=", typeStr, null, "$$"));
+            quads.add(new Quadruple(quads.size() + 1, "ret", null, null, null));
         }
         else //if its a plain 'return' (returns nothing), make sure that the function returns 'nothing'
         {
