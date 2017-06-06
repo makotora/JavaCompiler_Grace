@@ -8,7 +8,7 @@ Helpers
   ff = 12; //form feed
   cr = 13; //carriage return
   sp = ' '; //space
-  eol = cr | lf || cr lf; //end of line
+  eol = cr | lf | cr lf; //end of line
   whitespace = (sp | ht | ff | eol | vt)*;
 
   squote = '''; //single quote

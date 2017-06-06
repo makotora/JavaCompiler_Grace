@@ -8,8 +8,12 @@
 
 ## To run
 	Go to directory: grace/target/classes
-	To run: java compiler.Main < program.grace
+	To run: java compiler.Main program.grace
 
 ##Examples
-	Assignments examples as well as two examples of my own (whiletest.grace & ifwhiletest.grace)
+	Assignments examples as well as some of our own examples
 	are located in directory: grace/examples
+
+## Quadaples
+	We haven't made any assumptions of our own.
+	We basically followed the slides!

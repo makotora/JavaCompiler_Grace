@@ -697,57 +697,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
             this.type = type;//fcallExpression type is the same as the fcall's type
         }
     }
-//
-//    @Override
-//    public void caseALvalueExpr(ALvalueExpr node) {
-//        this.inALvalueExpr(node);
-//        Type type = getTypeEvaluation(node.getLvalue());
-//        System.out.println(node.getLvalue().getClass()+" \nhahaha");
-//        if (node.getSign().size() != 0)
-//        {
-//            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
-//            {
-//                System.out.println("Error!You can only put a sign in front of an 'int'!");
-//                System.exit(-1);
-//            }
-//            else
-//            {
-//                this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-//                quads.add(new Quadruple(quads.size() + 1, "load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
-//                tmpVars++;
-////        System.out.println("made a new tmpVar = $"+tmpVars);
-//                {
-//                    List<PSign> copy = new ArrayList<PSign>(node.getSign());
-//                    int minuses = 0;
-//                    for(PSign e : copy)
-//                    {
-//                        if (e instanceof compiler.node.ANegativeSign)
-//                            minuses++;
-//                        e.apply(this);
-//                    }
-//                    if (minuses % 2 != 0) {
-//                        quads.add(new Quadruple(quads.size() + 1, "load", "0", null, "$" + tmpVars));
-//                        String zero = "$" + tmpVars;
-//                        String num = "$" + (tmpVars - 1);
-//                        tmpVars++;
-//
-//                        quads.add(new Quadruple(quads.size() + 1, "-", zero, num, "$" + tmpVars));
-//                        tmpVars++;
-//                    }
-//                }
-//            }
-//        }
-//        else
-//        {
-//            this.type = new Type(type.getType(), type.getDimensions(), "$" + tmpVars);
-//            quads.add(new Quadruple(quads.size() + 1, "load", node.getLvalue().toString().trim(), null, "$" + tmpVars));
-//            tmpVars++;
-//        }
-//
-//
-//        this.outALvalueExpr(node);
-//    }
-
 
     @Override
     public void caseASignedExpr(ASignedExpr node) {

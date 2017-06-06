@@ -1,3 +1,8 @@
+$simple comment
+$$ multiple
+line 
+comment
+$$
 
 fun foo() :nothing
 	var k,y,x:int;
