@@ -184,7 +184,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.out.println(quad);
         }
 
-//        System.out.println(symbolTable);
+        System.out.println(symbolTable);
         symbolTable.exit();
     }
 
@@ -205,7 +205,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
 
         int paramBpOffset = 8;
-        for (PPar pPar : pars) {
+        for (PPar pPar : pars)
+        {
              tmpParameter = (APar) pPar;
              String type = tmpParameter.getType().toString().trim();
              boolean isReference;
@@ -226,9 +227,38 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
             }
 
+            //next we need to calculate how much space this parameter type
+            //will take on the stack
+            int paramSize;
+
+            //if param is passed by reference ALWAYS keep 4 bytes in mem for the address
+            if (isReference)
+            {
+                paramSize = 4;
+            }
+            else
+            {
+                //if it is not an array
+                if (dimensionList.isEmpty())
+                {
+                    //size of param if there are no dimensions (not an array)
+                    if ( type.equals("int") )
+                        paramSize = 4;
+                    else //char
+                        paramSize = 1;
+
+                }
+                //its an array
+                else//All arrays in grace are passed by reference! So:
+                {//we will keep 4 bytes (for the address) for this param
+                    paramSize = 4;
+                }
+            }
+
+            //for each name of this parameter type
             for (TId tId : tmpParameter.getId()) {
                 variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, paramBpOffset));
-                paramBpOffset += 4;
+                paramBpOffset += paramSize;
              }
 
         }
@@ -256,7 +286,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         //after all local defines of the function are visited
         //we are sure that there are no more local variables to be defined
-        localVariableBpOffset.pop();//pop 'next' offset since we won't need it
+        localVariableBpOffset.pop();//pop 'next' local variable offset since we won't need it
 
 
         //create unit quadaple
@@ -280,7 +310,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
 
-//        System.out.println(symbolTable);
+        System.out.println(symbolTable);
         symbolTable.exit();
     }
 
@@ -294,7 +324,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         int paramBpOffset = 8;
 
-        for (PPar pPar : pars) {
+        for (PPar pPar : pars)
+        {
             tmpParameter = (APar) pPar;
             String type = tmpParameter.getType().toString().trim();
             boolean isReference;
@@ -315,9 +346,38 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
             }
 
+            //next we need to calculate how much space this parameter type
+            //will take on the stack
+            int paramSize;
+
+            //if param is passed by reference ALWAYS keep 4 bytes in mem for the address
+            if (isReference)
+            {
+                paramSize = 4;
+            }
+            else
+            {
+                //if it is not an array
+                if (dimensionList.isEmpty())
+                {
+                    //size of param if there are no dimensions (not an array)
+                    if ( type.equals("int") )
+                        paramSize = 4;
+                    else //char
+                        paramSize = 1;
+
+                }
+                //its an array
+                else//All arrays in grace are passed by reference! So:
+                {//we will keep 4 bytes (for the address) for this param
+                    paramSize = 4;
+                }
+            }
+
+            //for each name of this parameter type
             for (TId tId : tmpParameter.getId()) {
                 variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, paramBpOffset));
-                paramBpOffset += 4;
+                paramBpOffset += paramSize;
             }
 
         }
@@ -335,9 +395,27 @@ public class GenericsVisitor extends DepthFirstAdapter {
             dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
         }
 
+        //calculate the size of that local variable in memory
+        int varSize;
+        //size of var if there are no dimensions
+        if ( type.equals("int") )
+            varSize = 4;
+        else
+            varSize = 1;
+
+
+        int totalElements = 1;
+        //if there are dimensions, multiply varSize by the total number of single elements in the array
+        for (Integer integer : dimensionList) {
+            totalElements *= integer;
+        }
+
+        varSize *= totalElements;
+
         for (TId tId : node.getId()) {
             symbolTable.insertAVariable(tId.toString(), type, dimensionList, localVariableBpOffset.lastElement());
-            int nextBpOffset = localVariableBpOffset.pop() - 4;
+            //set bpOffset for next localVariable (if there is one)
+            int nextBpOffset = localVariableBpOffset.pop() - varSize;
             localVariableBpOffset.push(nextBpOffset);
         }
 
