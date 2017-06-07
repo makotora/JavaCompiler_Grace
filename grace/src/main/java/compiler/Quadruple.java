@@ -17,7 +17,7 @@ public class Quadruple {
         this.arg1 = arg1;
         this.arg2 = arg2;
         this.result = result;
-        System.out.println(this );
+//        System.out.println(this );
     }
 
     public int getNum() {

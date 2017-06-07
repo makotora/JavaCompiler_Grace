@@ -17,8 +17,15 @@ import java.util.*;
 public class GenericsVisitor extends DepthFirstAdapter {
     private Type type = null;
     private int tmpVars;
+
+    //used to keep track of returns in functions
+    //and check if they return the correct thing
     private Stack<Type> returnTypes = new Stack<Type>();
     private Stack<Boolean> returnFound = new Stack<Boolean>();
+
+    //used to keep the bpOffset of the next local variable across all function definitions
+    //the top of the stack will always contain the offset of the next local var in the 'current' function
+    private Stack<Integer> localVariableBpOffset = new Stack<Integer>();
 
     private SymbolTable symbolTable = new SymbolTable();
 
@@ -69,14 +76,14 @@ public class GenericsVisitor extends DepthFirstAdapter {
         params = new ArrayList();
 
         dimensions = new ArrayList();
-        params.add(new Variable("n", "int", dimensions, 1, true, false));
+        params.add(new Variable("n", "int", dimensions, 1, true, false, 8));
         symbolTable.insertAFunction("puti", "nothing", params, true);
 
         //putc
         params = new ArrayList();
 
         dimensions = new ArrayList();
-        params.add(new Variable("c", "char", dimensions, 1, true, false));
+        params.add(new Variable("c", "char", dimensions, 1, true, false, 8));
         symbolTable.insertAFunction("putc", "nothing", params, true);
 
         //puts
@@ -84,7 +91,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("s", "char", dimensions, 1, true, true));
+        params.add(new Variable("s", "char", dimensions, 1, true, true, 8));
         symbolTable.insertAFunction("puts", "nothing", params, true);
 
         //geti
@@ -99,31 +106,31 @@ public class GenericsVisitor extends DepthFirstAdapter {
         params = new ArrayList();
 
         dimensions = new ArrayList();
-        params.add(new Variable("n", "int", dimensions, 1, true, false));
+        params.add(new Variable("n", "int", dimensions, 1, true, false, 8));
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("s", "char", dimensions, 1, true, true));
+        params.add(new Variable("s", "char", dimensions, 1, true, true, 12));
         symbolTable.insertAFunction("gets", "nothing", params, true);
 
         //abs
         params = new ArrayList();
 
         dimensions = new ArrayList();
-        params.add(new Variable("n", "int", dimensions, 1, true, false));
+        params.add(new Variable("n", "int", dimensions, 1, true, false, 8));
         symbolTable.insertAFunction("abs", "int", params, true);
 
         //ord
         params = new ArrayList();
 
         dimensions = new ArrayList();
-        params.add(new Variable("c", "char", dimensions, 1, true, false));
+        params.add(new Variable("c", "char", dimensions, 1, true, false, 8));
         symbolTable.insertAFunction("ord", "int", params, true);
 
         //chr
         params = new ArrayList();
 
         dimensions = new ArrayList();
-        params.add(new Variable("n", "int", dimensions, 1, true, false));
+        params.add(new Variable("n", "int", dimensions, 1, true, false, 8));
         symbolTable.insertAFunction("chr", "char", params, true);
 
         //strlen
@@ -131,7 +138,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("s", "char", dimensions, 1, true, true));
+        params.add(new Variable("s", "char", dimensions, 1, true, true, 8));
         symbolTable.insertAFunction("strlen", "int", params, true);
 
         //strcmp
@@ -139,10 +146,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("s1", "char", dimensions, 1, true, true));
+        params.add(new Variable("s1", "char", dimensions, 1, true, true, 8));
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("s2", "char", dimensions, 1, true, true));
+        params.add(new Variable("s2", "char", dimensions, 1, true, true, 12));
         symbolTable.insertAFunction("strcmp", "int", params, true);
 
         //strcpy
@@ -150,10 +157,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("trg", "char", dimensions, 1, true, true));
+        params.add(new Variable("trg", "char", dimensions, 1, true, true, 8));
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("src", "char", dimensions, 1, true, true));
+        params.add(new Variable("src", "char", dimensions, 1, true, true, 12));
         symbolTable.insertAFunction("strcpy", "nothing", params, true);
 
         //strcat
@@ -161,10 +168,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("trg", "char", dimensions, 1, true, true));
+        params.add(new Variable("trg", "char", dimensions, 1, true, true, 8));
         dimensions = new ArrayList();
         dimensions.add(0);
-        params.add(new Variable("src", "char", dimensions, 1, true, true));
+        params.add(new Variable("src", "char", dimensions, 1, true, true, 12));
         symbolTable.insertAFunction("strcat", "nothing", params, true);
 
     }
@@ -172,11 +179,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void outStart(Start node)
     {
-        System.out.println("\n------Compiling End------");
+        System.out.println("\n------Printing Quadruples------");
         for (Quadruple quad : quads) {
             System.out.println(quad);
         }
-            symbolTable.exit();
+
+//        System.out.println(symbolTable);
+        symbolTable.exit();
     }
 
 
@@ -186,12 +195,16 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void caseAFuncDef(AFuncDef node)
     {
+        //Push the bp offset of the first local variable (if there is one) for this function
+        localVariableBpOffset.push(-4);
+
         LinkedList<PPar> pars = node.getPar();
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
 
 
+        int paramBpOffset = 8;
         for (PPar pPar : pars) {
              tmpParameter = (APar) pPar;
              String type = tmpParameter.getType().toString().trim();
@@ -214,7 +227,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
 
             for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference));
+                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, paramBpOffset));
+                paramBpOffset += 4;
              }
 
         }
@@ -227,7 +241,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         for (i=0; i<variableList.size(); i++)
         {
             Variable var = variableList.get(i);
-            symbolTable.insertAParameter(var.getId(), var.getType(), var.getDimensions(), var.isReference());
+            symbolTable.insertAParameter(var.getId(), var.getType(), var.getDimensions(), var.isReference(), var.getBpOffset());
         }
 
         //visit all local defines of that function
@@ -239,6 +253,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
             PLocalDef e = (PLocalDef)var3.next();
             e.apply(this);
         }
+
+        //after all local defines of the function are visited
+        //we are sure that there are no more local variables to be defined
+        localVariableBpOffset.pop();//pop 'next' offset since we won't need it
+
 
         //create unit quadaple
         quads.add(new Quadruple(quads.size() + 1,"unit", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
@@ -260,6 +279,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.exit(-1);
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
+
+//        System.out.println(symbolTable);
         symbolTable.exit();
     }
 
@@ -270,6 +291,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
+
+        int paramBpOffset = 8;
 
         for (PPar pPar : pars) {
             tmpParameter = (APar) pPar;
@@ -293,7 +316,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
 
             for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference));
+                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, paramBpOffset));
+                paramBpOffset += 4;
             }
 
         }
@@ -312,7 +336,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
         for (TId tId : node.getId()) {
-            symbolTable.insertAVariable(tId.toString(), type, dimensionList);
+            symbolTable.insertAVariable(tId.toString(), type, dimensionList, localVariableBpOffset.lastElement());
+            int nextBpOffset = localVariableBpOffset.pop() - 4;
+            localVariableBpOffset.push(nextBpOffset);
         }
 
     }
@@ -1128,9 +1154,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
     }
 
     public void backpatch(List<Quadruple> list, String label) {
-        System.out.println("Bainw gia backpatch me lista: ");
-        System.out.println(list);
-        System.out.println("timi label = " + label);
+        //System.out.println("Bainw gia backpatch me lista: ");
+        //System.out.println(list);
+        //System.out.println("timi label = " + label);
         for (Quadruple quadruple : list) {
             quadruple.setResult(label);
         }

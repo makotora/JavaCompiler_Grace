@@ -10,6 +10,7 @@ public class Variable extends Definition {
     private List<Integer> dimensions;
     private boolean isAParameter;
     private boolean isReference;
+    private int bpOffset;
 
     public boolean isAParameter() {
         return isAParameter;
@@ -19,11 +20,16 @@ public class Variable extends Definition {
         return isReference;
     }
 
-    public Variable(String id, String type, List<Integer> dimensions, int scopeNumber, boolean isAParameter, boolean isReference) {
+    public int getBpOffset() {
+        return bpOffset;
+    }
+
+    public Variable(String id, String type, List<Integer> dimensions, int scopeNumber, boolean isAParameter, boolean isReference, int bpOffset) {
         super(id, type, scopeNumber);
         this.dimensions = dimensions;
         this.isAParameter = isAParameter;
         this.isReference = isReference;
+        this.bpOffset = bpOffset;
 
     }
 
@@ -61,7 +67,7 @@ public class Variable extends Definition {
                 str+= "[" + dimension + "]";
             }
         }
-        return str;
+        return str + ", bpOffset: " + bpOffset;
     }
 
 }

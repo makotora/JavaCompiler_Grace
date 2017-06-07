@@ -21,7 +21,7 @@ public class SymbolTable {
         this.symbolTable.push(tmpHash);
     }
 
-    public int insertAVariable(String id, String type, List<Integer> dimensions)
+    public int insertAVariable(String id, String type, List<Integer> dimensions, int bpOffset)
     {
         id = id.trim();
         type = type.trim();
@@ -34,7 +34,7 @@ public class SymbolTable {
         }
         else
         {
-            Definition newVar = new Variable(id, type, dimensions, this.symbolTable.size(), false, false);
+            Definition newVar = new Variable(id, type, dimensions, this.symbolTable.size(), false, false, bpOffset);
             tmpHash.put(id, newVar);
         }
 
@@ -45,7 +45,7 @@ public class SymbolTable {
         return symbolTable.size();
     }
 
-    public int insertAParameter(String id, String type, List<Integer> dimensions, boolean isReference)
+    public int insertAParameter(String id, String type, List<Integer> dimensions, boolean isReference, int bpOffset)
     {
         id = id.trim();
         type = type.trim();
@@ -58,7 +58,7 @@ public class SymbolTable {
         }
         else
         {
-            Definition newVar = new Variable(id, type, dimensions,this.symbolTable.size(), true, isReference);
+            Definition newVar = new Variable(id, type, dimensions,this.symbolTable.size(), true, isReference, bpOffset);
             tmpHash.put(id, newVar);
         }
 
