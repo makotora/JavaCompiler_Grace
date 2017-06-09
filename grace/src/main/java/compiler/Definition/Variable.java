@@ -67,7 +67,7 @@ public class Variable extends Definition {
                 str+= "[" + dimension + "]";
             }
         }
-        return str + ", bpOffset: " + bpOffset;
+        return str + ", " + id +", bpOffset: " + bpOffset;
     }
 
 }

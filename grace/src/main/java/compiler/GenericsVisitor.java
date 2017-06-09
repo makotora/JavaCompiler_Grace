@@ -16,7 +16,7 @@ import java.util.*;
 
 public class GenericsVisitor extends DepthFirstAdapter {
     private Type type = null;
-    private int tmpVars;
+    private int tempVarsCounter;
 
     //used to keep track of returns in functions
     //and check if they return the correct thing
@@ -25,9 +25,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     //used to keep the bpOffset of the next local variable across all function definitions
     //the top of the stack will always contain the offset of the next local var in the 'current' function
-    private Stack<Integer> localVariableBpOffset = new Stack<Integer>();
+    private Stack<Integer> functionVarsBpOffset = new Stack<Integer>();
 
     private SymbolTable symbolTable = new SymbolTable();
+
+    private Hashtable<String, TempVar> tempVarsHashTable = new Hashtable<String, TempVar>();
 
     private List<Quadruple> quads = new ArrayList<Quadruple>();
 
@@ -48,7 +50,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void inStart(Start node)
     {
-        tmpVars = 1;
+        tempVarsCounter = 1;
         //create the first scope (for or main func to be defined in
         symbolTable.enter();
 
@@ -185,6 +187,14 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
         System.out.println(symbolTable);
+
+        for (int i = 1; i < tempVarsCounter; i++)
+        {
+            String tmpVarName = "$" + i;
+            TempVar tmpVar = (TempVar) tempVarsHashTable.get(tmpVarName);
+            System.out.println(tmpVar);
+        }
+
         symbolTable.exit();
     }
 
@@ -196,7 +206,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     public void caseAFuncDef(AFuncDef node)
     {
         //Push the bp offset of the first local variable (if there is one) for this function
-        localVariableBpOffset.push(-4);
+        functionVarsBpOffset.push(-4);
 
         LinkedList<PPar> pars = node.getPar();
 
@@ -284,10 +294,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
             e.apply(this);
         }
 
-        //after all local defines of the function are visited
-        //we are sure that there are no more local variables to be defined
-        localVariableBpOffset.pop();//pop 'next' local variable offset since we won't need it
-
 
         //create unit quadaple
         quads.add(new Quadruple(quads.size() + 1,"unit", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
@@ -301,6 +307,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //unit ends after the functions block
         returnTypes.pop();
         Boolean returnWasFound = returnFound.pop();
+
+        //after all local defines of the function are visited there will be no more local variables to set and get bpOffsets
+        //after the function's block is visited there will be not more tempVariables to set and get bpOffsets
+        //we dont need to keep track of the bpOffset for this function anymore
+        functionVarsBpOffset.pop();//pop 'next' local variable offset since we won't need it
+
         //if this functions is supposed to return something (int/char) and it didnt.Error!
         if (!node.getRetType().toString().trim().equals("nothing") && returnWasFound.equals(false))
         {
@@ -413,10 +425,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
         varSize *= totalElements;
 
         for (TId tId : node.getId()) {
-            symbolTable.insertAVariable(tId.toString(), type, dimensionList, localVariableBpOffset.lastElement());
+            symbolTable.insertAVariable(tId.toString(), type, dimensionList, functionVarsBpOffset.lastElement());
             //set bpOffset for next localVariable (if there is one)
-            int nextBpOffset = localVariableBpOffset.pop() - varSize;
-            localVariableBpOffset.push(nextBpOffset);
+            int nextBpOffset = functionVarsBpOffset.pop() - varSize;
+            functionVarsBpOffset.push(nextBpOffset);
         }
 
     }
@@ -560,9 +572,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //if we are here,the function was called in a correct way
         //make a temp var for function to return result too (if it returns something)
         if (!function.getType().equals("nothing")) {
-            quads.add(new Quadruple(quads.size() + 1, "par", "$" + tmpVars, "RET", null));
-            this.type = new Type(function.getType(), "$" + (tmpVars));//type of function call (result) is the type of the function
-            tmpVars++;
+            String tempVarName= newTempVariable(function.getType());//temp variable keeping the return value,has the same type as the function..
+
+            quads.add(new Quadruple(quads.size() + 1, "par", tempVarName, "RET", null));
+            this.type = new Type(function.getType(), tempVarName);//type of function call (result) is the type of the function
         }
         else
         {
@@ -646,10 +659,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
                     tmpVar2 = type.getTempVar();
                 }
 
-                quads.add(new Quadruple(quads.size() + 1, "array", tmpVar, tmpVar2, "$" + tmpVars));
-                tmpVar = "$" + tmpVars;
-                tmpVars++;
-
+                String tempVarName = newTempVariable("address");
+                quads.add(new Quadruple(quads.size() + 1, "array", tmpVar, tmpVar2, tempVarName));
+                tmpVar = tempVarName;
             }
         }
         //type of variable/id use (result) is the type of the variable (depending of how many dimensions were used*/
@@ -721,9 +733,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else//one dimension given
         {
-            quads.add(new Quadruple(quads.size() + 1, "array", node.getString().toString(), type.getTempVar(), "$" + tmpVars));
-            this.type = new Type("char", "$" + tmpVars, true);
-            tmpVars++;
+            String tempVarName = newTempVariable("address");
+            quads.add(new Quadruple(quads.size() + 1, "array", node.getString().toString(), type.getTempVar(), tempVarName));
+            this.type = new Type("char", tempVarName, true);
         }
     }
 
@@ -744,11 +756,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 }
                 e.apply(this);
             }
-            if (minuses % 2 != 0) {
-
-                quads.add(new Quadruple(quads.size() + 1, "-", "0", tmpVar, "$" + tmpVars));
-                tmpVar = "$" + tmpVars;
-                tmpVars++;
+            if (minuses % 2 != 0)
+            {
+                String tempVarName = newTempVariable("int");
+                quads.add(new Quadruple(quads.size() + 1, "-", "0", tmpVar, tempVarName));
+                tmpVar = tempVarName;
             }
         }
         if(node.getNumber() != null)
@@ -790,8 +802,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
                         e.apply(this);
                     }
                     if (minuses % 2 != 0) {
-                        quads.add(new Quadruple(quads.size() + 1, "-", "0", type.getTempVar(), "$" + tmpVars));
-                        tmpVars++;
+                        String tempVarName = newTempVariable("int");
+                        quads.add(new Quadruple(quads.size() + 1, "-", "0", type.getTempVar(), tempVarName));
                     }
                 }
             }
@@ -818,7 +830,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         if (node.getSign().size() != 0)
         {
-            if (!type.isInt())//if expression is neither an int nor a char.it cant have a sign!
+            if (!type.isInt())//if expression is not an int.it cant have a sign!
             {
                 System.out.println("Error!You can only put a sign in front of an 'int'!");
                 System.exit(-1);
@@ -835,10 +847,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
                         e.apply(this);
                     }
-                    if (minuses % 2 != 0) {
-                        quads.add(new Quadruple(quads.size() + 1, "-", "0", tmpVar, "$" + tmpVars));
-                        tmpVar = "$"+tmpVars;
-                        tmpVars++;
+                    if (minuses % 2 != 0)
+                    {
+                        String tempVarName = newTempVariable("int");
+                        quads.add(new Quadruple(quads.size() + 1, "-", "0", tmpVar, tempVarName));
+                        tmpVar = tempVarName;
 
                     }
 
@@ -1183,7 +1196,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
         this.type = cond;
     }
 
-    public void exprQuad(String expr, Type left, Type right)
+
+
+
+    //Following are functions used across cases (things that are repeated in many cases)
+
+    public void exprQuad(String expr, Type left, Type right)//this is used at each expr type (add,sub,mult etc)
     {
         if (left == null)
         {
@@ -1222,9 +1240,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
             tmpRight = right.getTempVar();
         }
 
-        this.type = new Type(left.getType(), left.getDimensions(), "$" + tmpVars);
-        quads.add(new Quadruple(quads.size() + 1, expr, tmpLeft, tmpRight, "$" + tmpVars));
-        tmpVars++;
+        String tempVarName = newTempVariable("int");
+        this.type = new Type(left.getType(), left.getDimensions(), tempVarName);
+        quads.add(new Quadruple(quads.size() + 1, expr, tmpLeft, tmpRight, tempVarName));
     }
 
     String nextQuad() {
@@ -1281,5 +1299,40 @@ public class GenericsVisitor extends DepthFirstAdapter {
         tmpType.getFalseList().add(quads.get(quads.size() - 1));
         this.type = tmpType;
     }
+
+
+    //'creates' a new temp variable and saves it at our hashtable
+    String newTempVariable(String type)
+    {
+        String name = "$" + tempVarsCounter;
+        int size = 0;
+
+        if (type.equals("int") || type.equals("address"))
+        {
+            size = 4;
+        }
+        else if (type.equals("char"))
+        {
+            size = 1;
+        }
+        else//error
+        {
+            System.out.println("Invalid type given for a tempVar! : " + type );
+            System.exit(-1);
+        }
+
+        //create and add tempVariable to the hashtable
+        TempVar tempVariable = new TempVar(name, type, functionVarsBpOffset.lastElement());
+        tempVarsHashTable.put(name, tempVariable);
+
+        //update nextBpOffset according to this tempVar's size
+        int nextBpOffset = functionVarsBpOffset.pop() - size;
+        functionVarsBpOffset.push(nextBpOffset);
+
+        tempVarsCounter++;
+
+        return name;
+    }
+
 
 }

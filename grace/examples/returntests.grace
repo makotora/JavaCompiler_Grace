@@ -15,7 +15,7 @@ fun main() : nothing
 		if (z[0][0] # 0) then
 			return x1[0][1][2] + z[0][0];
 	}
-	fun choo(char_array : char[][2]) : char
+	fun choo(char_array : char[][2]; ref refVar : int) : char
 	var x : int;
 	var y: int;
 	var z2: char[2];
@@ -26,6 +26,9 @@ fun main() : nothing
 		return char_array[0][1];
 	}
 
+var test : int[10];
+var chrtest: char[1][2];
 {
+	choo(chrtest, test[1]);
 	return;
 }
