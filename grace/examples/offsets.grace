@@ -15,6 +15,7 @@ fun main() : nothing
 
 		return fm4;
 	}
+	var x : int;
 
 {
 	m4 <- 2 + 4 * 5 + (foo(m4, 'c', m16, m96, m100));

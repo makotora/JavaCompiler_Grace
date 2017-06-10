@@ -22,6 +22,7 @@ public class Main
          return;
      }
 
+     String inputFile = arguments[0];
 
    // Create a Parser instance.
      Parser p = null;
@@ -31,7 +32,7 @@ public class Main
                  new Parser(
                          new Lexer(
                                  new PushbackReader(
-                                         new InputStreamReader(new FileInputStream(arguments[0])), 1024)));
+                                         new InputStreamReader(new FileInputStream(inputFile)), 1024)));
      }
      catch (Exception e)
      {
@@ -48,7 +49,19 @@ public class Main
     {
    	  e.printStackTrace();
     }
-    tree.apply(new GenericsVisitor());
+
+    //cut all extensions of file given (e.g x.grace) .We want the name itself (x)
+     int indexOfLast = inputFile.lastIndexOf(".");
+     System.out.println(inputFile);
+
+     if (indexOfLast >= 0)
+     {
+         inputFile = inputFile.substring(0, indexOfLast);
+         indexOfLast = inputFile.lastIndexOf(".");
+     }
+
+     System.out.println(inputFile);
+    tree.apply(new GenericsVisitor(inputFile));//we passed the input file name so that we can create the assembly file
 
   }
 }

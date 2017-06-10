@@ -15,23 +15,51 @@ import java.util.*;
 
 
 public class GenericsVisitor extends DepthFirstAdapter {
-    private Type type = null;
-    private int tempVarsCounter;
+
+    //used to keep track of what type is every node
+    //recursively each node:
+    // (a)gets the types of its children,and check if they are valid
+    // (b)places its one type in the var (for the parent to see)
+    //this field is also used to keep track of the temporaryVariable name ($num) in which the result of expressions was put in
+    private Type type;
 
     //used to keep track of returns in functions
     //and check if they return the correct thing
-    private Stack<Type> returnTypes = new Stack<Type>();
-    private Stack<Boolean> returnFound = new Stack<Boolean>();
+    private Stack<Type> returnTypes;
+    private Stack<Boolean> returnFound;
 
     //used to keep the bpOffset of the next local variable across all function definitions
     //the top of the stack will always contain the offset of the next local var in the 'current' function
-    private Stack<Integer> functionVarsBpOffset = new Stack<Integer>();
+    private Stack<Integer> functionVarsBpOffset;
 
-    private SymbolTable symbolTable = new SymbolTable();
+    //keep information per scope (name,type,bpoffset etc) about the variables and functions (definitions,declaration)
+    private SymbolTable symbolTable;
 
-    private Hashtable<String, TempVar> tempVarsHashTable = new Hashtable<String, TempVar>();
+    //keep information (name,type,bpoffset) for temporary variables (all of them, not per scope)
+    private int tempVarsCounter;
+    private Hashtable<String, TempVar> tempVarsHashTable;
 
-    private List<Quadruple> quads = new ArrayList<Quadruple>();
+    //quadaples generated from grace code are kept in this list
+    private List<Quadruple> quads;
+
+    //FINALLY...for assembly code:
+    //we use the above information (symboltable, tempvarhash, quads)
+    //as help, so as to generate assembly code by transforming our quadaples
+    private AssemblyGenerator assemblyGenerator;
+
+    public GenericsVisitor(String filename)
+    {
+        type = null;
+        returnTypes = new Stack<Type>();
+        returnFound = new Stack<Boolean>();
+        functionVarsBpOffset = new Stack<Integer>();
+        symbolTable = new SymbolTable();
+        tempVarsHashTable = new Hashtable<String, TempVar>();
+        quads = new ArrayList<Quadruple>();
+
+        assemblyGenerator = new AssemblyGenerator(symbolTable, tempVarsHashTable, quads, filename);
+    }
+
 
     public void visit(Node node)
     {
@@ -186,16 +214,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.out.println(quad);
         }
 
-        System.out.println(symbolTable);
-
-        for (int i = 1; i < tempVarsCounter; i++)
-        {
-            String tmpVarName = "$" + i;
-            TempVar tmpVar = (TempVar) tempVarsHashTable.get(tmpVarName);
-            System.out.println(tmpVar);
-        }
-
         symbolTable.exit();
+        assemblyGenerator.closeFile();
     }
 
 
@@ -322,7 +342,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
 
-        System.out.println(symbolTable);
+        assemblyGenerator.generate();
         symbolTable.exit();
     }
 
@@ -1322,7 +1342,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
         //create and add tempVariable to the hashtable
-        TempVar tempVariable = new TempVar(name, type, functionVarsBpOffset.lastElement());
+        TempVar tempVariable = new TempVar(name, type, size, functionVarsBpOffset.lastElement());
         tempVarsHashTable.put(name, tempVariable);
 
         //update nextBpOffset according to this tempVar's size

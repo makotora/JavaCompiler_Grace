@@ -163,6 +163,12 @@ public class SymbolTable {
         this.symbolTable.pop();
     }
 
+    public boolean isLocal(Definition definition)
+    {
+        return (definition.getScopeNumber() == getSize());
+    }
+
+
     @Override
     public String toString()
     {
