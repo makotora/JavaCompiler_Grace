@@ -234,7 +234,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         List<Variable> variableList = new ArrayList();
 
 
-        int paramBpOffset = 8;
+        List<Integer> parameterSizes = new ArrayList();
         for (PPar pPar : pars)
         {
              tmpParameter = (APar) pPar;
@@ -286,11 +286,27 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
 
             //for each name of this parameter type
-            for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, paramBpOffset));
-                paramBpOffset += paramSize;
-             }
+            for (TId tId : tmpParameter.getId())
+            {
+                parameterSizes.add(paramSize);//We save each parameter's size in order to adjust their bpOffsets afterwards
+                //(We want the last one to be the one having offset + 16)
+                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, 0));
+                //we will adjust bpOffsets afterwards, just put 0 for now
+            }
+        }
 
+        //use the parameters' sizes saved above, so as to adjust bpOffsets
+        //again: the last parameter of the function will be the one having +16 offset!
+        int totalParams = variableList.size();
+        int nextParamBpOffset = 16;
+
+        for (int i=totalParams-1; i>=0; i--)//for all parameters starting from the last one
+        {
+            Variable param = variableList.get(i);//get that parameter
+            int paramSize = parameterSizes.get(i);//get its size
+
+            param.setBpOffset(nextParamBpOffset);//assign the next available offset to this parameter
+            nextParamBpOffset += paramSize;//next parameter (if there is one) will be placed after this one
         }
 
         //define function
@@ -353,8 +369,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
-
-        int paramBpOffset = 8;
+        List<Integer> parameterSizes = new ArrayList();
 
         for (PPar pPar : pars)
         {
@@ -408,10 +423,25 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
             //for each name of this parameter type
             for (TId tId : tmpParameter.getId()) {
-                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, paramBpOffset));
-                paramBpOffset += paramSize;
+                parameterSizes.add(paramSize);
+                //like in the func_def case, we save the sizes in order to adjust the correct offsets afterwards (last param: +16 offset)
+                variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, 0));
             }
 
+        }
+
+        //use the parameters' sizes saved above, so as to adjust bpOffsets
+        //again: the last parameter of the function will be the one having +16 offset!
+        int totalParams = variableList.size();
+        int nextParamBpOffset = 16;
+
+        for (int i=totalParams-1; i>=0; i--)//for all parameters starting from the last one
+        {
+            Variable param = variableList.get(i);//get that parameter
+            int paramSize = parameterSizes.get(i);//get its size
+
+            param.setBpOffset(nextParamBpOffset);//assign the next available offset to this parameter
+            nextParamBpOffset += paramSize;//next parameter (if there is one) will be placed after this one
         }
 
         symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, false);

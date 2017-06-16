@@ -1,4 +1,5 @@
 fun main() : nothing
+	fun foo(p26 : int; p25: char; p21: int[4][2]; p20: char; p16: int) : int; $just a declaration test
 	var m4 : int;
 	var m8 : int[2];
 	var m16 : int[10][2];
@@ -6,7 +7,7 @@ fun main() : nothing
 	var m97 : char[3][1];
 	var m100 : int;
 
-	fun foo(p8 : int; p12: char; p13: int[4][2]; p17: char; p18: int) : int
+	fun foo(p26 : int; p25: char; p21: int[4][2]; p20: char; p16: int) : int
 	var fm4 : int;
 	var fm8 : char[2];
 	var fm10 : int[5];

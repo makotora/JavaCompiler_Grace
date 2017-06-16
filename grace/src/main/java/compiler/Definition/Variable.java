@@ -70,4 +70,7 @@ public class Variable extends Definition {
         return str + ", " + id +", bpOffset: " + bpOffset;
     }
 
+    public void setBpOffset(int bpOffset) {
+        this.bpOffset = bpOffset;
+    }
 }

@@ -50,9 +50,8 @@ public class Main
    	  e.printStackTrace();
     }
 
-    //cut all extensions of file given (e.g x.grace) .We want the name itself (x)
-     int indexOfLast = inputFile.lastIndexOf(".");
-     System.out.println(inputFile);
+    //cut .grace file extension if given.We want the name itself (x)
+     int indexOfLast = inputFile.lastIndexOf(".grace");
 
      if (indexOfLast >= 0)
      {
@@ -60,7 +59,6 @@ public class Main
          indexOfLast = inputFile.lastIndexOf(".");
      }
 
-     System.out.println(inputFile);
     tree.apply(new GenericsVisitor(inputFile));//we passed the input file name so that we can create the assembly file
 
   }

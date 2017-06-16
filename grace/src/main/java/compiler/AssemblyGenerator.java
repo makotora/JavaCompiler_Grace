@@ -34,7 +34,6 @@ public class AssemblyGenerator {
         String assemblyFileName = filename + ".s";
         try
         {
-            System.out.println(assemblyFileName);
             FileWriter fw = new FileWriter(assemblyFileName);
             assemblyWriter = new BufferedWriter(fw);
         }
@@ -141,7 +140,8 @@ public class AssemblyGenerator {
         for (int i=nextQuadToTranform; i<totalQuads; i++)
         {
             Quadruple quad = quads.get(i);
-            System.out.println(quad);
+            System.out.println(quad);//print the quad
+            //we will also print the assembly code generated for this quad
             String label = "@" + quad.getNum() + "\n";
             String quadOp = quad.getOp();
 
@@ -235,7 +235,7 @@ public class AssemblyGenerator {
                 System.exit(-1);
             }
 
-            System.out.println(assemblyCode);
+            System.out.println(assemblyCode);//print the assembly code generated for this quad
             try {
                 assemblyWriter.write(assemblyCode);
             } catch (Exception e) {
