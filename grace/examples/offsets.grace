@@ -12,12 +12,16 @@ fun main() : nothing
 	var fm8 : char[2];
 	var fm10 : int[5];
 	{
-		fm4 <- 2 * 5 + - (3 + 3) + fm10[2] + m16[0][2];
+$		fm4 <- 2 * 5 + - (3 + 3) + fm10[2] + m16[0][2];
 
 		return fm4;
 	}
 	var x : int;
 
 {
-	m4 <- 2 + 4 * 5 + (foo(m4, 'c', m16, m96, m100));
+		m8[1] <- 2;
+		m4 <- 2 + 3;
+		m4 <- m4 mod 2;
+
+$	m4 <- 2 + 4 * 5 + (foo(m4, 'c', m16, m96, m100));
 }
