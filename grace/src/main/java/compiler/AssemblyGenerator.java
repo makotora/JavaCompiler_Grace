@@ -24,6 +24,7 @@ public class AssemblyGenerator {
     private List<Quadruple> quads;
     private int nextQuadToTranform;//keep track of how many quads we have transformed so far,to continue from there
     private BufferedWriter assemblyWriter;
+    private String recentCode;
 
     public AssemblyGenerator(SymbolTable symbolTable, Hashtable<String, TempVar> tempVarHashtable, List<Quadruple> quads, String filename) {
         this.symbolTable = symbolTable;
@@ -53,8 +54,9 @@ public class AssemblyGenerator {
         return parsable;
     }
 
+
     //Help routines used to generate assembly code
-    private String load(String R, String a)
+    private void load(String R, String a)
     {
         Definition definition;
         String generatedCode = "";
@@ -73,8 +75,7 @@ public class AssemblyGenerator {
                 sizeType = "BYTE";
             }
 
-            generatedCode = "\tmov " + R + "," + sizeType + " PTR [ebp - " + tmpVar.getBpOffset()*(-1) + "]\n";
-            return generatedCode;
+            writeToFile("mov " + R + "," + sizeType + " PTR [ebp - " + tmpVar.getBpOffset()*(-1) + "]");
         }
         else if ( (definition = symbolTable.lookup(a)) != null )
         {//it is a variable (local or not local)
@@ -95,38 +96,35 @@ public class AssemblyGenerator {
             {
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    generatedCode += "\tmov esi, " + sizeType + " [ebp + " + variable.getBpOffset() + "]\n";
-                    generatedCode += "\tmov " + R + ", " + sizeType + " PTR [esi]\n";
+                    writeToFile("mov esi, " + sizeType + " [ebp + " + variable.getBpOffset() + "]");
+                    writeToFile("\tmov " + R + ", " + sizeType + " PTR [esi]");
                 }
                 else//it is not a parameter passed by reference
                 {//so it is a parameter by value,or simply a local variable
 
                     if (variable.isAParameter())
-                        generatedCode = "\tmov " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]\n";
+                        writeToFile("mov " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
                     else//it is a local variable
-                        generatedCode = "\tmov " + R + "," + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]\n";
-
-                    return generatedCode;
+                        writeToFile("mov " + R + "," + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]");
                 }
             }
             else//variable is not local (need access links, to get to the stack record were it IS local)
             {
                 //need to implement getAR function
-                generatedCode += "\tgetAR(a)\n";
+                writeToFile("getAR(a)");
 
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    generatedCode += "\tmov esi, DWORD PTR [esi + " + variable.getBpOffset() + "]\n";
-                    generatedCode += "\tmov " + R + ", " + sizeType + " PTR [esi]\n";
+                    writeToFile("mov esi, DWORD PTR [esi + " + variable.getBpOffset() + "]");
+                    writeToFile("mov " + R + ", " + sizeType + " PTR [esi]");
                 }
                 else//it is not a parameter passed by reference
                 {//so it is a parameter by value,or simply a local variable
                     if (variable.isAParameter())
-                        generatedCode = "\tmov " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]\n";
+                        writeToFile("mov " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
                     else//it is a local variable
-                        generatedCode = "\tmov " + R + "," + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]\n";
+                        writeToFile("\tmov " + R + "," + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]");
 
-                    return generatedCode;
                 }
 
             }
@@ -135,23 +133,19 @@ public class AssemblyGenerator {
         {
             if (isParsable(a)) {
                 int x = Integer.parseInt(a);
-                generatedCode += "\tmov " + R + ", " + x + " \n";
+                writeToFile("mov " + R + ", " + x);
             } else
-                generatedCode += "\tmov " + R + ", ASCII(" + a.replace("'", "") + ")\n";
-
-            return generatedCode;
+                writeToFile("\tmov " + R + ", ASCII(" + a.replace("'", "") + ")");
         }
-
-        return "";
     }
 
-    private String loadAddr(String R, String a) {
+
+    private void loadAddr(String R, String a) {
         Definition definition;
         String generatedCode = "";
         if (tempVarHashtable.containsKey(a)) {
             System.out.println("No loadAddr for tmpVarin DIAFANIES. Must be an error!\nExiting\n");
             System.exit(-1);
-            return generatedCode;
         } else if ((definition = symbolTable.lookup(a)) != null) {//it is a variable (local or not local)
             Variable variable = (Variable) definition;
             String sizeType;
@@ -175,9 +169,7 @@ public class AssemblyGenerator {
                 {//so it is a parameter by value,or simply a local variable
 
                     if (variable.isAParameter())
-                        generatedCode = "\tlea " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]\n";
-
-                    return generatedCode;
+                        writeToFile("lea " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
                 }
             } else//variable is not local (need access links, to get to the stack record were it IS local)
             {
@@ -185,15 +177,14 @@ public class AssemblyGenerator {
                 //Need to implement genika!
             }
         }
-
-        return "";
     }
 
-    private String store(String R, String a) {
+    private void store(String R, String a) {
         Definition definition;
         String generatedCode = "";
 
-        if (tempVarHashtable.containsKey(a)) {//it is a temp variables
+        if (tempVarHashtable.containsKey(a))
+        {//it is a temp variables
             TempVar tmpVar = tempVarHashtable.get(a);
             int size = tmpVar.getSize();
             String sizeType;
@@ -205,9 +196,9 @@ public class AssemblyGenerator {
                 sizeType = "BYTE";
             }
 
-            generatedCode = "\tmov " + sizeType + " PTR [ebp - " + tmpVar.getBpOffset() * (-1) + "]" + "," + R + "\n";
-            return generatedCode;
-        } else if ((definition = symbolTable.lookup(a)) != null) {//it is a variable (local or not local)
+            writeToFile("mov " + sizeType + " PTR [ebp - " + tmpVar.getBpOffset() * (-1) + "]" + "," + R);
+        }
+        else if ((definition = symbolTable.lookup(a)) != null) {//it is a variable (local or not local)
             Variable variable = (Variable) definition;
             String sizeType;
 
@@ -222,44 +213,41 @@ public class AssemblyGenerator {
             if (symbolTable.isLocal(variable)) {
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    generatedCode += "\tmov esi, " + sizeType + "PTR [ebp + " + variable.getBpOffset() + "]\n";
-                    generatedCode += "\tmov " + sizeType + " PTR [esi], " + R + "\n";
+                    writeToFile("mov esi, " + sizeType + "PTR [ebp + " + variable.getBpOffset() + "]");
+                    writeToFile("\tmov " + sizeType + " PTR [esi], " + R);
                 } else//it is not a parameter passed by reference
                 {//so it is a parameter by value,or simply a local variable
 
                     if (variable.isAParameter())
-                        generatedCode = "\tmov " + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]," + R + "\n";
+                        writeToFile("mov " + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]," + R);
                     else//it is a local variable
-                        generatedCode = "\tmov " + sizeType + " PTR [ebp - " + variable.getBpOffset() * (-1) + "]," + R + "\n";
+                        writeToFile("mov " + sizeType + " PTR [ebp - " + variable.getBpOffset() * (-1) + "]," + R);
                 }
-                return generatedCode;
 
-            } else//variable is not local (need access links, to get to the stack record were it IS local)
+            }
+            else//variable is not local (need access links, to get to the stack record were it IS local)
             {
                 //need to implement getAR function
-                generatedCode += "\tgetAR(a)\n";
+                writeToFile("getAR(a)");
 
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    generatedCode += "\tmov esi, DWORD PTR [esi + " + variable.getBpOffset() + "]\n";
-                    generatedCode += "\tmov " + sizeType + " PTR [esi], " + R + " \n";
-                } else//it is not a parameter passed by reference
+                    writeToFile("mov esi, DWORD PTR [esi + " + variable.getBpOffset() + "]");
+                    writeToFile("mov " + sizeType + " PTR [esi], " + R);
+                }
+                else//it is not a parameter passed by reference
                 {//so it is a parameter by value,or simply a local variable
                     if (variable.isAParameter())
-                        generatedCode = "\tmov " + sizeType + " PTR [ebp + " + variable.getBpOffset() + "], " + R + "\n";
+                        writeToFile("mov " + sizeType + " PTR [ebp + " + variable.getBpOffset() + "], " + R);
                     else//it is a local variable
-                        generatedCode = "\tmov " + sizeType + " PTR [ebp - " + variable.getBpOffset() + "], " + R + "\n";
+                        writeToFile("mov " + sizeType + " PTR [ebp - " + variable.getBpOffset() + "], " + R);
 
                 }
-                return generatedCode;
             }
         } else//it is a constant (number or char)
         {
 
         }
-
-        return "";
-
     }
 
     //generates assembly code from the most recent quads
@@ -275,8 +263,6 @@ public class AssemblyGenerator {
             System.out.println(quad);//print the quad
             //we will also print the assembly code generated for this quad
             String label = "@" + quad.getNum() + "\n";
-            String quadOp = quad.getOp();
-
             //this block of assembly will have '@quadnum' as a label
             try
             {
@@ -287,22 +273,23 @@ public class AssemblyGenerator {
                 e.printStackTrace();
             }
 
-            String assemblyCode = "";
+            String quadOp = quad.getOp();
+            this.recentCode = "";//reset recentCode (in each loop,it contains the assembly code generated)
 
             //transform them to assembly code according to each quad's op type
             if (quadOp.equals(":="))
-                assemblyAssign(quad, assemblyCode);
+                assemblyAssign(quad);
 
             else if (quadOp.equals("array"))
             {
 
             }
             else if (quadOp.equals("+") || quadOp.equals("-"))
-                assemblyAddMinus(quad, assemblyCode);
+                assemblyAddMinus(quad);
             else if (quadOp.equals("*"))
-                assemblyMult(quad, assemblyCode);
+                assemblyMult(quad);
             else if (quadOp.equals("div") || quadOp.equals("mod"))
-                assemblyDivMod(quad, assemblyCode);
+                assemblyDivMod(quad);
 
             else if (quadOp.equals("=") || quadOp.equals("<") || quadOp.equals("<=") || quadOp.equals(">") || quadOp.equals(">=") || quadOp.equals("#"))
             {
@@ -321,7 +308,7 @@ public class AssemblyGenerator {
 
             }
             else if (quadOp.equals("par"))
-                assemblyParameterLoad(quad, assemblyCode);
+                assemblyParameterLoad(quad);
 
             else if (quadOp.equals("call"))
             {
@@ -337,15 +324,105 @@ public class AssemblyGenerator {
                 System.exit(-1);
             }
 
-            System.out.println(assemblyCode);//print the assembly code generated for this quad
-            try {
-                assemblyWriter.write(assemblyCode);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            System.out.println(recentCode);//print the assembly code generated for this quad
         }
 
         nextQuadToTranform = totalQuads;
+    }
+
+
+    public void assemblyAddMinus(Quadruple quad) {
+        String quadOp = quad.getOp();
+        String x = quad.getArg1();
+        String y = quad.getArg2();
+        String z = quad.getResult();
+
+        load("eax", x);
+        load("edx", y);
+
+        if (quadOp.equals("+"))
+            writeToFile("add eax, edx");
+        else
+            writeToFile("sub eax, edx");
+
+        store("eax", z);
+    }
+
+
+    public void assemblyMult(Quadruple quad) {
+        String x = quad.getArg1();
+        String y = quad.getArg2();
+        String z = quad.getResult();
+
+        load("eax", x);
+        load("ecx", y);
+
+        writeToFile("imul ecx");
+
+        store("ecx", z);
+    }
+
+    public void assemblyAssign(Quadruple quad) {
+        String x = quad.getArg1();
+        String z = quad.getResult();
+
+        load("eax", x);
+        store("eax", z);
+    }
+
+    public void assemblyDivMod(Quadruple quad) {
+        String quadOp = quad.getOp();
+        String x = quad.getArg1();
+        String y = quad.getArg2();
+        String z = quad.getResult();
+
+
+        load("eax", x);
+        writeToFile("cdq");
+
+        load("ebx", y);
+
+        writeToFile("idiv ebx");
+
+        if (quadOp.equals("div"))
+            store("eax", z);
+        else if (quadOp.equals("mod"))
+            store("edx", z);
+
+    }
+
+    public void assemblyParameterLoad(Quadruple quad) {
+        String x = quad.getArg1();
+        String passType = quad.getArg2();
+
+        if (passType.equals("V")) {
+            load("eax", x);
+            writeToFile("push eax");
+        }
+        else if (passType.equals("R") || passType.equals("RET")) {
+
+        }
+        else
+        {
+            System.out.println("Unknown 'par' pass type : " + passType);
+            System.exit(-1);
+        }
+    }
+
+
+    //assembly file functions
+    private void writeToFile(String assemblyCode)
+    {
+        String indentedCode = "\t" + assemblyCode + "\n";
+        this.recentCode += indentedCode;
+
+        try
+        {
+            assemblyWriter.write(indentedCode);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void closeFile()
@@ -357,88 +434,5 @@ public class AssemblyGenerator {
         {
             e.printStackTrace();
         }
-    }
-
-    public void assemblyAddMinus(Quadruple quad, String code) {
-        String quadOp = quad.getOp();
-        String x = quad.getArg1();
-        String y = quad.getArg2();
-        String z = quad.getResult();
-        code += load("eax", x);
-        code += load("edx", y);
-
-        if (quadOp.equals("+"))
-            code += "\t" + "add eax, edx\n";
-        else
-            code += "\t" + "sub eax, edx\n";
-
-        code += store("eax", z);
-        System.out.println("here\n\n" + code + "\n\n\n\n");
-    }
-
-    public void assemblyMult(Quadruple quad, String code) {
-        String x = quad.getArg1();
-        String y = quad.getArg2();
-        String z = quad.getResult();
-
-        code += load("eax", x);
-        code += load("ecx", y);
-
-        code += "\timul ecx \n";
-
-        code += store("ecx", z);
-        System.out.println("here\n\n" + code + "\n\n\n\n");
-
-    }
-
-    public void assemblyAssign(Quadruple quad, String code) {
-        String x = quad.getArg1();
-        String z = quad.getResult();
-
-        code += load("eax", x);
-        code += store("eax", z);
-
-        System.out.println("here\n\n" + code + "\n\n\n\n");
-
-    }
-
-    public void assemblyDivMod(Quadruple quad, String code) {
-        String quadOp = quad.getOp();
-        String x = quad.getArg1();
-        String y = quad.getArg2();
-        String z = quad.getResult();
-
-        code += load("eax", x);
-        code += "\tcdq\n";
-
-        code += load("ebx", y);
-
-        code += "\tidiv ebx\n";
-
-        if (quadOp.equals("div"))
-            code += store("eax", z);
-        else if (quadOp.equals("mod"))
-            code += store("edx", z);
-
-        System.out.println("here\n\n" + code + "\n\n\n\n");
-
-    }
-
-    public void assemblyParameterLoad(Quadruple quad, String code) {
-        String x = quad.getArg1();
-        String passType = quad.getArg2();
-
-        if (passType.equals("V")) {
-            code += load("eax", x);
-            code += "\tpush eax\n";
-        } else if (passType.equals("R") || passType.equals("RET")) {
-
-        } else {
-            System.out.println("Unknown 'par' pass type : " + passType);
-            System.exit(-1);
-        }
-
-        System.out.println("here\n\n" + code + "\n\n\n\n");
-
     }
 }

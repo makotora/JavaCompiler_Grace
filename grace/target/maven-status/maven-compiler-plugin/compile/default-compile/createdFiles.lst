@@ -27,6 +27,7 @@ compiler/node/AAndCond.class
 compiler/lexer/Lexer.class
 compiler/node/PExpr.class
 compiler/node/TReturn.class
+compiler/AssemblyGenerator.class
 compiler/node/TSimpleCom.class
 compiler/node/TWhitespace.class
 compiler/node/AFuncDef.class
@@ -38,6 +39,7 @@ compiler/node/TId.class
 compiler/Definition/Variable.class
 compiler/Quadruple.class
 compiler/node/TThen.class
+compiler/Others/TempVar.class
 compiler/node/ANotCond.class
 compiler/node/AIdLvalue.class
 compiler/node/PFuncDecl.class
