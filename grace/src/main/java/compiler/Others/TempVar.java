@@ -6,12 +6,9 @@ package compiler.Others;
 public class TempVar {
     private String name;
     private String type;//A temp var can be: int char address
+
     private int size;
     private int bpOffset;
-
-    public int getSize() {
-        return size;
-    }
 
     public TempVar(String name, String type, int size, int bpOffset) {
 
@@ -20,6 +17,10 @@ public class TempVar {
         this.size = size;
 
         this.bpOffset = bpOffset;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     @Override
