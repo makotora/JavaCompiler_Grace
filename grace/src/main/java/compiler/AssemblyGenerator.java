@@ -75,7 +75,7 @@ public class AssemblyGenerator {
                 sizeType = "BYTE";
             }
 
-            writeToFile("mov " + R + "," + sizeType + " PTR [ebp - " + tmpVar.getBpOffset()*(-1) + "]");
+            writeToFile("mov " + R + ", " + sizeType + " PTR [ebp - " + tmpVar.getBpOffset()*(-1) + "]");
         }
         else if ( (definition = symbolTable.lookup(a)) != null )
         {//it is a variable (local or not local)
@@ -103,15 +103,15 @@ public class AssemblyGenerator {
                 {//so it is a parameter by value,or simply a local variable
 
                     if (variable.isAParameter())
-                        writeToFile("mov " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
+                        writeToFile("mov " + R + ", " + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
                     else//it is a local variable
-                        writeToFile("mov " + R + "," + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]");
+                        writeToFile("mov " + R + ", " + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]");
                 }
             }
             else//variable is not local (need access links, to get to the stack record were it IS local)
             {
                 //need to implement getAR function
-                writeToFile("getAR(a)");
+                writeToFile("getAR("+a+")");
 
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
@@ -121,9 +121,9 @@ public class AssemblyGenerator {
                 else//it is not a parameter passed by reference
                 {//so it is a parameter by value,or simply a local variable
                     if (variable.isAParameter())
-                        writeToFile("mov " + R + "," + sizeType + " PTR [esi + " + variable.getBpOffset() + "]");
+                        writeToFile("mov " + R + ", " + sizeType + " PTR [esi + " + variable.getBpOffset() + "]");
                     else//it is a local variable
-                        writeToFile("mov " + R + "," + sizeType + " PTR [esi - " + variable.getBpOffset() * (-1) + "]");
+                        writeToFile("mov " + R + ", " + sizeType + " PTR [esi - " + variable.getBpOffset() * (-1) + "]");
 
                 }
 
@@ -146,14 +146,15 @@ public class AssemblyGenerator {
 
                 load("edi", var);
 
-                writeToFile("mov " + R + " " + sizeType + "PTR [edi]");
+                writeToFile("mov " + R + ", " + sizeType + " PTR [edi]");
 
-            } else {
+            }
+            else {
                 if (isParsable(a)) {
                     int x = Integer.parseInt(a);
                     writeToFile("mov " + R + ", " + x);
                 } else
-                    writeToFile("mov " + R + ", ASCII(" + a.replace("'", "") + ")");
+                    writeToFile("mov " + R + ", " + a);
             }
         }
     }
@@ -180,27 +181,35 @@ public class AssemblyGenerator {
             if (symbolTable.isLocal(variable)) {
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    writeToFile("mov" + R + ", DWORD PTR [ebp + " + variable.getBpOffset() + "]");
-                } else//it is not a parameter passed by reference
+                    writeToFile("mov " + R + ", DWORD PTR [ebp + " + variable.getBpOffset() + "]");
+                }
+                else//it is not a parameter passed by reference
                 {//so it is a parameter by value,or simply a local variable
 
                     if (variable.isAParameter())
-                        writeToFile("lea " + R + "," + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
+                        writeToFile("lea " + R + ", " + sizeType + " PTR [ebp + " + variable.getBpOffset() + "]");
                     else
-                        System.out.println("egine MEGALI malakia sto loadAddr local else!!!\n");
+                        writeToFile("lea " + R + ", " + sizeType + " PTR [ebp - " + variable.getBpOffset()*(-1) + "]");
                 }
-            } else//variable is not local (need access links, to get to the stack record were it IS local)
+            }
+            else//variable is not local (need access links, to get to the stack record were it IS local)
             {
                 //----------implement getAr()------------
                 //need to implement getAR function
-                writeToFile("getAR(a)");
+                writeToFile("getAR("+a+")");
 
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    writeToFile("mov " + R + "," + sizeType + " PTR [esi + " + variable.getBpOffset() + "]");
-                } else
-                    writeToFile("lea " + R + "," + sizeType + " PTR [esi + " + variable.getBpOffset() + "]");
+                    writeToFile("mov " + R + ", DWORD PTR [esi + " + variable.getBpOffset() + "]");
+                }
+                else//it is not a parameter passed by reference
+                {//so it is a parameter by value,or simply a local variable
 
+                    if (variable.isAParameter())
+                        writeToFile("lea " + R + ", " + sizeType + " PTR [esi + " + variable.getBpOffset() + "]");
+                    else
+                        writeToFile("lea " + R + ", " + sizeType + " PTR [esi - " + variable.getBpOffset()*(-1) + "]");
+                }
             }
         } else {
             if (a.startsWith("[")) {
@@ -262,7 +271,7 @@ public class AssemblyGenerator {
             else//variable is not local (need access links, to get to the stack record were it IS local)
             {
                 //need to implement getAR function
-                writeToFile("getAR(a)");
+                writeToFile("getAR("+a+")");
 
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
@@ -295,7 +304,7 @@ public class AssemblyGenerator {
 
                 load("edi", var);
 
-                writeToFile("mov sizeType PTR [edi], " + R);
+                writeToFile("mov " + sizeType + " PTR [edi], " + R);
 
             }
         }
@@ -333,7 +342,7 @@ public class AssemblyGenerator {
 
             else if (quadOp.equals("array"))
             {
-
+                assemblyArray(quad);
             }
             else if (quadOp.equals("+") || quadOp.equals("-"))
                 assemblyAddMinus(quad);
@@ -442,16 +451,26 @@ public class AssemblyGenerator {
 
     }
 
-    public void assemblyArray(Quadruple quad) {
+    public void assemblyArray(Quadruple quad)
+    {
         String x = quad.getArg1();
         String y = quad.getArg2();
         String z = quad.getResult();
 
+        String arrayType = symbolTable.lookup(x).getType();//This should never throw null pointer exception
+        //if the quad array is generated than x must be a defined lvalue in the symbol table!!
 
         load("eax", y);
-///lathos        writeToFile("mov eax");
+        if (arrayType.equals("int"))
+        {
+            writeToFile("mov ecx, 4");
+            writeToFile("imul ecx");
+        }
+        //if its char, no point multiplying by 1..
 
-
+        loadAddr("ecx", x);
+        writeToFile("add eax, ecx");
+        store("eax", z);
     }
 
     public void assemblyParameterLoad(Quadruple quad) {

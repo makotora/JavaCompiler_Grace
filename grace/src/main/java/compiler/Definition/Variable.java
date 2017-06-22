@@ -50,8 +50,8 @@ public class Variable extends Definition {
 
             //if dim1*dim2 is 0,then at least one of them is 0
             //if one of them is 0 than the dimensions match
-//            if (dim1*dim2 != 0 && dim1 != dim2)
-//                return false;
+            if (dim1*dim2 != 0 && dim1 != dim2)
+                return false;
         }
 
         return true;

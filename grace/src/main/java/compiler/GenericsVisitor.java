@@ -8,6 +8,7 @@ import compiler.Definition.*;
 import compiler.Others.*;
 
 import java.awt.*;
+import java.sql.Array;
 import java.util.List;
 import java.lang.String;
 import java.lang.Object;
@@ -226,7 +227,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
     public void caseAFuncDef(AFuncDef node)
     {
         //Push the bp offset of the first local variable (if there is one) for this function
-        functionVarsBpOffset.push(-4);
+        functionVarsBpOffset.push(0);
 
         LinkedList<PPar> pars = node.getPar();
 
@@ -475,10 +476,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
         varSize *= totalElements;
 
         for (TId tId : node.getId()) {
-            symbolTable.insertAVariable(tId.toString(), type, dimensionList, functionVarsBpOffset.lastElement());
-            //set bpOffset for next localVariable (if there is one)
+            //set bpOffset for this local variable depending on its size
             int nextBpOffset = functionVarsBpOffset.pop() - varSize;
             functionVarsBpOffset.push(nextBpOffset);
+            symbolTable.insertAVariable(tId.toString(), type, dimensionList, nextBpOffset);
         }
 
     }
@@ -561,8 +562,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 if (!givenParamType.matchesParameter(definedParam))
                 {
                     System.out.println("Invalid function call of '" + node.getId().getText() +
-                            "'.Expecting '" + definedType + "' as parameter in position: " + (i+1) );
-                    System.out.println(givenParamType + " was given.");
+                            "'.Expecting '" + definedType + definedParam.getDimensions() + "' as parameter in position: " + (i+1) );
+                    System.out.println("'" + givenParamType.makeReadable() + "' was given.");
                     System.exit(-1);
                 }
                 //DETAIL! If function is expecting a reference.we need to make sure that the passed parameter is a variable
@@ -638,7 +639,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     public void caseAIdLvalue(AIdLvalue node)
     {
-        boolean isArray = false;
         //first check if the variable/lvalue is defined and called with a valid number of dimensions
         Definition definition = symbolTable.lookup(node.getId().getText());
         Variable var = null;
@@ -679,24 +679,33 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
 
         //variable is defined and called with the right number of dimensions (not more than those needed)
-        //check for each expression given in dimensions if its an int!
-        String tmpVar = node.getId().toString().trim();
         if(node.getId() != null)
         {
             node.getId().apply(this);
         }
-        {
-            List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+        String id = node.getId().getText();
+        String lvalueTempVar;//this will contain the final tmpVarname (were to access it from) for this lvalue
 
-            for(PExpr e : copy)
-            {
-                isArray = true;
+
+        if (givenDimensions == 0)
+        {//nothing else to do, its just a plain var not an array
+            lvalueTempVar = id;//access this lvalue by its name
+        }
+        else //givenDimensions > 0
+        {//access this lvalue by the address of the element it refers to
+            //calculate this address (first calculate the offset derived from the dimensions given)
+
+            if (dimensionNum == 1)//array has just one dimension, no need for temp vars, just evaluate the expression given for first dimension
+            {//calculating the offset is easy because the first dimension's evaluation is enough..
+                List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+                PExpr e = copy.get(0);
                 Type type = getTypeEvaluation(e);
 
                 if (!type.isInt())
                 {
                     System.out.println(e.toString());
                     System.out.println("Error!Expressions for array accessing must be of type 'int'!");
+                    System.exit(-1);
                 }
 
                 String tmpVar2;
@@ -710,10 +719,81 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 }
 
                 String tempVarName = newTempVariable("address");
-                quads.add(new Quadruple(quads.size() + 1, "array", tmpVar, tmpVar2, tempVarName));
-                tmpVar = tempVarName;
+                quads.add(new Quadruple(quads.size() + 1, "array", id, tmpVar2, tempVarName));
+
+                lvalueTempVar = tempVarName;
+            }
+            else//if array has more than 1 dimensions, generate quads to calculate array offset (we need to do some math)
+            {
+                //check if all expressions for array accessing are ints and save their 'name' ($ or lvalue) in an array
+                String[] expressions = new String[givenDimensions];
+                int i = 0;
+
+                List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+                for(PExpr e : copy)
+                {
+                    Type type = getTypeEvaluation(e);
+
+                    if (!type.isInt())
+                    {
+                        System.out.println(e.toString());
+                        System.out.println("Error!Expressions for array accessing must be of type 'int'!");
+                        System.exit(-1);
+                    }
+
+                    String tmpVar;
+                    if (type.isArray())
+                    {
+                        tmpVar = "[" + type.getTempVar() + "]";
+                    }
+                    else
+                    {
+                        tmpVar = type.getTempVar();
+                    }
+
+                    expressions[i++] = tmpVar;
+                }
+
+                //we need 2 temporary vars to calculate the offset
+                String tmp1 = newTempVariable("int");
+                String tmp2 = newTempVariable("int");
+
+                //for all given dimensions
+                List<Integer> dimensions = var.getDimensions();
+                String mult1 =  expressions[0];
+                String mult2;
+
+                for (i=0; i<givenDimensions-1;i++)
+                {
+                    mult2 = dimensions.get(i+1).toString();
+
+                    quads.add(new Quadruple(quads.size() + 1, "*", mult1, mult2, tmp1));
+                    quads.add(new Quadruple(quads.size() + 1, "+", expressions[i+1], tmp1, tmp2));
+
+                    mult1 = tmp2;
+                }
+
+                if (givenDimensions < dimensionNum)
+                {//the rest dimensions need to be multiplied along with offset so far
+                    // Since they are constants, first multiply them here and add multiply the result
+                    //to produce the final offset
+                    int restDimensionsMultiplied = 1;
+                    for (i = givenDimensions; i < dimensionNum; i++)//if some dimensions were not given
+                        restDimensionsMultiplied *= dimensions.get(i);
+
+                    //multiply them as well in the final result
+                    String rest = Integer.toString(restDimensionsMultiplied);
+                    quads.add(new Quadruple(quads.size() + 1, "*", tmp2, rest, tmp2));
+                }
+
+                //tmp2 will contain the final offset
+                String tempVarName = newTempVariable("address");
+                quads.add(new Quadruple(quads.size() + 1, "array", id, tmp2, tempVarName));
+
+                lvalueTempVar = tempVarName;
             }
         }
+
         //type of variable/id use (result) is the type of the variable (depending of how many dimensions were used*/
         //the resulting type of an lvalue depends on the number of dimensions given and the dimension themselfs
         //to explain what I am doing below consider the following example.
@@ -737,11 +817,17 @@ public class GenericsVisitor extends DepthFirstAdapter {
             for (i = givenDimensions; i < totalDimensions; i++)
                 dimensionsUnused.add(dimensions.get(i));
 
-            this.type = new Type(var.getType(), dimensionsUnused, tmpVar, isArray);
+            this.type = new Type(var.getType(), dimensionsUnused, lvalueTempVar, true);
         }
         else//all dimensions given
         {
-            this.type = new Type(var.getType(), tmpVar, isArray);
+            boolean isArray;
+            if (dimensionNum != 0)
+                isArray = true;
+            else //its just a variable (not an array)
+                isArray = false;
+
+            this.type = new Type(var.getType(), lvalueTempVar, isArray);
         }
 
     }
@@ -764,6 +850,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
             if (dimensionsGiven > 1)
             {
                 System.out.println("Error. A string only has one dimension to access!");
+                System.exit(-1);
             }
             else if (dimensionsGiven == 1)
             {
@@ -950,7 +1037,15 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.exit(-1);
         }
 
-        String tmpLeft = left.getTempVar();
+        String tmpLeft;
+        if (left.isArray())
+        {
+            tmpLeft = "[" + left.getTempVar() + "]";
+        }
+        else
+        {
+            tmpLeft = left.getTempVar();
+        }
 
         String tmpRight;
         if (right.isArray())
@@ -1371,13 +1466,13 @@ public class GenericsVisitor extends DepthFirstAdapter {
             System.exit(-1);
         }
 
-        //create and add tempVariable to the hashtable
-        TempVar tempVariable = new TempVar(name, type, size, functionVarsBpOffset.lastElement());
-        tempVarsHashTable.put(name, tempVariable);
-
         //update nextBpOffset according to this tempVar's size
         int nextBpOffset = functionVarsBpOffset.pop() - size;
         functionVarsBpOffset.push(nextBpOffset);
+
+        //create and add tempVariable to the hashtable
+        TempVar tempVariable = new TempVar(name, type, size, nextBpOffset);
+        tempVarsHashTable.put(name, tempVariable);
 
         tempVarsCounter++;
 
