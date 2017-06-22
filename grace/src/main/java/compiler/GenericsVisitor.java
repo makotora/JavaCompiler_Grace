@@ -348,7 +348,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         //after all local defines of the function are visited there will be no more local variables to set and get bpOffsets
         //after the function's block is visited there will be not more tempVariables to set and get bpOffsets
         //we dont need to keep track of the bpOffset for this function anymore
-        functionVarsBpOffset.pop();//pop 'next' local variable offset since we won't need it
 
         //if this functions is supposed to return something (int/char) and it didnt.Error!
         if (!node.getRetType().toString().trim().equals("nothing") && returnWasFound.equals(false))
@@ -359,7 +358,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
 
-        assemblyGenerator.generate();
+        assemblyGenerator.generate(functionVarsBpOffset.pop());
+
         symbolTable.exit();
     }
 

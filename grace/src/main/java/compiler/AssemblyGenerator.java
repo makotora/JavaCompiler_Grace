@@ -312,7 +312,7 @@ public class AssemblyGenerator {
 
     //generates assembly code from the most recent quads
     //we start from nextQuadToTransform at every generate call
-    public void generate()
+    public void generate(int localVarSize)
     {
         int totalQuads = quads.size();
 
@@ -322,7 +322,7 @@ public class AssemblyGenerator {
             Quadruple quad = quads.get(i);
             System.out.println(quad);//print the quad
             //we will also print the assembly code generated for this quad
-            String label = "@" + quad.getNum() + "\n";
+            String label = "L" + quad.getNum() + ":\n";
             //this block of assembly will have '@quadnum' as a label
             try
             {
@@ -352,21 +352,17 @@ public class AssemblyGenerator {
                 assemblyDivMod(quad);
 
             else if (quadOp.equals("=") || quadOp.equals("<") || quadOp.equals("<=") || quadOp.equals(">") || quadOp.equals(">=") || quadOp.equals("#"))
-            {
+                assemblyCond(quad);
 
-            }
             else if (quadOp.equals("jump"))
             {
-
+                writeToFile("jmp " + "L" + quad.getResult());
             }
             else if (quadOp.equals("unit"))
-            {
-
-            }
+                assemblyUnit(quad, localVarSize);
             else if (quadOp.equals("endu"))
-            {
+                assemblyEndUnit(quad);
 
-            }
             else if (quadOp.equals("par"))
                 assemblyParameterLoad(quad);
 
@@ -390,6 +386,23 @@ public class AssemblyGenerator {
         nextQuadToTranform = totalQuads;
     }
 
+    public void assemblyUnit(Quadruple quad, int localVarSize) {
+        String x = quad.getArg1();
+
+        writeToFile(x + ":");
+        writeToFile("push ebp");
+        writeToFile("mov ebp esp");
+        writeToFile("sub esp, " + localVarSize * (-1));
+    }
+
+
+    public void assemblyEndUnit(Quadruple quad) {
+        String x = quad.getArg1();
+
+        writeToFile("mov esp ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+    }
 
     public void assemblyAddMinus(Quadruple quad) {
         String quadOp = quad.getOp();
@@ -451,6 +464,43 @@ public class AssemblyGenerator {
 
     }
 
+    public void assemblyCond(Quadruple quad) {
+        String quadOp = quad.getOp();
+        String x = quad.getArg1();
+        String y = quad.getArg2();
+        String z = quad.getResult();
+
+        load("eax", x);
+        load("edx", y);
+
+        writeToFile("cmp eax, edx");
+        String label = "L" + z;
+
+        if (quadOp.equals("="))
+            writeToFile("je " + label);
+
+        else if (quadOp.equals("<"))
+            writeToFile("jl " + label);
+
+        else if (quadOp.equals("<="))
+            writeToFile("jle " + label);
+
+        else if (quadOp.equals(">"))
+            writeToFile("jg " + label);
+
+        else if (quadOp.equals(">="))
+            writeToFile("jge " + label);
+
+        else if (quadOp.equals("#"))
+            writeToFile("jne " + label);
+
+
+        else {
+            System.out.println("Big mistake!!\nNo such condition operand. (AssemblyCond)");
+            System.exit(-1);
+        }
+    }
+
     public void assemblyArray(Quadruple quad)
     {
         String x = quad.getArg1();
@@ -483,6 +533,8 @@ public class AssemblyGenerator {
         }
         else if (passType.equals("R") || passType.equals("RET")) {
 
+            loadAddr("esi", x);
+            writeToFile("push esi");
         }
         else
         {

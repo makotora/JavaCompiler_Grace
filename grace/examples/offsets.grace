@@ -21,11 +21,16 @@ fun main() : nothing
 		return fm4;
 	}
 	var fm30 : int;
+	fun foo1(p26 : int) : int
+	{
+		return p26;
+	}
 
 {
-		m580[1][2][3][4] <- 2;
-		$m4 <- 2 + 3;
-		$m4 <- m4 mod 2;
+$		m580[1][2][3][4] <- 2;
+$		$m4 <- 2 + 3;
+$		$m4 <- m4 mod 2;
 
+	m4 <- foo1(5);
 $	m4 <- 2 + 4 * 5 + (foo(m4, 'c', m16, m96, m100));
 }
