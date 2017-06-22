@@ -418,6 +418,25 @@ public class AssemblyGenerator {
         writeToFile("ret");
     }
 
+    public void assemblyCall(Quadruple quad) {
+        String x = quad.getResult();
+
+        Definition def = symbolTable.lookup(x);
+        Function f = (Function) def;
+
+        if (def.getType().equals("nothing"))
+            writeToFile("sub esp 4");
+
+        //--------UpdateALL()-----------
+
+        //------------------------------
+
+        writeToFile("call " + x);
+
+        writeToFile("add esp, " + f.getParameters().size() + 8);
+    }
+
+
     public void assemblyAddMinus(Quadruple quad) {
         String quadOp = quad.getOp();
         String x = quad.getArg1();
