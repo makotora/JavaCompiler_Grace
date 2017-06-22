@@ -59,9 +59,9 @@ public class AssemblyGenerator {
     private void load(String R, String a)
     {
         Definition definition;
-        String generatedCode = "";
+
         if ( tempVarHashtable.containsKey(a) )
-        {//it is a temp variables
+        {//it is a temp variable
             TempVar tmpVar = tempVarHashtable.get(a);
             int size = tmpVar.getSize();
             String sizeType;
@@ -162,11 +162,25 @@ public class AssemblyGenerator {
 
     private void loadAddr(String R, String a) {
         Definition definition;
-        String generatedCode = "";
-        if (tempVarHashtable.containsKey(a)) {
-            System.out.println("No loadAddr for tmpVarin DIAFANIES. Must be an error!\nExiting\n");
-            System.exit(-1);
-        } else if ((definition = symbolTable.lookup(a)) != null) {//it is a variable (local or not local)
+
+        if (tempVarHashtable.containsKey(a))
+        {//it is a temp variable
+            TempVar tmpVar = tempVarHashtable.get(a);
+            int size = tmpVar.getSize();
+            String sizeType;
+
+            if (size == 4)
+            {
+                sizeType = "DWORD";
+            }
+            else//size is 1
+            {
+                sizeType = "BYTE";
+            }
+
+            writeToFile("lea " + R + ", " + sizeType + " PTR [ebp - " + tmpVar.getBpOffset()*(-1) + "]");
+        }
+        else if ((definition = symbolTable.lookup(a)) != null) {//it is a variable (local or not local)
             Variable variable = (Variable) definition;
             String sizeType;
 
