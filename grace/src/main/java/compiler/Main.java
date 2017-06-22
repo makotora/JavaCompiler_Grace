@@ -54,10 +54,8 @@ public class Main
      int indexOfLast = inputFile.lastIndexOf(".grace");
 
      if (indexOfLast >= 0)
-     {
          inputFile = inputFile.substring(0, indexOfLast);
-         indexOfLast = inputFile.lastIndexOf(".");
-     }
+
 
     tree.apply(new GenericsVisitor(inputFile));//we passed the input file name so that we can create the assembly file
 

@@ -333,7 +333,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
 
         //create unit quadaple
-        quads.add(new Quadruple(quads.size() + 1,"unit", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
+        quads.add(new Quadruple(quads.size() + 1,"unit", node.getId().getText() + "_" + (symbolTable.getSize() - 1), null, null));
         returnTypes.push(new Type(node.getRetType().toString().trim()));//push return type to be checked when we find 'return' in the block
         returnFound.push(new Boolean(false));
         //visit the function's block
@@ -356,9 +356,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
                     "' returning '" + node.getRetType().toString().trim() + "'.");
             System.exit(-1);
         }
-        quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + (symbolTable.getSize() - 1), null, null));
+        quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + "_" + (symbolTable.getSize() - 1), null, null));
 
-        assemblyGenerator.generate(functionVarsBpOffset.pop());
+        assemblyGenerator.generate(functionVarsBpOffset.pop(), symbolTable.getSize());
 
         symbolTable.exit();
     }
@@ -419,6 +419,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 else//All arrays in grace are passed by reference! So:
                 {//we will keep 4 bytes (for the address) for this param
                     paramSize = 4;
+                    isReference = true;//note that it is passed by reference (regardless if there is a 'ref' or not)
                 }
             }
 
@@ -633,7 +634,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
             this.type = new Type(function.getType());
         }
         //make the call
-        quads.add(new Quadruple(quads.size() + 1, "call", null, null, definition.getId() + definition.getScopeNumber()));
+        quads.add(new Quadruple(quads.size() + 1, "call", null, null, definition.getId() + "_" + definition.getScopeNumber()));
 
     }
 

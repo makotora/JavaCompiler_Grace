@@ -1,56 +1,68 @@
+.intel_syntax noprefix
+	.global main
+	.text
+
 L1:
-	foo2:
+	foo_2:
 	push ebp
-	mov ebp esp
+	mov ebp, esp
 	sub esp, 38
 L2:
 	mov eax, 1
 	mov ecx, 1
 	imul ecx
-	mov DWORD PTR [ebp - 30],ecx
+	mov DWORD PTR [ebp - 30], ecx
 L3:
 	mov eax, 0
 	mov edx, DWORD PTR [ebp - 30]
 	add eax, edx
-	mov DWORD PTR [ebp - 34],eax
+	mov DWORD PTR [ebp - 34], eax
 L4:
 	mov eax, DWORD PTR [ebp - 34]
-	getAR(m96)
+	mov esi, DWORD PTR [ebp + 8]
 	lea ecx, BYTE PTR [esi - 96]
 	add eax, ecx
-	mov DWORD PTR [ebp - 38],eax
+	mov DWORD PTR [ebp - 38], eax
 L5:
 	mov edi, DWORD PTR [ebp - 38]
 	mov eax, DWORD PTR [edi]
-	getAR(m93)
+	mov esi, DWORD PTR [ebp + 8]
 	mov BYTE PTR [esi - 93], eax
 L6:
 	mov eax, 'a'
-	getAR(m93)
+	mov esi, DWORD PTR [ebp + 8]
 	mov BYTE PTR [esi - 93], eax
 L7:
 	mov eax, DWORD PTR [ebp - 4]
+	mov esi, DWORD PTR [bp + 12]
+	mov DWORD PTR [esi], eax
 L8:
+	jmp foo_2_end
 L9:
-	mov esp ebp
+	foo_2_end:
+	mov esp, ebp
 	pop ebp
 	ret
 L10:
-	foo12:
+	foo1_2:
 	push ebp
-	mov ebp esp
+	mov ebp, esp
 	sub esp, 0
 L11:
 	mov eax, DWORD PTR [ebp + 16]
+	mov esi, DWORD PTR [bp + 12]
+	mov DWORD PTR [esi], eax
 L12:
+	jmp foo1_2_end
 L13:
-	mov esp ebp
+	foo1_2_end:
+	mov esp, ebp
 	pop ebp
 	ret
 L14:
-	main1:
+	main:
 	push ebp
-	mov ebp esp
+	mov ebp, esp
 	sub esp, 588
 L15:
 	mov eax, DWORD PTR [ebp - 4]
@@ -59,10 +71,14 @@ L16:
 	lea esi, DWORD PTR [ebp - 588]
 	push esi
 L17:
+	push DWORD PTR [ebp + 8]
+	call foo1_2
+	add esp, 12
 L18:
 	mov eax, DWORD PTR [ebp - 588]
-	mov DWORD PTR [ebp - 4],eax
+	mov DWORD PTR [ebp - 4], eax
 L19:
-	mov esp ebp
+	main_1_end:
+	mov esp, ebp
 	pop ebp
 	ret
