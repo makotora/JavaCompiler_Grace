@@ -106,7 +106,7 @@ public class SymbolTable {
         }
         else
         {
-            Definition newFunc = new Function(id, type, parameters,this.symbolTable.size(), isDefinition);
+            Definition newFunc = new Function(id, type, parameters, this.symbolTable.size(), isDefinition);
             tmpHash.put(id, newFunc);
         }
 

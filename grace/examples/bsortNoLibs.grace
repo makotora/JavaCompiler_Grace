@@ -29,14 +29,14 @@ fun main () : nothing
    fun putArray (ref msg : char[]; n : int; ref x : int[]) : nothing
       var i : int;
    {
-      puts(msg);
+      $puts(msg);
       i <- 0;
       while i < n do {
-        if i = 0 then puts(", ");
-        puti(x[i]);
+        if i = 0 then ;$puts(", ");
+       $ puti(x[i]);
         i <- i+1;
       }
-      puts("\n");
+      $puts("\n");
    }
 
    var seed, i : int;

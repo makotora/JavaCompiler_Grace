@@ -142,7 +142,7 @@ public class AssemblyGenerator {
             {
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
-                    writeToFile("mov esi, DWORD [ebp + " + variable.getBpOffset() + "]");
+                    writeToFile("mov esi, DWORD PTR [ebp + " + variable.getBpOffset() + "]");
                     writeToFile("mov " + R + ", " + sizeType + " PTR [esi]");
                 }
                 else//it is not a parameter passed by reference
@@ -268,7 +268,8 @@ public class AssemblyGenerator {
                         writeToFile("lea " + R + ", " + sizeType + " PTR [esi - " + variable.getBpOffset()*(-1) + "]");
                 }
             }
-        } else {
+        }
+        else {
             if (a.startsWith("[")) {
                 String var = a.substring(1, a.length() - 1);
                 TempVar tmpVar = tempVarHashtable.get(var);
@@ -368,7 +369,7 @@ public class AssemblyGenerator {
             }
             else if (a.equals("$$"))//this needs to be stored in the result's address (bp+12)
             {
-                writeToFile("mov esi, DWORD PTR [bp + 12]");
+                writeToFile("mov esi, DWORD PTR [ebp + 12]");
 
                 //get type of current unit (what it returns)
                 String fName;
@@ -508,7 +509,7 @@ public class AssemblyGenerator {
         Function f = (Function) symbolTable.lookup(fName);
 
         if (f.getType().equals("nothing"))
-            writeToFile("sub esp 4");
+            writeToFile("sub esp, 4");
 
         updateAL(f.getScopeNumber());
 

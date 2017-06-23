@@ -21,9 +21,9 @@ fun main() : nothing
 		return fm4;
 	}
 	var fm30 : int;
-	fun foo1(p26 : int) : int
+	fun foo1(p16 : int) : int
 	{
-		return p26;
+		return p16;
 	}
 
 {

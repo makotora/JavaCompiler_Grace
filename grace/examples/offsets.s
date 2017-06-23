@@ -34,7 +34,7 @@ L6:
 	mov BYTE PTR [esi - 93], eax
 L7:
 	mov eax, DWORD PTR [ebp - 4]
-	mov esi, DWORD PTR [bp + 12]
+	mov esi, DWORD PTR [ebp + 12]
 	mov DWORD PTR [esi], eax
 L8:
 	jmp foo_2_end
@@ -50,7 +50,7 @@ L10:
 	sub esp, 0
 L11:
 	mov eax, DWORD PTR [ebp + 16]
-	mov esi, DWORD PTR [bp + 12]
+	mov esi, DWORD PTR [ebp + 12]
 	mov DWORD PTR [esi], eax
 L12:
 	jmp foo1_2_end
@@ -71,7 +71,7 @@ L16:
 	lea esi, DWORD PTR [ebp - 588]
 	push esi
 L17:
-	push DWORD PTR [ebp + 8]
+	push ebp
 	call foo1_2
 	add esp, 12
 L18:

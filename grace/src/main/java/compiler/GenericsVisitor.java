@@ -333,7 +333,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
 
         //create unit quadaple
-        quads.add(new Quadruple(quads.size() + 1,"unit", node.getId().getText() + "_" + (symbolTable.getSize() - 1), null, null));
+        int unit_scope = symbolTable.getSize() - 1;//we are INSIDE the unit scope, so the unit's scope is one scope up
+        String unit_name = node.getId().getText() + "_" + unit_scope;//include scope in name to separate the units with the same name
+
+        quads.add(new Quadruple(quads.size() + 1,"unit", unit_name, null, null));
         returnTypes.push(new Type(node.getRetType().toString().trim()));//push return type to be checked when we find 'return' in the block
         returnFound.push(new Boolean(false));
         //visit the function's block
@@ -356,9 +359,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
                     "' returning '" + node.getRetType().toString().trim() + "'.");
             System.exit(-1);
         }
-        quads.add(new Quadruple(quads.size() + 1,"endu", node.getId().getText() + "_" + (symbolTable.getSize() - 1), null, null));
+        quads.add(new Quadruple(quads.size() + 1,"endu", unit_name, null, null));
 
-        assemblyGenerator.generate(functionVarsBpOffset.pop(), symbolTable.getSize());
+        assemblyGenerator.generate(functionVarsBpOffset.pop(), symbolTable.getSize() - 1);
 
         symbolTable.exit();
     }
@@ -634,7 +637,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
             this.type = new Type(function.getType());
         }
         //make the call
-        quads.add(new Quadruple(quads.size() + 1, "call", null, null, definition.getId() + "_" + definition.getScopeNumber()));
+        String called_unit_name = definition.getId() + "_" + definition.getScopeNumber();//unit name also contains scope
+        quads.add(new Quadruple(quads.size() + 1, "call", null, null, called_unit_name));
 
     }
 
