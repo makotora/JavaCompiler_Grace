@@ -78,6 +78,12 @@ public class AssemblyGenerator {
     //Help routines used to generate assembly code
     private void updateAL(int nx)
     {
+        if (nx == 1)
+        {//if it is a scope 1 function, access link points to null.just return
+            writeToFile("push 0");
+            return;
+        }
+
         if (np < nx)
             writeToFile("push ebp");
         else if (np == nx)
@@ -246,8 +252,7 @@ public class AssemblyGenerator {
             Variable variable = (Variable) definition;
             String sizeType;
 
-            System.out.println("loolo: " + variable);
-            if (variable.getType().equals("int") || (variable.getDimensions() != null && variable.getDimensions().size() != 0)) {
+            if (variable.getType().equals("int")) {
                 sizeType = "DWORD";
             } else//it is a char
             {
@@ -381,7 +386,6 @@ public class AssemblyGenerator {
             if (a.startsWith("[")) {
                 String var = a.substring(1, a.length() - 1);
                 TempVar tmpVar = tempVarHashtable.get(var);
-                System.out.println("hahahahahhahaha: " + tmpVar);
                 int size = tmpVar.getSize();
                 String sizeType;
 

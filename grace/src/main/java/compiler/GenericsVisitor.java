@@ -829,10 +829,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
         }
 
-        stringCounter++;
-        String stringLabel = "STR" + stringCounter;
-        stringLabels.put(node.getString().getText(), stringLabel);
-        System.out.println("Adding " + node.getString().getText() + " with label: " + stringLabel);;
+        if (!stringLabels.containsKey(node.getString().getText())) {
+            stringCounter++;
+            String stringLabel = "STR" + stringCounter;
+            stringLabels.put(node.getString().getText(), stringLabel);
+        }
 
         if (dimensionsGiven == 0)
         {
