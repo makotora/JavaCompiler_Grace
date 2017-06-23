@@ -1,9 +1,8 @@
 .intel_syntax noprefix
+.text
 	.global main
-	.text
-
 L1:
-	quicksort_2:
+quicksort_2:
 	push ebp
 	mov ebp, esp
 	sub esp, 76
@@ -212,17 +211,19 @@ L48:
 	call quicksort_2
 	add esp, 20
 L49:
-	quicksort_2_end:
+quicksort_2_end:
 	mov esp, ebp
 	pop ebp
 	ret
 L50:
-	main:
+main:
 	push ebp
 	mov ebp, esp
 	sub esp, 0
 L51:
-	main_1_end:
+main_end:
 	mov esp, ebp
 	pop ebp
 	ret
+
+.data

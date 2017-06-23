@@ -40,6 +40,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
     private int tempVarsCounter;
     private Hashtable<String, TempVar> tempVarsHashTable;
 
+    //keep string literals in a hashmap as well as the label in which they will be kept
+    //at the .data section of the assembly file
+    private int stringCounter;
+    private Hashtable<String, String> stringLabels;
+
     //quadaples generated from grace code are kept in this list
     private List<Quadruple> quads;
 
@@ -56,9 +61,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
         functionVarsBpOffset = new Stack<Integer>();
         symbolTable = new SymbolTable();
         tempVarsHashTable = new Hashtable<String, TempVar>();
+        stringCounter = 0;
+        stringLabels = new Hashtable<String, String>();
         quads = new ArrayList<Quadruple>();
 
-        assemblyGenerator = new AssemblyGenerator(symbolTable, tempVarsHashTable, quads, filename);
+        assemblyGenerator = new AssemblyGenerator(symbolTable, tempVarsHashTable, stringLabels, quads, filename);
     }
 
 
@@ -235,7 +242,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
         List<Variable> variableList = new ArrayList();
 
 
-        List<Integer> parameterSizes = new ArrayList();
         for (PPar pPar : pars)
         {
              tmpParameter = (APar) pPar;
@@ -258,38 +264,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
             }
 
-            //next we need to calculate how much space this parameter type
-            //will take on the stack
-            int paramSize;
-
-            //if param is passed by reference ALWAYS keep 4 bytes in mem for the address
-            if (isReference)
-            {
-                paramSize = 4;
-            }
-            else
-            {
-                //if it is not an array
-                if (dimensionList.isEmpty())
-                {
-                    //size of param if there are no dimensions (not an array)
-                    if ( type.equals("int") )
-                        paramSize = 4;
-                    else //char
-                        paramSize = 1;
-
-                }
-                //its an array
-                else//All arrays in grace are passed by reference! So:
-                {//we will keep 4 bytes (for the address) for this param
-                    paramSize = 4;
-                }
-            }
+            if (!isReference && !dimensionList.isEmpty())
+                isReference = true;//arrays are always passed by reference.even if it does say it
 
             //for each name of this parameter type
             for (TId tId : tmpParameter.getId())
             {
-                parameterSizes.add(paramSize);//We save each parameter's size in order to adjust their bpOffsets afterwards
                 //(We want the last one to be the one having offset + 16)
                 variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, 0));
                 //we will adjust bpOffsets afterwards, just put 0 for now
@@ -304,10 +284,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
         for (int i=totalParams-1; i>=0; i--)//for all parameters starting from the last one
         {
             Variable param = variableList.get(i);//get that parameter
-            int paramSize = parameterSizes.get(i);//get its size
 
             param.setBpOffset(nextParamBpOffset);//assign the next available offset to this parameter
-            nextParamBpOffset += paramSize;//next parameter (if there is one) will be placed after this one
+            nextParamBpOffset += 4;//next parameter (if there is one) will be placed after this one
         }
 
         //define function
@@ -373,7 +352,6 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
         APar tmpParameter;
         List<Variable> variableList = new ArrayList();
-        List<Integer> parameterSizes = new ArrayList();
 
         for (PPar pPar : pars)
         {
@@ -397,38 +375,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
             }
 
-            //next we need to calculate how much space this parameter type
-            //will take on the stack
-            int paramSize;
-
-            //if param is passed by reference ALWAYS keep 4 bytes in mem for the address
-            if (isReference)
-            {
-                paramSize = 4;
-            }
-            else
-            {
-                //if it is not an array
-                if (dimensionList.isEmpty())
-                {
-                    //size of param if there are no dimensions (not an array)
-                    if ( type.equals("int") )
-                        paramSize = 4;
-                    else //char
-                        paramSize = 1;
-
-                }
-                //its an array
-                else//All arrays in grace are passed by reference! So:
-                {//we will keep 4 bytes (for the address) for this param
-                    paramSize = 4;
-                    isReference = true;//note that it is passed by reference (regardless if there is a 'ref' or not)
-                }
-            }
+            if (!isReference && !dimensionList.isEmpty())
+                isReference = true;//arrays are always passed by reference.even if it does say it
 
             //for each name of this parameter type
             for (TId tId : tmpParameter.getId()) {
-                parameterSizes.add(paramSize);
                 //like in the func_def case, we save the sizes in order to adjust the correct offsets afterwards (last param: +16 offset)
                 variableList.add(new Variable(tId.toString(), type, dimensionList, symbolTable.getSize(), true, isReference, 0));
             }
@@ -443,10 +394,9 @@ public class GenericsVisitor extends DepthFirstAdapter {
         for (int i=totalParams-1; i>=0; i--)//for all parameters starting from the last one
         {
             Variable param = variableList.get(i);//get that parameter
-            int paramSize = parameterSizes.get(i);//get its size
 
             param.setBpOffset(nextParamBpOffset);//assign the next available offset to this parameter
-            nextParamBpOffset += paramSize;//next parameter (if there is one) will be placed after this one
+            nextParamBpOffset += 4;//next parameter (if there is one) will be placed after this one
         }
 
         symbolTable.insertAFunction(node.getId().toString(), node.getRetType().toString(), variableList, false);
@@ -585,27 +535,30 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 if (definedParam.getDimensions().size() == 0)
                 {
                     String par;
-                    if (definedParam.isReference())
+                    if (definedParam.isReference())//pass a var (not an array) by ref
                     {
+                        //what we are passing is definately an lvalueExpr (checked above)
+                        //it is either a idlavlue or a stringlvalue
+
                         if (givenParamType.isArray()) //if we already have and address (due to array quadaple)
+                        {//pass the content of the address ([ ]) by ref
+                            par = "[" + givenParamType.getTempVar() + "]";
+                        }
+                        else //if we have a value, pass that value by ref as it is
                         {
                             par = givenParamType.getTempVar();
-                        }
-                        else //if we have a value, we need the address {} of that variable
-                        {
-                            par = "{" + givenParamType.getTempVar() + "}";
                         }
 
                         quads.add(new Quadruple(quads.size() + 1, "par", par, "R", null));
                     }
-                    else
+                    else//pass by value
                     {
 
                         if (givenParamType.isArray()) //if we have an address we need the content
                         {
                             par = "[" + givenParamType.getTempVar() + "]";
                         }
-                        else //if we already have a "value"
+                        else //if we already have a "value", ..pass it at it is
                         {
                             par = givenParamType.getTempVar();
                         }
@@ -614,7 +567,18 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 }
                 else //if function is expecting an array ALWAYS pass by reference
                 {
-                    String par = givenParamType.getTempVar();
+                    //since we are here the parameter matches the functions parameter type
+                    //givenParameter is definately an array, meaning it is an lvalue for sure
+
+                    String par;
+                    if (givenParamType.isArray()) //if we already have and address (due to array quadaple)
+                    {//pass the content of that address ([ ]) by ref,
+                        par = "[" + givenParamType.getTempVar() + "]";
+                    }
+                    else //if we have a value(lvalue or string), pass it by ref as it is
+                    {
+                        par = givenParamType.getTempVar();
+                    }
 
                     quads.add(new Quadruple(quads.size() + 1, "par", par, "R", null));
                 }
@@ -692,13 +656,17 @@ public class GenericsVisitor extends DepthFirstAdapter {
         String lvalueTempVar;//this will contain the final tmpVarname (were to access it from) for this lvalue
 
 
+        boolean isArray;//this boolean shows if an array quad was generated or not
+
         if (givenDimensions == 0)
         {//nothing else to do, its just a plain var not an array
+            isArray = false;
             lvalueTempVar = id;//access this lvalue by its name
         }
         else //givenDimensions > 0
         {//access this lvalue by the address of the element it refers to
             //calculate this address (first calculate the offset derived from the dimensions given)
+            isArray = true;
 
             if (dimensionNum == 1)//array has just one dimension, no need for temp vars, just evaluate the expression given for first dimension
             {//calculating the offset is easy because the first dimension's evaluation is enough..
@@ -822,16 +790,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
             for (i = givenDimensions; i < totalDimensions; i++)
                 dimensionsUnused.add(dimensions.get(i));
 
-            this.type = new Type(var.getType(), dimensionsUnused, lvalueTempVar, true);
+            this.type = new Type(var.getType(), dimensionsUnused, lvalueTempVar, isArray);
         }
         else//all dimensions given
         {
-            boolean isArray;
-            if (dimensionNum != 0)
-                isArray = true;
-            else //its just a variable (not an array)
-                isArray = false;
-
             this.type = new Type(var.getType(), lvalueTempVar, isArray);
         }
 
@@ -867,16 +829,21 @@ public class GenericsVisitor extends DepthFirstAdapter {
             }
         }
 
+        stringCounter++;
+        String stringLabel = "STR" + stringCounter;
+        stringLabels.put(node.getString().getText(), stringLabel);
+        System.out.println("Adding " + node.getString().getText() + " with label: " + stringLabel);;
+
         if (dimensionsGiven == 0)
         {
             List<Integer> dimensions = new ArrayList();
             dimensions.add(0);
-            this.type = new Type("char", dimensions, node.getString().toString());
+            this.type = new Type("char", dimensions, node.getString().getText());
         }
         else//one dimension given
         {
             String tempVarName = newTempVariable("address");
-            quads.add(new Quadruple(quads.size() + 1, "array", node.getString().toString(), type.getTempVar(), tempVarName));
+            quads.add(new Quadruple(quads.size() + 1, "array", node.getString().getText(), type.getTempVar(), tempVarName));
             this.type = new Type("char", tempVarName, true);
         }
     }

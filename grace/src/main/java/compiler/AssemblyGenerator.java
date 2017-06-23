@@ -21,6 +21,7 @@ public class AssemblyGenerator {
     //information we need
     private SymbolTable symbolTable;
     private Hashtable<String, TempVar> tempVarHashtable;
+    private Hashtable<String, String> stringLabels;
     private List<Quadruple> quads;
     private int nextQuadToTranform;//keep track of how many quads we have transformed so far,to continue from there
     private BufferedWriter assemblyWriter;
@@ -28,9 +29,10 @@ public class AssemblyGenerator {
     private int np;
     private String current;
 
-    public AssemblyGenerator(SymbolTable symbolTable, Hashtable<String, TempVar> tempVarHashtable, List<Quadruple> quads, String filename) {
+    public AssemblyGenerator(SymbolTable symbolTable, Hashtable<String, TempVar> tempVarHashtable, Hashtable<String, String> stringLabels, List<Quadruple> quads, String filename) {
         this.symbolTable = symbolTable;
         this.tempVarHashtable = tempVarHashtable;
+        this.stringLabels = stringLabels;
         this.quads = quads;
         nextQuadToTranform = 0;
 
@@ -48,7 +50,7 @@ public class AssemblyGenerator {
         //write assembly file header
         try
         {
-            assemblyWriter.write(".intel_syntax noprefix\n");
+            assemblyWriter.write(".intel_syntax noprefix\n.text\n");
         }
         catch (Exception e)
         {
@@ -56,7 +58,6 @@ public class AssemblyGenerator {
         }
 
         writeToFile(".global main");
-        writeToFile(".text\n");
     }
 
     public static boolean isParsable(String input) {
@@ -195,11 +196,26 @@ public class AssemblyGenerator {
 
             }
             else {
+                if (stringLabels.containsKey(a))
+                {
+                    System.out.println("ERROR! LOADS DOESNT KNOW WHAT TO DO WITH STRING LITERALS!");
+                    System.exit(-1);
+                }
+
                 if (isParsable(a)) {
                     int x = Integer.parseInt(a);
                     writeToFile("mov " + R + ", " + x);
-                } else
-                    writeToFile("mov " + R + ", " + a);
+                }
+                else
+                {
+                    if (a.equals("'\\0'"))
+                    {
+                        writeToFile("mov " + R + ", " + "0");
+
+                    }
+                    else
+                        writeToFile("mov " + R + ", " + a);
+                }
             }
         }
     }
@@ -210,6 +226,7 @@ public class AssemblyGenerator {
 
         if (tempVarHashtable.containsKey(a))
         {//it is a temp variable
+
             TempVar tmpVar = tempVarHashtable.get(a);
             int size = tmpVar.getSize();
             String sizeType;
@@ -229,7 +246,8 @@ public class AssemblyGenerator {
             Variable variable = (Variable) definition;
             String sizeType;
 
-            if (variable.getType().equals("int")) {
+            System.out.println("loolo: " + variable);
+            if (variable.getType().equals("int") || (variable.getDimensions() != null && variable.getDimensions().size() != 0)) {
                 sizeType = "DWORD";
             } else//it is a char
             {
@@ -276,6 +294,17 @@ public class AssemblyGenerator {
 
                 load(R, var);
 
+            }
+            else if (stringLabels.containsKey(a))
+            {
+                String stringLabel = stringLabels.get(a);
+                writeToFile("mov " + R + ", OFFSET FLAT:" + stringLabel);
+            }
+            else
+            {
+                System.out.println(stringLabels);
+                System.out.println("Error! Dont know how to loadAddr: " + a);
+                System.exit(-1);
             }
         }
     }
@@ -352,6 +381,7 @@ public class AssemblyGenerator {
             if (a.startsWith("[")) {
                 String var = a.substring(1, a.length() - 1);
                 TempVar tmpVar = tempVarHashtable.get(var);
+                System.out.println("hahahahahhahaha: " + tmpVar);
                 int size = tmpVar.getSize();
                 String sizeType;
 
@@ -390,7 +420,7 @@ public class AssemblyGenerator {
             }
             else
             {
-                System.out.println("Store unknown case error!!");
+                System.out.println("Store unknown case error!!: " + a);
                 System.exit(-1);
             }
         }
@@ -477,11 +507,22 @@ public class AssemblyGenerator {
     public void assemblyUnit(Quadruple quad, int localVarSize) {
         String x = quad.getArg1();
         this.current = x;
+        String unit_label;
 
         if (current.equals("main_1"))//main needs to have the same name in the assembly label
-            writeToFile("main:");
+            unit_label = "main:";
         else
-            writeToFile(x + ":");
+            unit_label = x + ":";
+
+        try
+        {
+            recentCode += unit_label + "\n";
+            assemblyWriter.write(unit_label + "\n");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
@@ -492,7 +533,16 @@ public class AssemblyGenerator {
     public void assemblyEndUnit(Quadruple quad) {
         String x = quad.getArg1();
 
-        writeToFile(endof(x) + ":");
+        try
+        {
+            recentCode += endof(x) + ":\n";
+            assemblyWriter.write(endof(x) + ":\n");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         writeToFile("mov esp, ebp");
         writeToFile("pop ebp");
         writeToFile("ret");
@@ -625,17 +675,20 @@ public class AssemblyGenerator {
         String y = quad.getArg2();
         String z = quad.getResult();
 
-        String arrayType = symbolTable.lookup(x).getType();//This should never throw null pointer exception
-        //if the quad array is generated than x must be a defined lvalue in the symbol table!!
+        //x is either an idLvalue (var) or a string literal
+
+        Variable var = (Variable) symbolTable.lookup(x);//if this returns null it means that x is a string
 
         load("eax", y);
-        if (arrayType.equals("int"))
+        if (var != null)//if var exists, see its type
         {
-            writeToFile("mov ecx, 4");
-            writeToFile("imul ecx");
+            String arrayType = var.getType();
+            if (arrayType.equals("int")) {
+                writeToFile("mov ecx, 4");
+                writeToFile("imul ecx");
+            }
         }
-        //if its char, no point multiplying by 1..
-
+        //if its a string or its char, no point multiplying by 1..
         loadAddr("ecx", x);
         writeToFile("add eax, ecx");
         store("eax", z);
@@ -679,6 +732,36 @@ public class AssemblyGenerator {
 
     public void closeFile()
     {
+        //write library functions
+        assemblyPrintFunctions();
+
+        //write all string literals in the .data section
+        try
+        {
+            assemblyWriter.write("\n.data\n");
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        int stringCounter = stringLabels.size();
+
+
+        Set<String> strings = stringLabels.keySet();
+        Iterator<String> itr = strings.iterator();
+
+        while (itr.hasNext())
+        {
+            String string = itr.next();
+            String label = stringLabels.get(string);
+
+            writeToFile(label + ": .ASCIZ " + string);
+        };
+
+        writeToFile("printInt: .ASCIZ \"%d\"" );
+        writeToFile("printChar: .ASCIZ \"%c\"" );
+        writeToFile("printStr: .ASCIZ \"%s\"" );
+
         try {
             assemblyWriter.close();
         }
@@ -686,5 +769,25 @@ public class AssemblyGenerator {
         {
             e.printStackTrace();
         }
+    }
+
+    private void assemblyPrintFunctions()
+    {
+        writeToFile("puts_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, OFFSET FLAT:printStr");
+        writeToFile("push eax");
+
+        writeToFile("call printf");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
     }
 }

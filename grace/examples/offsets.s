@@ -1,9 +1,8 @@
 .intel_syntax noprefix
+.text
 	.global main
-	.text
-
 L1:
-	foo_2:
+foo_2:
 	push ebp
 	mov ebp, esp
 	sub esp, 38
@@ -39,12 +38,12 @@ L7:
 L8:
 	jmp foo_2_end
 L9:
-	foo_2_end:
+foo_2_end:
 	mov esp, ebp
 	pop ebp
 	ret
 L10:
-	foo1_2:
+foo1_2:
 	push ebp
 	mov ebp, esp
 	sub esp, 0
@@ -55,12 +54,12 @@ L11:
 L12:
 	jmp foo1_2_end
 L13:
-	foo1_2_end:
+foo1_2_end:
 	mov esp, ebp
 	pop ebp
 	ret
 L14:
-	main:
+main:
 	push ebp
 	mov ebp, esp
 	sub esp, 588
@@ -78,7 +77,24 @@ L18:
 	mov eax, DWORD PTR [ebp - 588]
 	mov DWORD PTR [ebp - 4], eax
 L19:
-	main_1_end:
+main_end:
 	mov esp, ebp
 	pop ebp
 	ret
+	puts_1:
+	push ebp
+	mov ebp, esp
+	mov eax, DWORD PTR [ebp + 16]
+	push eax
+	mov eax, OFFSET FLAT:printStr
+	push eax
+	call printf
+	add esp, 8
+	mov esp, ebp
+	pop ebp
+	ret
+
+.data
+	printInt: .ASCIZ "%d"
+	printChar: .ASCIZ "%c"
+	printStr: .ASCIZ "%s"
