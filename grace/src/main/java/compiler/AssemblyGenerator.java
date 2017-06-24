@@ -88,12 +88,12 @@ public class AssemblyGenerator {
             writeToFile("push ebp");
         else if (np == nx)
             writeToFile("push DWORD PTR [ebp + 8]");
-        else
+        else //np > nx
         {
             writeToFile("mov esi, DWORD PTR [ebp + 8]");
 
             int nDiff = np - nx;
-            for (int i=0; i<nDiff; i++)
+            for (int i=0; i<nDiff-1; i++)
                 writeToFile("mov esi, DWORD PTR [esi + 8]");
 
             writeToFile("push DWORD PTR [esi + 8]");
@@ -102,9 +102,10 @@ public class AssemblyGenerator {
 
     private void getAR(int nx)
     {
+        int na = nx - 1;//na is the scope in which the var is local
         writeToFile("mov esi, DWORD PTR [ebp + 8]");
 
-        int nDiff = np - nx;
+        int nDiff = np - na;
         for (int i=0; i<nDiff-1; i++)
             writeToFile("mov esi, DWORD PTR [esi + 8]");
     }
@@ -183,15 +184,15 @@ public class AssemblyGenerator {
         }
         else//it is a constant (number or char)
         {
+            // [ ] is only put outside tempvars ($) when we use a tempvar to save a array address
             if (a.startsWith("[")) {
                 String var = a.substring(1, a.length() - 1);
                 TempVar tmpVar = tempVarHashtable.get(var);
-                int size = tmpVar.getSize();
                 String sizeType;
 
-                if (size == 4) {
+                if (tmpVar.getType().equals("int") || tmpVar.getType().equals("addressint")) {
                     sizeType = "DWORD";
-                } else//size is 1
+                } else//sizeType is addresschar
                 {
                     sizeType = "BYTE";
                 }
@@ -327,7 +328,8 @@ public class AssemblyGenerator {
 
             if (size == 4) {
                 sizeType = "DWORD";
-            } else//size is 1
+            }
+            else//size is 1
             {
                 sizeType = "BYTE";
             }
@@ -389,9 +391,9 @@ public class AssemblyGenerator {
                 int size = tmpVar.getSize();
                 String sizeType;
 
-                if (size == 4) {
+                if (tmpVar.getType().equals("int") || tmpVar.getType().equals("addressint")) {
                     sizeType = "DWORD";
-                } else//size is 1
+                } else//sizeType is char or addresschar
                 {
                     sizeType = "BYTE";
                 }
@@ -429,6 +431,7 @@ public class AssemblyGenerator {
             }
         }
     }
+
 
     //generates assembly code from the most recent quads
     //we start from nextQuadToTransform at every generate call
@@ -501,7 +504,7 @@ public class AssemblyGenerator {
                 System.exit(-1);
             }
 
-            System.out.println(recentCode);//print the assembly code generated for this quad
+            //System.out.println(recentCode);//print the assembly code generated for this quad
         }
 
         nextQuadToTranform = totalQuads;
@@ -604,7 +607,7 @@ public class AssemblyGenerator {
 
         writeToFile("imul ecx");
 
-        store("ecx", z);
+        store("eax", z);
     }
 
     public void assemblyAssign(Quadruple quad) {
@@ -738,7 +741,8 @@ public class AssemblyGenerator {
     {
         //write library functions
         assemblyPrintFunctions();
-
+        assemblyGetFunctions();
+        assemblyTransformFunctions();
         //write all string literals in the .data section
         try
         {
@@ -777,6 +781,7 @@ public class AssemblyGenerator {
 
     private void assemblyPrintFunctions()
     {
+        //puts
         writeToFile("puts_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
@@ -793,5 +798,201 @@ public class AssemblyGenerator {
         writeToFile("mov esp, ebp");
         writeToFile("pop ebp");
         writeToFile("ret");
+
+        //puti
+        writeToFile("puti_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, OFFSET FLAT:printInt");
+        writeToFile("push eax");
+
+        writeToFile("call printf");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //putc
+        writeToFile("putc_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, OFFSET FLAT:printChar");
+        writeToFile("push eax");
+
+        writeToFile("call printf");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
     }
+
+
+    private void assemblyGetFunctions()
+    {
+        //gets
+        writeToFile("gets_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+        writeToFile("mov eax, DWORD PTR stdin");
+        writeToFile("push eax");
+        writeToFile("mov eax, DWORD PTR [ebp + 20]");
+        writeToFile("push eax");
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+        writeToFile("call fgets");
+        writeToFile("add esp, 12");
+        writeToFile("mov eax, 10 # Carriage return");
+        writeToFile("push eax");
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+        writeToFile("call strchr");
+        writeToFile("add esp, 8");
+        writeToFile("cmp eax, 0");
+        writeToFile("je grace_gets_no_newline");
+        writeToFile("mov BYTE PTR [eax], 0");
+        writeToFile("grace_gets_no_newline:");
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //geti
+        writeToFile("geti_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+        writeToFile("sub esp, 4");
+
+        writeToFile("lea eax, DWORD PTR [ebp - 4]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, OFFSET FLAT:printInt");
+        writeToFile("push eax");
+
+        writeToFile("call scanf");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov eax, DWORD PTR [ebp - 4]");
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov DWORD PTR [esi], eax");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //getc
+        writeToFile("getc_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+        writeToFile("sub esp, 1");
+
+        writeToFile("lea eax, DWORD PTR [ebp - 4]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, OFFSET FLAT:printChar");
+        writeToFile("push eax");
+
+        writeToFile("call scanf");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov eax, BYTE PTR [ebp - 4]");
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov BYTE PTR [esi], eax");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+    }
+
+    private void assemblyTransformFunctions()
+    {
+
+        //strlen
+        writeToFile("strlen_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("call strlen");
+        writeToFile("add esp, 4");
+
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov DWORD PTR [esi], eax");
+
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //strcmp
+        writeToFile("strcmp_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 20]");
+        writeToFile("push eax");
+
+        writeToFile("call strcmp");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov DWORD PTR [esi], eax");
+
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //strcpy
+        writeToFile("strcpy_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 20]");
+        writeToFile("push eax");
+
+        writeToFile("call strcpy");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+
+        //strcat
+        writeToFile("strcat_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("push eax");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 20]");
+        writeToFile("push eax");
+
+        writeToFile("call strcat");
+        writeToFile("add esp, 8");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+    }
+
+
 }

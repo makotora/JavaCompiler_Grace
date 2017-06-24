@@ -24,7 +24,7 @@ L4:
 	mov DWORD PTR [ebp - 38], eax
 L5:
 	mov edi, DWORD PTR [ebp - 38]
-	mov eax, DWORD PTR [edi]
+	mov eax, BYTE PTR [edi]
 	mov esi, DWORD PTR [ebp + 8]
 	mov BYTE PTR [esi - 93], eax
 L6:
@@ -77,7 +77,7 @@ L18:
 	mov eax, DWORD PTR [ebp - 588]
 	mov DWORD PTR [ebp - 4], eax
 L19:
-main_end:
+main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret

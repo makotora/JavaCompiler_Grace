@@ -53,6 +53,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
     //as help, so as to generate assembly code by transforming our quadaples
     private AssemblyGenerator assemblyGenerator;
 
+
+    //BONUS-LY...for optimization
+    private ControlFlowGraph controlFlowGraph;
+
     public GenericsVisitor(String filename)
     {
         type = null;
@@ -66,6 +70,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         quads = new ArrayList<Quadruple>();
 
         assemblyGenerator = new AssemblyGenerator(symbolTable, tempVarsHashTable, stringLabels, quads, filename);
+        controlFlowGraph = new ControlFlowGraph(quads);
     }
 
 
@@ -340,6 +345,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", unit_name, null, null));
 
+        controlFlowGraph.makeBasicBlocks();
         assemblyGenerator.generate(functionVarsBpOffset.pop(), symbolTable.getSize() - 1);
 
         symbolTable.exit();
@@ -654,12 +660,12 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         String id = node.getId().getText();
         String lvalueTempVar;//this will contain the final tmpVarname (were to access it from) for this lvalue
-
+        String varType = var.getType();
 
         boolean isArray;//this boolean shows if an array quad was generated or not
 
         if (givenDimensions == 0)
-        {//nothing else to do, its just a plain var not an array
+        {//nothing else to do, its just a plain var.no need for array quad
             isArray = false;
             lvalueTempVar = id;//access this lvalue by its name
         }
@@ -691,7 +697,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                     tmpVar2 = type.getTempVar();
                 }
 
-                String tempVarName = newTempVariable("address");
+                String tempVarName = newTempVariable("address" + varType);
                 quads.add(new Quadruple(quads.size() + 1, "array", id, tmpVar2, tempVarName));
 
                 lvalueTempVar = tempVarName;
@@ -756,11 +762,15 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
                     //multiply them as well in the final result
                     String rest = Integer.toString(restDimensionsMultiplied);
-                    quads.add(new Quadruple(quads.size() + 1, "*", tmp2, rest, tmp2));
+
+                    if (givenDimensions > 1)
+                        quads.add(new Quadruple(quads.size() + 1, "*", tmp2, rest, tmp2));
+                    else //only one dimension given.multiply it by the rest dimensions
+                        quads.add(new Quadruple(quads.size() + 1, "*", expressions[0], rest, tmp2));
                 }
 
                 //tmp2 will contain the final offset
-                String tempVarName = newTempVariable("address");
+                String tempVarName = newTempVariable("address" + varType);
                 quads.add(new Quadruple(quads.size() + 1, "array", id, tmp2, tempVarName));
 
                 lvalueTempVar = tempVarName;
@@ -843,7 +853,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         else//one dimension given
         {
-            String tempVarName = newTempVariable("address");
+            String tempVarName = newTempVariable("addresschar");
             quads.add(new Quadruple(quads.size() + 1, "array", node.getString().getText(), type.getTempVar(), tempVarName));
             this.type = new Type("char", tempVarName, true);
         }
@@ -1425,7 +1435,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         String name = "$" + tempVarsCounter;
         int size = 0;
 
-        if (type.equals("int") || type.equals("address"))
+        if (type.equals("int") || type.equals("addressint") || type.equals("addresschar"))
         {
             size = 4;
         }
