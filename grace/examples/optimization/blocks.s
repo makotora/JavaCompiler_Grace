@@ -10,9 +10,7 @@ L2:
 	mov eax, 0
 	mov DWORD PTR [ebp - 4], eax
 L3:
-	mov eax, 2
-	mov edx, 3
-	add eax, edx
+	mov eax, 5
 	mov DWORD PTR [ebp - 20], eax
 L4:
 	mov eax, DWORD PTR [ebp - 20]
@@ -26,9 +24,7 @@ L6:
 	mov eax, DWORD PTR [ebp - 24]
 	mov DWORD PTR [ebp - 12], eax
 L7:
-	mov eax, DWORD PTR [ebp - 12]
-	mov ecx, 0
-	imul ecx
+	mov eax, 0
 	mov DWORD PTR [ebp - 28], eax
 L8:
 	mov eax, DWORD PTR [ebp - 28]
@@ -43,8 +39,6 @@ L10:
 	mov DWORD PTR [ebp - 16], eax
 L11:
 	mov eax, DWORD PTR [ebp - 12]
-	mov edx, 0
-	add eax, edx
 	mov DWORD PTR [ebp - 36], eax
 L12:
 	mov eax, DWORD PTR [ebp - 36]
@@ -57,9 +51,7 @@ L13:
 L14:
 	jmp L21
 L15:
-	mov eax, 1
-	mov edx, 2
-	add eax, edx
+	mov eax, 3
 	mov DWORD PTR [ebp - 40], eax
 L16:
 	mov eax, DWORD PTR [ebp - 40]
@@ -69,9 +61,7 @@ L16:
 L17:
 	jmp L21
 L18:
-	mov eax, DWORD PTR [ebp - 12]
-	mov edx, DWORD PTR [ebp - 12]
-	sub eax, edx
+	mov eax, 0
 	mov DWORD PTR [ebp - 44], eax
 L19:
 	mov eax, DWORD PTR [ebp - 44]
@@ -80,8 +70,6 @@ L20:
 	jmp L23
 L21:
 	mov eax, DWORD PTR [ebp - 12]
-	mov ecx, 1
-	imul ecx
 	mov DWORD PTR [ebp - 48], eax
 L22:
 	mov eax, DWORD PTR [ebp - 48]
@@ -123,8 +111,6 @@ L31:
 	jmp L34
 L32:
 	mov eax, DWORD PTR [ebp - 16]
-	mov edx, 0
-	add eax, edx
 	mov DWORD PTR [ebp - 64], eax
 L33:
 	mov eax, DWORD PTR [ebp - 64]
