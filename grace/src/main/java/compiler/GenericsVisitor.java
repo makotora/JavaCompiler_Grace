@@ -345,7 +345,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", unit_name, null, null));
 
-        controlFlowGraph.optimizeUnit();
+        controlFlowGraph.optimize();
         assemblyGenerator.generate(functionVarsBpOffset.pop(), symbolTable.getSize() - 1);
 
         symbolTable.exit();

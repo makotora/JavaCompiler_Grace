@@ -20,7 +20,7 @@ public class ControlFlowGraph {
         nextStartQuad = 1;
     }
 
-    public void makeUnitBasicBlocks()
+    private void makeBasicBlocks()
     {
         //for each label_quad we keep a list of the quads that jump to it
         HashSet labels = new HashSet();
@@ -29,13 +29,19 @@ public class ControlFlowGraph {
         //see which quad nums are labels, and which quads jump to that labels
         for (Quadruple quad : quads)
         {
-            if(quad.getOp().equals("=") || quad.getOp().equals("#") || quad.getOp().equals("<") || quad.getOp().equals("<=") || quad.getOp().equals(">") || quad.getOp().equals(">=") || quad.getOp().equals("jump"))
+            String op = quad.getOp();
+            if(op.equals("=") || op.equals("#") || op.equals("<") || op.equals("<=") || op.equals(">") || op.equals(">=") || op.equals("jump"))
             {
                 int current_quad = quad.getNum();
                 jumps.add(current_quad);
 
                 int label_quad = Integer.parseInt(quad.getResult());//the quad we jump into is a label quad
                 labels.add(label_quad);
+            }
+            else if (op.equals("call"))//not so sure about this (I thing call is 'like' a jump
+            {
+                int current_quad = quad.getNum();
+                jumps.add(current_quad);
             }
         }
 
@@ -86,8 +92,6 @@ public class ControlFlowGraph {
             basicBlocksList.add(new BasicBlock(quads, start, total));//there is no next quad (-1)
         }
 
-        nextStartQuad = total + 1;
-
         //we are done separating the blocks.now iterate over the block list and save the edges for our graph
         //(for each block note the blocks it goes to)
         int total_blocks = basicBlocksList.size();
@@ -118,11 +122,10 @@ public class ControlFlowGraph {
 
     }
 
-    public void optimizeUnit()
-    {
-        makeUnitBasicBlocks();
 
-        //use constant folding at each block
+    public void printGraph()
+    {
+        //print basic blocks and edges (debug)
         int i = 0;
         for (BasicBlock basicBlock : basicBlocksList)
         {
@@ -132,10 +135,218 @@ public class ControlFlowGraph {
             System.out.println(basicBlockEdges.get(i));
             System.out.println();
 
-            basicBlock.constantFolding();
             i++;
         }
     }
+
+
+    public void optimize()
+    {
+        makeBasicBlocks();
+
+        allOptimizations(4);
+
+        printGraph();
+
+
+
+        //At the end of the optimization
+        nextStartQuad = quads.size() + 1;//for next optimization call
+    }
+
+
+    //combinations
+    private void allOptimizations()
+    {
+        constantFolding();
+        copyPropagation();
+        removeUnreachableBlocks();
+        deleteDeadTempVarAssignments();
+    }
+
+    private void CFCP()//constant folding followed by copy propagation
+    {
+        constantFolding();
+        copyPropagation();
+    }
+
+    //multiple function calls
+    private void allOptimizations(int repeats)
+    {
+        for (int i=0; i<repeats; i++)
+            allOptimizations();
+    }
+
+    private void CFCPs(int repeats)
+    {
+        for (int i=0; i<repeats; i++)
+            CFCP();
+    }
+
+    private void CFs(int repeats)
+    {
+        for (int i=0; i<repeats; i++)
+            constantFolding();
+    }
+
+    private void CPPs(int repeats)
+    {
+        for (int i=0; i<repeats; i++)
+            copyPropagation();
+    }
+
+    private void RBBs(int repeats)
+    {
+        for (int i=0; i<repeats; i++)
+            removeUnreachableBlocks();
+    }
+
+    //optimization types - functions
+
+    private void constantFolding()
+    {
+        for (BasicBlock basicBlock : basicBlocksList)
+            basicBlock.constantFolding();
+
+        makeBasicBlocks();//remake graph!
+    }
+
+    private void copyPropagation()
+    {
+        for (BasicBlock basicBlock : basicBlocksList)
+            basicBlock.copyPropagation();
+
+        makeBasicBlocks();//remake graph!
+    }
+
+    private void removeUnreachableBlocks()
+    {
+        HashSet reachableBlocks = new HashSet();//set of reachable blocks
+        reachableBlocks.add(0);//first block is always reachable (unit start)
+        int total = basicBlocksList.size();
+
+        for(int i=0; i<total; i++)
+        {
+            ArrayList<Integer> blockEdges = basicBlockEdges.get(i);
+
+            for (Integer blockEdge : blockEdges) {
+                reachableBlocks.add(blockEdge);
+            }
+        }
+
+        for(int i=1; i<total; i++)
+        {
+            //for every block besides the first one (it is always reachable!)
+            if (!reachableBlocks.contains(i))
+                basicBlocksList.get(i).delete();
+        }
+
+        makeBasicBlocks();//remake graph!
+    }
+
+
+    //sometimes due to optimization, some temp vars are assigned a value, and the temp var is never used below!
+    //remove those assignments from the code
+    private void deleteDeadTempVarAssignments()
+    {
+        int total = quads.size();
+
+        for (int i=nextStartQuad; i<=total; i++)
+        {
+            int index = i - 1;//they start from 0
+            Quadruple quad = quads.get(index);
+
+            if (quad.getOp().equals(":="))//if its an assignment
+            {
+                String var = quad.getResult();
+
+                if (var.startsWith("$") && !var.equals("$$"))//if a temp var is being assigned something
+                {
+                    boolean isDead = true;//this will remain true if the tempVar is not being used anywhere below
+
+                    for (int j=i+1; j<=total; j++)
+                    {
+                        int innerIndex = j - 1;
+                        Quadruple innedQuad = quads.get(innerIndex);
+
+                        String arg1 = innedQuad.getArg1();
+                        String arg2 = innedQuad.getArg2();
+
+                        if (arg1 != null && arg1.equals(var)) {
+                            isDead = false;
+                            break;
+                        }
+                        //or
+                        if (arg2 != null && arg2.equals(var)) {
+                            isDead = false;
+                            break;
+                        }
+
+                    }
+
+                    if (isDead)//if the temp var is not being used anywhere else after being assigned a value
+                        deleteQuad(quad);//delete the assignment, it isnt needed!
+                }
+            }
+        }
+    }
+
+    public void deleteQuad(Quadruple quad)
+    {
+        quad.setOp("noop");
+        quad.setArg1("-");
+        quad.setArg2("-");
+        quad.setResult("-");
+    }
+
+    private boolean sameQuads(List<Quadruple> q1, List<Quadruple> q2)
+    {
+        int s1 = q1.size();
+        int s2 = q2.size();
+
+        if (s1 != s2)
+            return false;
+        else
+        {
+            for (int i=0; i<s1; i++)
+            {
+                Quadruple quad1 = q1.get(i);
+                Quadruple quad2 = q2.get(i);
+
+                String field1;
+                String field2;
+
+                field1 = Integer.toString(quad1.getNum());
+                field2 = Integer.toString(quad2.getNum());
+                if (field1 != field2)
+                    return false;
+
+                field1 = quad1.getOp();
+                field2 = quad2.getOp();
+                if (field1 != field2)
+                    return false;
+
+                field1 = quad1.getArg1();
+                field2 = quad2.getArg1();
+                if (field1 != field2)
+                    return false;
+
+                field1 = quad1.getArg2();
+                field2 = quad2.getArg2();
+                if (field1 != field2)
+                    return false;
+
+                field1 = quad1.getResult();
+                field2 = quad2.getResult();
+                if (field1 != field2)
+                    return false;
+
+            }
+
+            return true;//we didnt return false inside.so they are the same!
+        }
+    }
+
 
 
 }

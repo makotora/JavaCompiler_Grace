@@ -1,6 +1,7 @@
 package compiler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -30,36 +31,90 @@ public class BasicBlock
             System.out.println(quad);
         }
     }
+
     public int firstQuadNum() { return quads.get(0).getNum(); }
     public int lastQuadNum() { return quads.get(quads.size()-1).getNum(); }
 
-    public ArrayList<Integer> getJumpQuads()
+    public void delete()
     {
-        ArrayList<Integer> list = new ArrayList<Integer>();//a list of the quads we "jump" to.It can be either 1 or 2 quads
-
-        Quadruple lastQuad = quads.get(quads.size()-1);
-        String lastOp = lastQuad.getOp();
-
-        if (lastOp.equals("jump"))//we will only jump at one quad.that of the "jump" quads result
+        //replace every quad with noop(no assembly code will be generated)
+        for (Quadruple quad : quads)
         {
-            list.add(Integer.parseInt(lastQuad.getResult()));
+            deleteQuad(quad);
         }
-        else if (lastOp.equals("<") || lastOp.equals("<=") || lastOp.equals(">") || lastOp.equals(">=") || lastOp.equals("=") || lastOp.equals("#"))
-        {//there are 2 quads we can jump to (depending on the result of the condition)
-            int jump_quad = Integer.parseInt(lastQuad.getResult());
-            int next_quad = lastQuad.getNum() + 1;
+    }
 
-            list.add(jump_quad);//if the condition is true
+    public void deleteQuad(Quadruple quad)
+    {
+        quad.setOp("noop");
+        quad.setArg1("-");
+        quad.setArg2("-");
+        quad.setResult("-");
+    }
 
-            if (jump_quad != next_quad)//if they are not the same
-                list.add(next_quad);
-        }
-        else//no jumps at all, just continue to the next quad
+
+    //if x := a
+    // other_code
+    // y := x
+    // then y := a ! (BUT! other_code cannot assign x a different value)
+    public void copyPropagation()
+    {
+        int total = quads.size();
+        for (int i=0; i<total; i++)
         {
-            list.add(lastQuad.getNum() + 1);
+            Quadruple quad = quads.get(i);
+
+            if (quad.getOp().equals(":="))
+            {// var := value
+                String var = quad.getResult();//the variable
+                String value = quad.getArg1();//the value assigned to the variable
+
+                //for all quads after this one, propagate (if you can) the right value of the left
+                for (int j=i+1; j<total; j++)
+                {
+                    Quadruple innerQuad = quads.get(j);
+
+                    if (innerQuad.getOp().equals(":=") && innerQuad.getResult().equals(var))//if var is being assigned a different value
+                    {//we cant propagate anymore. the value is changed so we cant switch 'var' with 'value' below here
+                        break;
+                    }
+                    else //if 'var' is not being assigned a different value
+                    {// if 'var' shows up ANYWHERE (arg1 or arg2) we can replace it with 'value'
+                        String arg1 = innerQuad.getArg1();
+                        String arg2 = innerQuad.getArg2();
+
+                        if (arg1 != null && arg1.equals(var))
+                            innerQuad.setArg1(value);
+
+                        if (arg2 != null && arg2.equals(var))
+                            innerQuad.setArg2(value);
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean isInSingleAssignmentForm()
+    {
+        HashSet assignments = new HashSet();
+
+        for (Quadruple quad : quads) {
+            //if it is an assignment
+            String leftPart;
+            if (quad.getOp().equals(":="))
+            {
+                leftPart = quad.getResult();
+
+                //if its not the first time we are assigning something to this result
+                if (assignments.contains(leftPart))
+                    return false;//its not in single assignment form
+                else
+                    assignments.add(leftPart);//note that we have assigned something to this result
+            }
+
         }
 
-        return list;
+        return true;//if we dont return false inside, it is in single assignment form!
     }
 
     public void constantFolding()
@@ -68,8 +123,16 @@ public class BasicBlock
         {
             String op = quad.getOp();
 
+            if (op.equals(":="))//if it is an assignment
+            {
+                // x = x, doesnt need to exist!
+                if (quad.getArg1().equals(quad.getArg2()))//if left part and right part of assignment is the same
+                {
+                    deleteQuad(quad);//this quad doesnt have to exist
+                }
+            }
             //if it is a comparison quad
-            if (isCompareOp(op))
+            else if (isCompareOp(op))
             {
                 String arg1 = quad.getArg1();
                 String arg2 = quad.getArg2();
@@ -113,10 +176,7 @@ public class BasicBlock
                     }
                     else//"erase" this quad, it can never jump! make it a noop quad
                     {
-                        quad.setOp("noop");
-                        quad.setArg1("-");
-                        quad.setArg2("-");
-                        quad.setResult("-");
+                        deleteQuad(quad);
                     }
                 }
             }
@@ -297,7 +357,8 @@ public class BasicBlock
             return false;
     }
 
-    public static boolean isParsable(String input) {
+
+    private static boolean isParsable(String input) {
         boolean parsable = true;
         try {
             Integer.parseInt(input);
@@ -305,5 +366,35 @@ public class BasicBlock
             parsable = false;
         }
         return parsable;
+    }
+
+
+    public ArrayList<Integer> getJumpQuads()
+    {
+        ArrayList<Integer> list = new ArrayList<Integer>();//a list of the quads we "jump" to.It can be either 1 or 2 quads
+
+        Quadruple lastQuad = quads.get(quads.size()-1);
+        String lastOp = lastQuad.getOp();
+
+        if (lastOp.equals("jump"))//we will only jump at one quad.that of the "jump" quads result
+        {
+            list.add(Integer.parseInt(lastQuad.getResult()));
+        }
+        else if (lastOp.equals("<") || lastOp.equals("<=") || lastOp.equals(">") || lastOp.equals(">=") || lastOp.equals("=") || lastOp.equals("#"))
+        {//there are 2 quads we can jump to (depending on the result of the condition)
+            int jump_quad = Integer.parseInt(lastQuad.getResult());
+            int next_quad = lastQuad.getNum() + 1;
+
+            list.add(jump_quad);//if the condition is true
+
+            if (jump_quad != next_quad)//if they are not the same
+                list.add(next_quad);
+        }
+        else//no jumps at all, just continue to the next quad
+        {
+            list.add(lastQuad.getNum() + 1);
+        }
+
+        return list;
     }
 }

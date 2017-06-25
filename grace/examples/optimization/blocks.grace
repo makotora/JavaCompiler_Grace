@@ -3,15 +3,36 @@ var x : int;
 var y : int;
 var w : int;
 var z : int;
+
+	fun foo() : nothing
+	{
+		x <- 5;
+	} 
 {
 	$this condition can be erased (the jump that follows stays)
 	$this is deadcode
 	$it can be completely erased (advanced)
 
 	if 0 > 0 then
+	{
 		x <- 6 + 4; $this can become 10
+		
+		$following is unreachable
+		if ( 1 > 0) then
+			x <- 3*4;	
+	}
 
-	x <- 0; $this could disappear
+
+
+	y <- 0; $this could disappear
+	y <- y + 2; 	$ >> 0 + 2 >> 2
+
+	x <- 5;
+	x <- x + 3;$this could become 5 + 3 and then 8
+
+	y <- y * x; $ ... 2*8 >> 16
+
+	foo();
 
 	w <- 2 + 3; $should become 5
 	w <- w + 3; $should become 8
@@ -40,7 +61,6 @@ var z : int;
 		w <- w - 1;
 	}
 
-	y <- y * x; $should become y*0 and maybe after another pass..0!
 	puti(y); $if y wasnt used here, it could disappear
 	puts("Done\n");
 }
