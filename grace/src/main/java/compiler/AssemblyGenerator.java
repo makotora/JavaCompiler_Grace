@@ -498,6 +498,10 @@ public class AssemblyGenerator {
             {
                 writeToFile("jmp " + endof(current));
             }
+            else if (quadOp.equals("noop"))//it is a noop quad (erased quad due to optimization)
+            {
+                ;//do noop :P (BUT REMEMBER TO NOT ERASE THE LABEL OF THIS QUAD AT ASSEMBLY..MAYBE SOMEONE JUMPS HERE)
+            }
             else
             {
                 System.out.println("Unknown quadOp :" + quadOp);
@@ -743,6 +747,7 @@ public class AssemblyGenerator {
         assemblyPrintFunctions();
         assemblyGetFunctions();
         assemblyTransformFunctions();
+        assemblyStrFunctions();
         //write all string literals in the .data section
         try
         {
@@ -913,6 +918,55 @@ public class AssemblyGenerator {
     }
 
     private void assemblyTransformFunctions()
+    {
+        //abs
+        writeToFile("abs_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");
+        writeToFile("cdq");
+        writeToFile("xor eax, edx");
+        writeToFile("sub eax, edx");
+
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov DWORD PTR [esi], eax");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //ord
+        writeToFile("ord_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, BYTE PTR [ebp + 16]");;
+
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov DWORD PTR [esi], eax");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+        //chr
+        writeToFile("chr_1:");
+        writeToFile("push ebp");
+        writeToFile("mov ebp, esp");
+
+        writeToFile("mov eax, DWORD PTR [ebp + 16]");;
+
+        writeToFile("mov esi, DWORD PTR [ebp + 12]");
+        writeToFile("mov BYTE PTR [esi], eax");
+
+        writeToFile("mov esp, ebp");
+        writeToFile("pop ebp");
+        writeToFile("ret");
+
+    }
+
+    private void assemblyStrFunctions()
     {
 
         //strlen

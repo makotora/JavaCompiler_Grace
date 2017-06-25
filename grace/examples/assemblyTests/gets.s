@@ -5,104 +5,156 @@ L1:
 main:
 	push ebp
 	mov ebp, esp
-	sub esp, 308
+	sub esp, 318
 L2:
-	mov eax, 100
-	push eax
+	lea esi, BYTE PTR [ebp - 305]
+	push esi
 L3:
-	lea esi, BYTE PTR [ebp - 104]
-	push esi
+	push 0
+	call getc_1
+	add esp, 8
 L4:
-	sub esp, 4
-	push 0
-	call gets_1
-	add esp, 16
+	mov eax, BYTE PTR [ebp - 305]
+	push eax
 L5:
-	mov eax, 100
-	push eax
+	lea esi, DWORD PTR [ebp - 309]
+	push esi
 L6:
-	lea esi, BYTE PTR [ebp - 204]
-	push esi
+	push 0
+	call ord_1
+	add esp, 12
 L7:
-	sub esp, 4
-	push 0
-	call gets_1
-	add esp, 16
+	mov eax, DWORD PTR [ebp - 309]
+	push eax
 L8:
-	lea esi, BYTE PTR [ebp - 304]
-	push esi
-L9:
-	lea esi, BYTE PTR [ebp - 104]
-	push esi
-L10:
-	sub esp, 4
-	push 0
-	call strcpy_1
-	add esp, 16
-L11:
-	lea esi, BYTE PTR [ebp - 104]
-	push esi
-L12:
-	sub esp, 4
-	push 0
-	call puts_1
-	add esp, 12
-L13:
-	lea esi, BYTE PTR [ebp - 304]
-	push esi
-L14:
-	sub esp, 4
-	push 0
-	call puts_1
-	add esp, 12
-L15:
-	mov eax, '\n'
-	push eax
-L16:
-	sub esp, 4
-	push 0
-	call putc_1
-	add esp, 12
-L17:
-	lea esi, BYTE PTR [ebp - 104]
-	push esi
-L18:
-	lea esi, BYTE PTR [ebp - 204]
-	push esi
-L19:
-	sub esp, 4
-	push 0
-	call strcat_1
-	add esp, 16
-L20:
-	lea esi, BYTE PTR [ebp - 104]
-	push esi
-L21:
-	sub esp, 4
-	push 0
-	call puts_1
-	add esp, 12
-L22:
-	jmp main_1_end
-L23:
-	lea esi, BYTE PTR [ebp - 104]
-	push esi
-L24:
-	lea esi, DWORD PTR [ebp - 308]
-	push esi
-L25:
-	push 0
-	call strlen_1
-	add esp, 12
-L26:
-	mov eax, DWORD PTR [ebp - 308]
-	push eax
-L27:
 	sub esp, 4
 	push 0
 	call puti_1
 	add esp, 12
+L9:
+	lea esi, DWORD PTR [ebp - 313]
+	push esi
+L10:
+	push 0
+	call geti_1
+	add esp, 8
+L11:
+	mov eax, DWORD PTR [ebp - 313]
+	push eax
+L12:
+	lea esi, BYTE PTR [ebp - 314]
+	push esi
+L13:
+	push 0
+	call chr_1
+	add esp, 12
+L14:
+	mov eax, BYTE PTR [ebp - 314]
+	push eax
+L15:
+	sub esp, 4
+	push 0
+	call putc_1
+	add esp, 12
+L16:
+	jmp main_1_end
+L17:
+	mov eax, 100
+	push eax
+L18:
+	lea esi, BYTE PTR [ebp - 104]
+	push esi
+L19:
+	sub esp, 4
+	push 0
+	call gets_1
+	add esp, 16
+L20:
+	mov eax, 100
+	push eax
+L21:
+	lea esi, BYTE PTR [ebp - 204]
+	push esi
+L22:
+	sub esp, 4
+	push 0
+	call gets_1
+	add esp, 16
+L23:
+	lea esi, BYTE PTR [ebp - 304]
+	push esi
+L24:
+	lea esi, BYTE PTR [ebp - 104]
+	push esi
+L25:
+	sub esp, 4
+	push 0
+	call strcpy_1
+	add esp, 16
+L26:
+	lea esi, BYTE PTR [ebp - 104]
+	push esi
+L27:
+	sub esp, 4
+	push 0
+	call puts_1
+	add esp, 12
 L28:
+	lea esi, BYTE PTR [ebp - 304]
+	push esi
+L29:
+	sub esp, 4
+	push 0
+	call puts_1
+	add esp, 12
+L30:
+	mov eax, '\n'
+	push eax
+L31:
+	sub esp, 4
+	push 0
+	call putc_1
+	add esp, 12
+L32:
+	lea esi, BYTE PTR [ebp - 104]
+	push esi
+L33:
+	lea esi, BYTE PTR [ebp - 204]
+	push esi
+L34:
+	sub esp, 4
+	push 0
+	call strcat_1
+	add esp, 16
+L35:
+	lea esi, BYTE PTR [ebp - 104]
+	push esi
+L36:
+	sub esp, 4
+	push 0
+	call puts_1
+	add esp, 12
+L37:
+	jmp main_1_end
+L38:
+	lea esi, BYTE PTR [ebp - 104]
+	push esi
+L39:
+	lea esi, DWORD PTR [ebp - 318]
+	push esi
+L40:
+	push 0
+	call strlen_1
+	add esp, 12
+L41:
+	mov eax, DWORD PTR [ebp - 318]
+	push eax
+L42:
+	sub esp, 4
+	push 0
+	call puti_1
+	add esp, 12
+L43:
 main_1_end:
 	mov esp, ebp
 	pop ebp
@@ -194,6 +246,36 @@ main_1_end:
 	call scanf
 	add esp, 8
 	mov eax, BYTE PTR [ebp - 4]
+	mov esi, DWORD PTR [ebp + 12]
+	mov BYTE PTR [esi], eax
+	mov esp, ebp
+	pop ebp
+	ret
+	abs_1:
+	push ebp
+	mov ebp, esp
+	mov eax, DWORD PTR [ebp + 16]
+	cdq
+	xor eax, edx
+	sub eax, edx
+	mov esi, DWORD PTR [ebp + 12]
+	mov DWORD PTR [esi], eax
+	mov esp, ebp
+	pop ebp
+	ret
+	ord_1:
+	push ebp
+	mov ebp, esp
+	mov eax, BYTE PTR [ebp + 16]
+	mov esi, DWORD PTR [ebp + 12]
+	mov DWORD PTR [esi], eax
+	mov esp, ebp
+	pop ebp
+	ret
+	chr_1:
+	push ebp
+	mov ebp, esp
+	mov eax, DWORD PTR [ebp + 16]
 	mov esi, DWORD PTR [ebp + 12]
 	mov BYTE PTR [esi], eax
 	mov esp, ebp

@@ -68,8 +68,60 @@ public class BasicBlock
         {
             String op = quad.getOp();
 
+            //if it is a comparison quad
+            if (isCompareOp(op))
+            {
+                String arg1 = quad.getArg1();
+                String arg2 = quad.getArg2();
+
+                if (isParsable(arg1) && isParsable(arg2))//if they are both constants
+                {
+                    boolean evaluation;
+                    int num1 = Integer.parseInt(arg1);
+                    int num2 = Integer.parseInt(arg2);
+
+                    if (op.equals("="))
+                    {
+                        evaluation = (num1 == num2);
+                    }
+                    else if (op.equals("#"))
+                    {
+                        evaluation = (num1 != num2);
+                    }
+                    else if (op.equals(">"))
+                    {
+                        evaluation = (num1 > num2);
+                    }
+                    else if (op.equals(">="))
+                    {
+                        evaluation = (num1 >= num2);
+                    }
+                    else if (op.equals("<"))
+                    {
+                        evaluation = (num1 < num2);
+                    }
+                    else// <=
+                    {
+                        evaluation = (num1 <= num2);
+                    }
+
+                    if (evaluation == true)//if it is always evaluated to true
+                    {//just make the jump! (always)
+                        quad.setOp("jump");
+                        quad.setArg1("-");
+                        quad.setArg2("-");
+                    }
+                    else//"erase" this quad, it can never jump! make it a noop quad
+                    {
+                        quad.setOp("noop");
+                        quad.setArg1("-");
+                        quad.setArg2("-");
+                        quad.setResult("-");
+                    }
+                }
+            }
             //if it is a math quad
-            if (isMathOp(op))
+            else if (isMathOp(op))
             {
                 //first see if we can do the math compile time
                 String arg1 = quad.getArg1();
@@ -228,9 +280,18 @@ public class BasicBlock
         }
     }
 
+
     private boolean isMathOp(String op)
     {
         if (op.equals("+") || op.equals("-") || op.equals("*") || op.equals("div") || op.equals("mod"))
+            return true;
+        else
+            return false;
+    }
+
+    private boolean isCompareOp(String op)
+    {
+        if (op.equals(">") || op.equals(">=") || op.equals("<") || op.equals("<=") || op.equals("=") || op.equals("#"))
             return true;
         else
             return false;

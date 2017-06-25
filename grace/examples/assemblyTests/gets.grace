@@ -5,8 +5,12 @@ fun main() : nothing
 	var str3 : char[100];
 {
 
-	
 $	x <- geti();
+$	puti(abs(x));
+	
+	puti(ord(getc()));
+	putc(chr(geti()));
+	return;
 
 	gets(100, str);
 	gets(100, str2);

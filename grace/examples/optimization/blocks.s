@@ -5,143 +5,165 @@ L1:
 main:
 	push ebp
 	mov ebp, esp
-	sub esp, 72
+	sub esp, 76
+	jmp L2
 L2:
+L3:
+	jmp L6
+L4:
+	mov eax, 10
+	mov DWORD PTR [ebp - 20], eax
+L5:
+	mov eax, DWORD PTR [ebp - 20]
+	mov DWORD PTR [ebp - 4], eax
+L6:
 	mov eax, 0
 	mov DWORD PTR [ebp - 4], eax
-L3:
+L7:
 	mov eax, 5
-	mov DWORD PTR [ebp - 20], eax
-L4:
-	mov eax, DWORD PTR [ebp - 20]
+	mov DWORD PTR [ebp - 24], eax
+L8:
+	mov eax, DWORD PTR [ebp - 24]
 	mov DWORD PTR [ebp - 12], eax
-L5:
+L9:
 	mov eax, DWORD PTR [ebp - 12]
 	mov edx, 3
 	add eax, edx
-	mov DWORD PTR [ebp - 24], eax
-L6:
-	mov eax, DWORD PTR [ebp - 24]
-	mov DWORD PTR [ebp - 12], eax
-L7:
-	mov eax, 0
 	mov DWORD PTR [ebp - 28], eax
-L8:
+L10:
 	mov eax, DWORD PTR [ebp - 28]
+	mov DWORD PTR [ebp - 12], eax
+L11:
+	mov eax, 0
+	mov DWORD PTR [ebp - 32], eax
+L12:
+	mov eax, DWORD PTR [ebp - 32]
 	mov DWORD PTR [ebp - 16], eax
-L9:
+L13:
 	mov eax, DWORD PTR [ebp - 12]
 	mov edx, 0
 	sub eax, edx
-	mov DWORD PTR [ebp - 32], eax
-L10:
-	mov eax, DWORD PTR [ebp - 32]
-	mov DWORD PTR [ebp - 16], eax
-L11:
-	mov eax, DWORD PTR [ebp - 12]
 	mov DWORD PTR [ebp - 36], eax
-L12:
+L14:
 	mov eax, DWORD PTR [ebp - 36]
 	mov DWORD PTR [ebp - 16], eax
-L13:
-	mov eax, DWORD PTR [ebp - 16]
-	mov edx, 3
-	cmp eax, edx
-	jne L15
-L14:
-	jmp L21
 L15:
-	mov eax, 3
+	mov eax, DWORD PTR [ebp - 12]
 	mov DWORD PTR [ebp - 40], eax
 L16:
 	mov eax, DWORD PTR [ebp - 40]
+	mov DWORD PTR [ebp - 16], eax
+L17:
+	mov eax, DWORD PTR [ebp - 16]
+	mov edx, 3
+	cmp eax, edx
+	jne L19
+L18:
+	jmp L27
+L19:
+	mov eax, 3
+	mov DWORD PTR [ebp - 44], eax
+L20:
+	mov eax, DWORD PTR [ebp - 44]
 	mov edx, 1
 	cmp eax, edx
-	jg L18
-L17:
-	jmp L21
-L18:
-	mov eax, 0
-	mov DWORD PTR [ebp - 44], eax
-L19:
-	mov eax, DWORD PTR [ebp - 44]
-	mov DWORD PTR [ebp - 16], eax
-L20:
-	jmp L23
+	jg L22
 L21:
-	mov eax, DWORD PTR [ebp - 12]
-	mov DWORD PTR [ebp - 48], eax
+	jmp L27
 L22:
+	jmp L24
+L23:
+	jmp L27
+L24:
+	mov eax, 0
+	mov DWORD PTR [ebp - 48], eax
+L25:
 	mov eax, DWORD PTR [ebp - 48]
 	mov DWORD PTR [ebp - 16], eax
-L23:
+L26:
+	jmp L29
+L27:
+	mov eax, DWORD PTR [ebp - 12]
+	mov DWORD PTR [ebp - 52], eax
+L28:
+	mov eax, DWORD PTR [ebp - 52]
+	mov DWORD PTR [ebp - 16], eax
+L29:
 	mov eax, DWORD PTR [ebp - 12]
 	mov edx, 0
 	cmp eax, edx
-	jg L25
-L24:
-	jmp L37
-L25:
+	jg L31
+L30:
+	jmp L43
+L31:
 	mov eax, DWORD PTR [ebp - 12]
 	cdq
 	mov ebx, 2
 	idiv ebx
-	mov DWORD PTR [ebp - 52], edx
-L26:
-	mov eax, DWORD PTR [ebp - 52]
+	mov DWORD PTR [ebp - 56], edx
+L32:
+	mov eax, DWORD PTR [ebp - 56]
 	mov edx, 1
 	cmp eax, edx
-	je L28
-L27:
-	jmp L32
-L28:
+	je L34
+L33:
+	jmp L38
+L34:
 	mov eax, DWORD PTR [ebp - 16]
 	mov edx, 2
 	add eax, edx
-	mov DWORD PTR [ebp - 56], eax
-L29:
-	mov eax, DWORD PTR [ebp - 56]
+	mov DWORD PTR [ebp - 60], eax
+L35:
+	mov eax, DWORD PTR [ebp - 60]
 	mov edx, 5
 	add eax, edx
-	mov DWORD PTR [ebp - 60], eax
-L30:
-	mov eax, DWORD PTR [ebp - 60]
-	mov DWORD PTR [ebp - 16], eax
-L31:
-	jmp L34
-L32:
-	mov eax, DWORD PTR [ebp - 16]
 	mov DWORD PTR [ebp - 64], eax
-L33:
+L36:
 	mov eax, DWORD PTR [ebp - 64]
 	mov DWORD PTR [ebp - 16], eax
-L34:
+L37:
+	jmp L40
+L38:
+	mov eax, DWORD PTR [ebp - 16]
+	mov DWORD PTR [ebp - 68], eax
+L39:
+	mov eax, DWORD PTR [ebp - 68]
+	mov DWORD PTR [ebp - 16], eax
+L40:
 	mov eax, DWORD PTR [ebp - 12]
 	mov edx, 1
 	sub eax, edx
-	mov DWORD PTR [ebp - 68], eax
-L35:
-	mov eax, DWORD PTR [ebp - 68]
+	mov DWORD PTR [ebp - 72], eax
+L41:
+	mov eax, DWORD PTR [ebp - 72]
 	mov DWORD PTR [ebp - 12], eax
-L36:
-	jmp L23
-L37:
+L42:
+	jmp L29
+L43:
 	mov eax, DWORD PTR [ebp - 8]
 	mov ecx, DWORD PTR [ebp - 4]
 	imul ecx
-	mov DWORD PTR [ebp - 72], eax
-L38:
-	mov eax, DWORD PTR [ebp - 72]
+	mov DWORD PTR [ebp - 76], eax
+L44:
+	mov eax, DWORD PTR [ebp - 76]
 	mov DWORD PTR [ebp - 8], eax
-L39:
+L45:
 	mov eax, DWORD PTR [ebp - 8]
 	push eax
-L40:
+L46:
 	sub esp, 4
 	push 0
 	call puti_1
 	add esp, 12
-L41:
+L47:
+	mov esi, OFFSET FLAT:STR1
+	push esi
+L48:
+	sub esp, 4
+	push 0
+	call puts_1
+	add esp, 12
+L49:
 main_1_end:
 	mov esp, ebp
 	pop ebp
@@ -290,6 +312,7 @@ main_1_end:
 	ret
 
 .data
+	STR1: .ASCIZ "Done\n"
 	printInt: .ASCIZ "%d"
 	printChar: .ASCIZ "%c"
 	printStr: .ASCIZ "%s"

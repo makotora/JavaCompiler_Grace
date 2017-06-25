@@ -54,8 +54,11 @@ public class ControlFlowGraph {
             {
                 if (labels.contains(i))//if it is also a label.than it is a block on it own
                 {
-                    end = i-1;
-                    basicBlocksList.add(new BasicBlock(quads, start, end));
+                    if (start != i)//if there is a "pending" block start
+                    {//end the block at the last quad (i-1)
+                        end = i - 1;
+                        basicBlocksList.add(new BasicBlock(quads, start, end));
+                    }
 
                     basicBlocksList.add(new BasicBlock(quads, i, i));//this quad is both a label and a jump.It is a block in its own
                 }
