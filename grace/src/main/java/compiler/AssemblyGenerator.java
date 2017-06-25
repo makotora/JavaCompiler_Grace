@@ -694,20 +694,19 @@ public class AssemblyGenerator {
         //x is either an idLvalue (var) or a string literal
 
         Variable var = (Variable) symbolTable.lookup(x);//if this returns null it means that x is a string
-
         load("eax", y);
-        if (var != null)//if var exists, see its type
-        {
-            String arrayType = var.getType();
-            if (arrayType.equals("int")) {
-                writeToFile("mov ecx, 4");
-                writeToFile("imul ecx");
-            }
-        }
-        //if its a string or its char, no point multiplying by 1..
         loadAddr("ecx", x);
-        writeToFile("add eax, ecx");
-        store("eax", z);
+
+        if (var != null) {
+            String arrayType = var.getType();
+            if (arrayType.equals("int"))
+                writeToFile("lea edx, [4*eax + ecx]");
+            else
+                writeToFile("lea edx, [eax + ecx]");
+        } else
+            writeToFile("lea edx, [eax + ecx]");
+
+        store("edx", z);
     }
 
     public void assemblyParameterLoad(Quadruple quad) {

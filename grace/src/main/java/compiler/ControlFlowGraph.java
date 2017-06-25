@@ -3,10 +3,7 @@ package compiler;
 import compiler.Definition.Variable;
 import compiler.SymbolTable.SymbolTable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mt on 6/24/17.
@@ -17,12 +14,14 @@ public class ControlFlowGraph {
     List<Quadruple> quads;
     List<BasicBlock> basicBlocksList;
     ArrayList<ArrayList<Integer>> basicBlockEdges;
+    Set<String> deadUnits;
 
 
     public ControlFlowGraph(List<Quadruple> quads, SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
         this.quads = quads;
         nextStartQuad = 1;
+        deadUnits = new HashSet<String>();
     }
 
     private void makeBasicBlocks()
@@ -168,6 +167,8 @@ public class ControlFlowGraph {
         fixJumps();
         subexpressions();
         deadAssignmentElimination();
+        deadUnitElimination();
+        deadCallElimination();
     }
 
     private void CFCP()//constant folding followed by copy propagation
@@ -487,6 +488,41 @@ public class ControlFlowGraph {
         }
     }
 
+    private void deadUnitElimination() {
+        int total = quads.size();
+        String funcName = null;
+        for (int i = nextStartQuad; i <= total; i++) {
+            int index = i - 1;//they start from 0
+
+            Quadruple quad = quads.get(index);
+            if (quad.getOp().equals("unit")) {
+                int j = i;
+                while (quads.get(j).getOp().equals("noop"))
+                    j++;
+
+                Quadruple nextQuad = quads.get(j);
+
+                if (nextQuad.getOp().equals("endu")) {
+                    deadUnits.add(quad.getArg1());
+
+                    deleteQuad(quad);
+                    deleteQuad(nextQuad);
+
+                }
+            }
+        }
+    }
+
+    private void deadCallElimination() {
+        int total = quads.size();
+        for (int i = nextStartQuad; i <= total; i++) {
+            int index = i - 1;//they start from 0
+
+            Quadruple quad = quads.get(index);
+            if (quad.getOp().equals("call") && deadUnits.contains(quad.getResult()))
+                deleteQuad(quad);
+        }
+    }
     private boolean isMathOp(String op)
     {
         if (op.equals("+") || op.equals("-") || op.equals("*") || op.equals("div") || op.equals("mod"))
