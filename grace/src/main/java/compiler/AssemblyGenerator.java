@@ -525,16 +525,7 @@ public class AssemblyGenerator {
         else
             unit_label = x + ":";
 
-        try
-        {
-            recentCode += unit_label + "\n";
-            assemblyWriter.write(unit_label + "\n");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
+        writeLabel(unit_label);
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
         writeToFile("sub esp, " + localVarSize * (-1));
@@ -544,16 +535,7 @@ public class AssemblyGenerator {
     public void assemblyEndUnit(Quadruple quad) {
         String x = quad.getArg1();
 
-        try
-        {
-            recentCode += endof(x) + ":\n";
-            assemblyWriter.write(endof(x) + ":\n");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
+        writeLabel(endof(x) + ":");
         writeToFile("mov esp, ebp");
         writeToFile("pop ebp");
         writeToFile("ret");
@@ -574,7 +556,10 @@ public class AssemblyGenerator {
 
         updateAL(f.getScopeNumber());
 
-        writeToFile("call " + x);
+        if (x.equals("main_1"))//main_1 has its special label: main
+            writeToFile("call main");
+        else
+            writeToFile("call " + x);
 
         //we push for every parameter, regardless of its type
         //that means that we 'allocate' 4 bytes for each parameter
@@ -741,6 +726,21 @@ public class AssemblyGenerator {
         }
     }
 
+    //assembly file functions
+    private void writeLabel(String assemblyCode)
+    {
+        String lnCode = "\n" + assemblyCode + "\n";
+        this.recentCode += lnCode;
+
+        try
+        {
+            assemblyWriter.write(lnCode);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     public void closeFile()
     {
         //write library functions
@@ -787,7 +787,7 @@ public class AssemblyGenerator {
     private void assemblyPrintFunctions()
     {
         //puts
-        writeToFile("puts_1:");
+        writeLabel("puts_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -805,7 +805,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //puti
-        writeToFile("puti_1:");
+        writeLabel("puti_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -823,7 +823,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //putc
-        writeToFile("putc_1:");
+        writeLabel("putc_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -845,7 +845,7 @@ public class AssemblyGenerator {
     private void assemblyGetFunctions()
     {
         //gets
-        writeToFile("gets_1:");
+        writeLabel("gets_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
         writeToFile("mov eax, DWORD PTR stdin");
@@ -871,7 +871,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //geti
-        writeToFile("geti_1:");
+        writeLabel("geti_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
         writeToFile("sub esp, 4");
@@ -894,7 +894,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //getc
-        writeToFile("getc_1:");
+        writeLabel("getc_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
         writeToFile("sub esp, 1");
@@ -920,7 +920,7 @@ public class AssemblyGenerator {
     private void assemblyTransformFunctions()
     {
         //abs
-        writeToFile("abs_1:");
+        writeLabel("abs_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -937,7 +937,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //ord
-        writeToFile("ord_1:");
+        writeLabel("ord_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -951,7 +951,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //chr
-        writeToFile("chr_1:");
+        writeLabel("chr_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -970,7 +970,7 @@ public class AssemblyGenerator {
     {
 
         //strlen
-        writeToFile("strlen_1:");
+        writeLabel("strlen_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -989,7 +989,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //strcmp
-        writeToFile("strcmp_1:");
+        writeLabel("strcmp_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -1011,7 +1011,7 @@ public class AssemblyGenerator {
         writeToFile("ret");
 
         //strcpy
-        writeToFile("strcpy_1:");
+        writeLabel("strcpy_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 
@@ -1030,7 +1030,7 @@ public class AssemblyGenerator {
 
 
         //strcat
-        writeToFile("strcat_1:");
+        writeLabel("strcat_1:");
         writeToFile("push ebp");
         writeToFile("mov ebp, esp");
 

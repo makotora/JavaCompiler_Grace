@@ -94,6 +94,61 @@ public class BasicBlock
         }
     }
 
+
+    public void subexpressions()
+    {
+        int total = quads.size();
+        for (int i=0; i<total; i++)
+        {
+            Quadruple quad = quads.get(i);
+            String op = quad.getOp();
+
+            if ( isMathOp(op) )
+            {// op,x,y,result
+                String result = quad.getResult();
+                String x = quad.getArg1();
+                String y = quad.getArg2();
+
+                //for all quads after this one, propagate (if you can) the right value of the left
+                for (int j=i+1; j<total; j++)
+                {
+                    Quadruple innerQuad = quads.get(j);
+                    String innerOp = innerQuad.getOp();
+                    String quadResult = innerQuad.getResult();
+
+                    if ( (innerOp.equals(":=") || isMathOp(innerOp)) && (quadResult.equals(result) || quadResult.equals(x) || quadResult.equals(y)))//if var is being assigned a different value
+                    {//we cant propagate anymore. the value is changed so we cant switch 'var' with 'value' below here
+                        break;
+                    }
+                    else if (op.equals(innerOp))//if 'var' is not being assigned a different value
+                    {// if 'var' shows up ANYWHERE (arg1 or arg2) we can replace it with 'value'
+                        String x2 = innerQuad.getArg1();
+                        String y2 = innerQuad.getArg2();
+
+                        if (op.equals("+") || op.equals("*"))
+                        {
+                            if ( (x.equals(x2) && y.equals(y2)) || (x.equals(y2) && y.equals(x2)))
+                            {
+                                innerQuad.setOp(":=");
+                                innerQuad.setArg1(result);
+                                innerQuad.setArg2("-");
+                            }
+                        }
+                        else
+                        {
+                            if ( x.equals(x2) && y.equals(y2) )
+                            {
+                                innerQuad.setOp(":=");
+                                innerQuad.setArg1(result);
+                                innerQuad.setArg2("-");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public boolean isInSingleAssignmentForm()
     {
         HashSet assignments = new HashSet();

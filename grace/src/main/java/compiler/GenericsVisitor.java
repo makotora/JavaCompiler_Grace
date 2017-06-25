@@ -224,7 +224,8 @@ public class GenericsVisitor extends DepthFirstAdapter {
     {
         System.out.println("\n------Printing Quadruples------");
         for (Quadruple quad : quads) {
-            System.out.println(quad);
+            if (!quad.getOp().equals("noop"))
+                System.out.println(quad);
         }
 
         symbolTable.exit();
@@ -269,8 +270,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
             }
 
-            if (!isReference && !dimensionList.isEmpty())
+            if (!isReference && !dimensionList.isEmpty()) {
+                System.out.println("Warning: In function " + node.getId().getText());
+                System.out.println("Array in parameters will be passed by reference ('ref' not used)");
                 isReference = true;//arrays are always passed by reference.even if it does say it
+            }
 
             //for each name of this parameter type
             for (TId tId : tmpParameter.getId())
@@ -381,8 +385,11 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 dimensionList.add(Integer.parseInt(tNumber.toString().trim()));
             }
 
-            if (!isReference && !dimensionList.isEmpty())
+            if (!isReference && !dimensionList.isEmpty()) {
+                System.out.println("Warning: In function " + node.getId().getText());
+                System.out.println("Array in parameters will be passed by reference ('ref' not used)");
                 isReference = true;//arrays are always passed by reference.even if it does say it
+            }
 
             //for each name of this parameter type
             for (TId tId : tmpParameter.getId()) {

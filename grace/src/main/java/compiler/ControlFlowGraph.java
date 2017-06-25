@@ -162,6 +162,8 @@ public class ControlFlowGraph {
         copyPropagation();
         removeUnreachableBlocks();
         deleteDeadTempVarAssignments();
+        fixJumps();
+        subexpressions();
     }
 
     private void CFCP()//constant folding followed by copy propagation
@@ -219,6 +221,14 @@ public class ControlFlowGraph {
         makeBasicBlocks();//remake graph!
     }
 
+    private void subexpressions()
+    {
+        for (BasicBlock basicBlock : basicBlocksList)
+            basicBlock.subexpressions();
+
+        makeBasicBlocks();//remake graph!
+    }
+
     private void removeUnreachableBlocks()
     {
         HashSet reachableBlocks = new HashSet();//set of reachable blocks
@@ -242,6 +252,54 @@ public class ControlFlowGraph {
         }
 
         makeBasicBlocks();//remake graph!
+    }
+
+    private void fixJumps()
+    {
+        int total = quads.size();
+        for (int i=nextStartQuad; i<=total; i++)
+        {
+            int index = i - 1;//they start from 0
+            Quadruple quad = quads.get(index);
+            String op = quad.getOp();
+
+            if (op.equals("jump") || op.equals("<") || op.equals("<=") || op.equals(">") || op.equals(">=") || op.equals("=") || op.equals("#"))
+            {
+                int jumpTarget = Integer.parseInt(quad.getResult());
+                if(op.equals("jump"))
+                {
+                    boolean dead = true;
+                    for (int k = i; k < jumpTarget-1; k++) {
+                        if (!quads.get(k).getOp().equals("noop")) {
+                            dead = false;
+                            break;
+                        }
+                    }
+                    if(dead)
+                    {
+                        deleteQuad(quad);
+                        continue;
+                    }
+                }
+                Quadruple quadTarget = quads.get(jumpTarget-1);
+                op = quadTarget.getOp();
+
+                if (op.equals("noop"))
+                {
+                    int j = jumpTarget;
+                    while (quads.get(j).getOp().equals("noop"))
+                    {
+                        j++;
+                    }
+
+                    quad.setResult(Integer.toString(j+1));
+                }
+                else if (op.equals("jump"))
+                {
+                    quad.setResult(quadTarget.getResult());
+                }
+            }
+        }
     }
 
 
