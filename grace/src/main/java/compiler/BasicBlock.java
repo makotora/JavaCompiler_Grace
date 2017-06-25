@@ -73,8 +73,8 @@ public class BasicBlock
                 for (int j=i+1; j<total; j++)
                 {
                     Quadruple innerQuad = quads.get(j);
-
-                    if (innerQuad.getOp().equals(":=") && innerQuad.getResult().equals(var))//if var is being assigned a different value
+                    //if var or value is being assigned a different value
+                    if ((innerQuad.getOp().equals(":=") || isMathOp(quad.getOp())) && (innerQuad.getResult().equals(var) || innerQuad.getResult().equals(value)))
                     {//we cant propagate anymore. the value is changed so we cant switch 'var' with 'value' below here
                         break;
                     }
@@ -83,11 +83,16 @@ public class BasicBlock
                         String arg1 = innerQuad.getArg1();
                         String arg2 = innerQuad.getArg2();
 
-                        if (arg1 != null && arg1.equals(var))
+                        if (arg1 != null && arg1.equals(var)) {
+//                            System.out.println("Replacing " + arg1 + " with " + value);
                             innerQuad.setArg1(value);
+                        }
 
-                        if (arg2 != null && arg2.equals(var))
+                        if (arg2 != null && arg2.equals(var)) {
+//                            System.out.println("Replacing " + arg1 + " with " + value);
+
                             innerQuad.setArg2(value);
+                        }
                     }
                 }
             }

@@ -1,5 +1,8 @@
 package compiler;
 
+import compiler.Definition.Variable;
+import compiler.SymbolTable.SymbolTable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -10,12 +13,14 @@ import java.util.List;
  */
 public class ControlFlowGraph {
     int nextStartQuad;
+    SymbolTable symbolTable;
     List<Quadruple> quads;
     List<BasicBlock> basicBlocksList;
     ArrayList<ArrayList<Integer>> basicBlockEdges;
 
 
-    public ControlFlowGraph(List<Quadruple> quads) {
+    public ControlFlowGraph(List<Quadruple> quads, SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
         this.quads = quads;
         nextStartQuad = 1;
     }
@@ -144,11 +149,9 @@ public class ControlFlowGraph {
     {
         makeBasicBlocks();
 
-        allOptimizations(4);
+        allOptimizations(10);
 
-        printGraph();
-
-
+//        printGraph();
 
         //At the end of the optimization
         nextStartQuad = quads.size() + 1;//for next optimization call
@@ -164,6 +167,7 @@ public class ControlFlowGraph {
         deleteDeadTempVarAssignments();
         fixJumps();
         subexpressions();
+        deadAssignmentElimination();
     }
 
     private void CFCP()//constant folding followed by copy propagation
@@ -268,23 +272,26 @@ public class ControlFlowGraph {
                 int jumpTarget = Integer.parseInt(quad.getResult());
                 if(op.equals("jump"))
                 {
-                    boolean dead = true;
-                    for (int k = i; k < jumpTarget-1; k++) {
-                        if (!quads.get(k).getOp().equals("noop")) {
-                            dead = false;
-                            break;
+                    if (jumpTarget > i) //if we are jumping ahead
+                    {//if all quads before the quad we jump are noop.no point in jumping anyway
+                        boolean dead = true;
+                        for (int k = i; k < jumpTarget - 1; k++) {
+                            if (!quads.get(k).getOp().equals("noop")) {
+                                dead = false;
+                                break;
+                            }
+                        }
+                        if (dead) {
+                            deleteQuad(quad);
+                            continue;
                         }
                     }
-                    if(dead)
-                    {
-                        deleteQuad(quad);
-                        continue;
-                    }
                 }
-                Quadruple quadTarget = quads.get(jumpTarget-1);
-                op = quadTarget.getOp();
 
-                if (op.equals("noop"))
+                Quadruple quadTarget = quads.get(jumpTarget-1);
+                op = quadTarget.getOp();//inner op name
+
+                if (op.equals("noop"))//jump to the next quad after noop that is NOT noop
                 {
                     int j = jumpTarget;
                     while (quads.get(j).getOp().equals("noop"))
@@ -294,7 +301,7 @@ public class ControlFlowGraph {
 
                     quad.setResult(Integer.toString(j+1));
                 }
-                else if (op.equals("jump"))
+                else if (op.equals("jump"))//if we are jumping to an other,jump to the quad the next jump jumps to
                 {
                     quad.setResult(quadTarget.getResult());
                 }
@@ -405,6 +412,95 @@ public class ControlFlowGraph {
         }
     }
 
+    private void deadAssignmentElimination()
+    {
+        int total = quads.size();
 
+        for (int i=nextStartQuad; i<=total; i++) {
+            int index = i - 1;//they start from 0
+            Quadruple quad = quads.get(index);
+
+            if (quad.getOp().equals(":="))
+            {
+                String var = quad.getResult();
+
+                //if it is $$ or [x]
+                //or
+                //if var is not a temp var and is not local to this unit..dont bother looking if it is dead or not
+                //or it is a parameter by reference
+                Variable variable = (Variable) symbolTable.lookup(var);
+                if (var.equals("$$") || var.startsWith("[") || (variable != null && (!symbolTable.isLocal(variable) || variable.isReference() )))
+                    continue;
+
+                boolean isDead = true;
+
+                for (int j=i+1; j<=total; j++)
+                {
+                    int innerIndex = j - 1;
+                    Quadruple innerQuad = quads.get(innerIndex);
+                    String innerOp = innerQuad.getOp();
+
+                    if (innerOp.equals(":=") && innerQuad.getResult().equals(var) && isDead == true)
+                        break;//dead
+                    else if (innerOp.equals(":=") && innerQuad.getArg1().equals(var))
+                    {
+                        isDead = false;//its being used for an assignment;
+                        break;
+                    }
+                    else if (innerOp.equals("call"))//if another function is called
+                    {
+                        isDead = false;//lets assume that the function uses the var!In grace it can do that (nested functions)
+                        break;
+                    }
+                    else if (innerOp.equals("array") && (innerQuad.getArg1().equals(var) || innerQuad.getArg2().equals(var)))//if it is used for an array quad
+                    {
+                        isDead = false;//lets assume that the function uses the var!In grace it can do that (nested functions)
+                        break;
+                    }
+                    else if (isMathOp(innerOp) || isCompareOp(innerOp))
+                    {//if it is a op that uses vars..
+                        //check if var is being used
+                        if (innerQuad.getArg1().equals(var) || innerQuad.getArg2().equals(var))
+                        {
+                            isDead = false;
+                            break;
+                        }//var is not used as arg1 or arg2. check if it assigned another value (without using the previous value)
+                        else if (innerQuad.getResult().equals(var) && isDead == true)
+                            break;//it is dead
+                    }
+                    else if (isCompareOp(innerOp) || innerOp.equals("jump"))
+                    {
+                        if (Integer.parseInt(innerQuad.getResult()) <= j)//Dont erase it!Its not dead it goes up again
+                        {
+                            isDead = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isDead) //if it wasnt used anywhere.delete the assignment
+                {
+                    //System.out.println("erasing: " + var);
+                    deleteQuad(quad);
+                }
+            }
+        }
+    }
+
+    private boolean isMathOp(String op)
+    {
+        if (op.equals("+") || op.equals("-") || op.equals("*") || op.equals("div") || op.equals("mod"))
+            return true;
+        else
+            return false;
+    }
+
+    private boolean isCompareOp(String op)
+    {
+        if (op.equals(">") || op.equals(">=") || op.equals("<") || op.equals("<=") || op.equals("=") || op.equals("#"))
+            return true;
+        else
+            return false;
+    }
 
 }

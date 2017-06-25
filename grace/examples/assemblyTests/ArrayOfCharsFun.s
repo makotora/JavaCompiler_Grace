@@ -31,7 +31,7 @@ L7:
 	cmp eax, edx
 	jl L9
 L8:
-	jmp L22
+	jmp L24
 L9:
 	mov eax, DWORD PTR [ebp - 4]
 	mov ecx, DWORD PTR [ebp + 16]
@@ -73,35 +73,35 @@ L18:
 	mov edi, DWORD PTR [ebp - 12]
 	mov BYTE PTR [edi], eax
 L19:
+	mov esi, OFFSET FLAT:STR1
+	push esi
+L20:
+	sub esp, 4
+	push 0
+	call puts_1
+	add esp, 12
+L21:
 	mov eax, DWORD PTR [ebp - 4]
 	mov edx, 1
 	add eax, edx
 	mov DWORD PTR [ebp - 29], eax
-L20:
+L22:
 	mov eax, DWORD PTR [ebp - 29]
 	mov DWORD PTR [ebp - 4], eax
-L21:
+L23:
 	jmp L7
-L22:
+L24:
 
 addToString_2_end:
 	mov esp, ebp
 	pop ebp
 	ret
-L23:
+L25:
 
 main:
 	push ebp
 	mov ebp, esp
 	sub esp, 180
-L24:
-	mov esi, OFFSET FLAT:STR1
-	push esi
-L25:
-	sub esp, 4
-	push 0
-	call puts_1
-	add esp, 12
 L26:
 	mov esi, OFFSET FLAT:STR2
 	push esi
@@ -111,26 +111,26 @@ L27:
 	call puts_1
 	add esp, 12
 L28:
-	mov eax, 20
-	push eax
-L29:
-	lea esi, BYTE PTR [ebp - 28]
-	push esi
-L30:
-	sub esp, 4
-	push 0
-	call gets_1
-	add esp, 16
-L31:
 	mov esi, OFFSET FLAT:STR3
 	push esi
-L32:
+L29:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L33:
+L30:
+	mov eax, 20
+	push eax
+L31:
 	lea esi, BYTE PTR [ebp - 28]
+	push esi
+L32:
+	sub esp, 4
+	push 0
+	call gets_1
+	add esp, 16
+L33:
+	mov esi, OFFSET FLAT:STR4
 	push esi
 L34:
 	sub esp, 4
@@ -138,31 +138,31 @@ L34:
 	call puts_1
 	add esp, 12
 L35:
-	mov eax, '\n'
-	push eax
-L36:
-	sub esp, 4
-	push 0
-	call putc_1
-	add esp, 12
-L37:
 	lea esi, BYTE PTR [ebp - 28]
 	push esi
-L38:
-	sub esp, 4
-	push ebp
-	call addToString_2
-	add esp, 12
-L39:
-	mov esi, OFFSET FLAT:STR4
-	push esi
-L40:
+L36:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L41:
+L37:
+	mov eax, '\n'
+	push eax
+L38:
+	sub esp, 4
+	push 0
+	call putc_1
+	add esp, 12
+L39:
 	lea esi, BYTE PTR [ebp - 28]
+	push esi
+L40:
+	sub esp, 4
+	push ebp
+	call addToString_2
+	add esp, 12
+L41:
+	mov esi, OFFSET FLAT:STR5
 	push esi
 L42:
 	sub esp, 4
@@ -170,205 +170,213 @@ L42:
 	call puts_1
 	add esp, 12
 L43:
-	mov eax, '\n'
-	push eax
-L44:
-	sub esp, 4
-	push 0
-	call putc_1
-	add esp, 12
-L45:
-	mov esi, OFFSET FLAT:STR5
+	lea esi, BYTE PTR [ebp - 28]
 	push esi
-L46:
+L44:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L47:
-	mov eax, DWORD PTR [ebp - 8]
+L45:
+	mov eax, '\n'
 	push eax
+L46:
+	sub esp, 4
+	push 0
+	call putc_1
+	add esp, 12
+L47:
+	mov esi, OFFSET FLAT:STR6
+	push esi
 L48:
 	sub esp, 4
 	push 0
-	call puti_1
+	call puts_1
 	add esp, 12
 L49:
-	mov eax, '\n'
+	mov eax, DWORD PTR [ebp - 8]
 	push eax
 L50:
 	sub esp, 4
 	push 0
-	call putc_1
+	call puti_1
 	add esp, 12
 L51:
-	mov esi, OFFSET FLAT:STR6
-	push esi
+	mov eax, '\n'
+	push eax
 L52:
+	sub esp, 4
+	push 0
+	call putc_1
+	add esp, 12
+L53:
+	mov esi, OFFSET FLAT:STR7
+	push esi
+L54:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L53:
-L54:
 L55:
+L56:
+L57:
 	mov eax, 11
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 60], eax
-L56:
+L58:
 	mov eax, 'A'
 	mov edi, DWORD PTR [ebp - 60]
 	mov BYTE PTR [edi], eax
-L57:
-L58:
 L59:
+L60:
+L61:
 	mov eax, 10
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 72], eax
-L60:
-L61:
 L62:
+L63:
+L64:
 	mov eax, 11
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 84], eax
-L63:
+L65:
 	mov edi, DWORD PTR [ebp - 84]
 	mov eax, BYTE PTR [edi]
 	mov edi, DWORD PTR [ebp - 72]
 	mov BYTE PTR [edi], eax
-L64:
-L65:
 L66:
+L67:
+L68:
 	mov eax, 11
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 96], eax
-L67:
+L69:
 	mov eax, 'B'
 	mov edi, DWORD PTR [ebp - 96]
 	mov BYTE PTR [edi], eax
-L68:
-L69:
 L70:
+L71:
+L72:
 	mov eax, 12
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 108], eax
-L71:
+L73:
 	mov eax, 'C'
 	mov edi, DWORD PTR [ebp - 108]
 	mov BYTE PTR [edi], eax
-L72:
-L73:
 L74:
+L75:
+L76:
 	mov eax, 13
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 120], eax
-L75:
+L77:
 	mov eax, 'D'
 	mov edi, DWORD PTR [ebp - 120]
 	mov BYTE PTR [edi], eax
-L76:
-L77:
 L78:
+L79:
+L80:
 	mov eax, 14
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 132], eax
-L79:
+L81:
 	mov eax, '\n'
 	mov edi, DWORD PTR [ebp - 132]
 	mov BYTE PTR [edi], eax
-L80:
-L81:
 L82:
+L83:
+L84:
 	mov eax, 15
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 144], eax
-L83:
+L85:
 	mov eax, 0
 	mov edi, DWORD PTR [ebp - 144]
 	mov BYTE PTR [edi], eax
-L84:
-	mov esi, OFFSET FLAT:STR3
+L86:
+	mov esi, OFFSET FLAT:STR4
 	push esi
-L85:
+L87:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L86:
-L87:
+L88:
+L89:
 	mov eax, 10
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 156], eax
-L88:
+L90:
 	mov esi, DWORD PTR [ebp - 156]
 	push esi
-L89:
+L91:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L90:
+L92:
 	mov eax, '\n'
 	push eax
-L91:
+L93:
 	sub esp, 4
 	push 0
 	call putc_1
 	add esp, 12
-L92:
-L93:
+L94:
+L95:
 	mov eax, 10
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 168], eax
-L94:
+L96:
 	mov esi, DWORD PTR [ebp - 168]
 	push esi
-L95:
+L97:
 	sub esp, 4
 	push ebp
 	call addToString_2
 	add esp, 12
-L96:
-	mov esi, OFFSET FLAT:STR4
+L98:
+	mov esi, OFFSET FLAT:STR5
 	push esi
-L97:
+L99:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L98:
-L99:
+L100:
+L101:
 	mov eax, 10
 	lea ecx, BYTE PTR [ebp - 48]
 	add eax, ecx
 	mov DWORD PTR [ebp - 180], eax
-L100:
+L102:
 	mov esi, DWORD PTR [ebp - 180]
 	push esi
-L101:
+L103:
 	sub esp, 4
 	push 0
 	call puts_1
 	add esp, 12
-L102:
+L104:
 	mov eax, '\n'
 	push eax
-L103:
+L105:
 	sub esp, 4
 	push 0
 	call putc_1
 	add esp, 12
-L104:
+L106:
 
 main_1_end:
 	mov esp, ebp
@@ -561,12 +569,13 @@ strcat_1:
 	ret
 
 .data
-	STR2: .ASCIZ "Insert a string (max 20 chars) : "
-	STR5: .ASCIZ "String\'s size is: "
-	STR3: .ASCIZ "before: "
-	STR6: .ASCIZ "\nNow passing ABCD from an array of strings!\n"
-	STR1: .ASCIZ "This program adds 1 to each char of a given string\n"
-	STR4: .ASCIZ "after: "
+	STR3: .ASCIZ "Insert a string (max 20 chars) : "
+	STR1: .ASCIZ "Here\n"
+	STR6: .ASCIZ "String\'s size is: "
+	STR4: .ASCIZ "before: "
+	STR7: .ASCIZ "\nNow passing ABCD from an array of strings!\n"
+	STR2: .ASCIZ "This program adds 1 to each char of a given string\n"
+	STR5: .ASCIZ "after: "
 	printInt: .ASCIZ "%d"
 	printChar: .ASCIZ "%c"
 	printStr: .ASCIZ "%s"

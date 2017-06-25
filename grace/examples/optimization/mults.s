@@ -3,24 +3,27 @@
 	.global main
 L1:
 
+foo_2:
+	push ebp
+	mov ebp, esp
+	sub esp, 0
+L2:
+
+foo_2_end:
+	mov esp, ebp
+	pop ebp
+	ret
+L3:
+
 main:
 	push ebp
 	mov ebp, esp
-	sub esp, 20
-L2:
-	mov eax, DWORD PTR [ebp - 4]
-	cdq
-	mov ebx, 18
-	idiv ebx
-	mov DWORD PTR [ebp - 16], eax
-L3:
-	mov eax, DWORD PTR [ebp - 16]
-	mov DWORD PTR [ebp - 12], eax
+	sub esp, 16
 L4:
 L5:
-	mov eax, DWORD PTR [ebp - 16]
-	mov DWORD PTR [ebp - 8], eax
 L6:
+L7:
+L8:
 
 main_1_end:
 	mov esp, ebp

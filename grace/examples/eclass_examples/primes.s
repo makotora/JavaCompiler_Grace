@@ -2,6 +2,7 @@
 .text
 	.global main
 L1:
+
 prime_2:
 	push ebp
 	mov ebp, esp
@@ -10,16 +11,12 @@ L2:
 	mov eax, DWORD PTR [ebp + 16]
 	mov edx, 0
 	cmp eax, edx
-	jl L4
+	jl L5
 L3:
 	jmp L11
 L4:
-	mov eax, 0
-	mov edx, 1
-	sub eax, edx
-	mov DWORD PTR [ebp - 8], eax
 L5:
-	mov eax, DWORD PTR [ebp - 8]
+	mov eax, -1
 	push eax
 L6:
 	lea esi, DWORD PTR [ebp - 12]
@@ -139,11 +136,13 @@ L39:
 L40:
 	jmp prime_2_end
 L41:
+
 prime_2_end:
 	mov esp, ebp
 	pop ebp
 	ret
 L42:
+
 main:
 	push ebp
 	mov ebp, esp
@@ -393,11 +392,13 @@ L106:
 	call puts_1
 	add esp, 12
 L107:
+
 main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	puts_1:
+
+puts_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]
@@ -409,7 +410,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	puti_1:
+
+puti_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]
@@ -421,7 +423,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	putc_1:
+
+putc_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]
@@ -433,7 +436,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	gets_1:
+
+gets_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR stdin
@@ -457,7 +461,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	geti_1:
+
+geti_1:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
@@ -473,7 +478,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	getc_1:
+
+getc_1:
 	push ebp
 	mov ebp, esp
 	sub esp, 1
@@ -489,7 +495,41 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	strlen_1:
+
+abs_1:
+	push ebp
+	mov ebp, esp
+	mov eax, DWORD PTR [ebp + 16]
+	cdq
+	xor eax, edx
+	sub eax, edx
+	mov esi, DWORD PTR [ebp + 12]
+	mov DWORD PTR [esi], eax
+	mov esp, ebp
+	pop ebp
+	ret
+
+ord_1:
+	push ebp
+	mov ebp, esp
+	mov eax, BYTE PTR [ebp + 16]
+	mov esi, DWORD PTR [ebp + 12]
+	mov DWORD PTR [esi], eax
+	mov esp, ebp
+	pop ebp
+	ret
+
+chr_1:
+	push ebp
+	mov ebp, esp
+	mov eax, DWORD PTR [ebp + 16]
+	mov esi, DWORD PTR [ebp + 12]
+	mov BYTE PTR [esi], eax
+	mov esp, ebp
+	pop ebp
+	ret
+
+strlen_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]
@@ -501,7 +541,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	strcmp_1:
+
+strcmp_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]
@@ -515,7 +556,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	strcpy_1:
+
+strcpy_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]
@@ -527,7 +569,8 @@ main_1_end:
 	mov esp, ebp
 	pop ebp
 	ret
-	strcat_1:
+
+strcat_1:
 	push ebp
 	mov ebp, esp
 	mov eax, DWORD PTR [ebp + 16]

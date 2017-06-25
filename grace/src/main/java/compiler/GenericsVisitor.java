@@ -8,6 +8,8 @@ import compiler.Definition.*;
 import compiler.Others.*;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.sql.Array;
 import java.util.List;
 import java.lang.String;
@@ -47,6 +49,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     //quadaples generated from grace code are kept in this list
     private List<Quadruple> quads;
+    private BufferedWriter quadWriter;//To write all quads in a file after we are done
 
     //FINALLY...for assembly code:
     //we use the above information (symboltable, tempvarhash, quads)
@@ -56,8 +59,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
 
     //BONUS-LY...for optimization
     private ControlFlowGraph controlFlowGraph;
+    private boolean optimizeCode;
 
-    public GenericsVisitor(String filename)
+
+    public GenericsVisitor(String filename, boolean optimizeCode)
     {
         type = null;
         returnTypes = new Stack<Type>();
@@ -70,7 +75,19 @@ public class GenericsVisitor extends DepthFirstAdapter {
         quads = new ArrayList<Quadruple>();
 
         assemblyGenerator = new AssemblyGenerator(symbolTable, tempVarsHashTable, stringLabels, quads, filename);
-        controlFlowGraph = new ControlFlowGraph(quads);
+        controlFlowGraph = new ControlFlowGraph(quads, symbolTable);
+        this.optimizeCode = optimizeCode;
+
+        String quadsFileName = filename + ".quads";
+        try
+        {
+            FileWriter fw = new FileWriter(quadsFileName);
+            quadWriter = new BufferedWriter(fw);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 
@@ -222,10 +239,27 @@ public class GenericsVisitor extends DepthFirstAdapter {
     @Override
     public void outStart(Start node)
     {
-        System.out.println("\n------Printing Quadruples------");
         for (Quadruple quad : quads) {
             if (!quad.getOp().equals("noop"))
-                System.out.println(quad);
+            {
+                try
+                {
+                    quadWriter.write(quad.toString() + "\n");
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        try
+        {
+            quadWriter.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
         symbolTable.exit();
@@ -349,7 +383,10 @@ public class GenericsVisitor extends DepthFirstAdapter {
         }
         quads.add(new Quadruple(quads.size() + 1,"endu", unit_name, null, null));
 
-        controlFlowGraph.optimize();
+
+        if (optimizeCode == true)
+            controlFlowGraph.optimize();
+
         assemblyGenerator.generate(functionVarsBpOffset.pop(), symbolTable.getSize() - 1);
 
         symbolTable.exit();

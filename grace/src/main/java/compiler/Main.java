@@ -11,18 +11,29 @@ public class Main
 {
  public static void main(String[] arguments)
  {
+     String inputFile = null;
+     boolean optimizeCode = true;
+
      if (arguments.length == 0)
      {
          System.out.println("Error! No program given for compilation.");
-         return;
+         System.exit(-1);
      }
-     else if (arguments.length != 1)
+     else if (arguments.length == 1)
+     {
+         inputFile = arguments[0];
+     }
+     else if (arguments.length == 2)
+     {
+         inputFile = arguments[0];
+         optimizeCode = false;
+     }
+     else
      {
          System.out.println("Error! Too many arguments");
-         return;
+         System.exit(-1);
      }
 
-     String inputFile = arguments[0];
 
    // Create a Parser instance.
      Parser p = null;
@@ -43,7 +54,7 @@ public class Main
     try
     {
       tree = p.parse();
-	    System.out.println(tree.toString());
+//	    System.out.println(tree.toString());
     }
     catch(Exception e)
     {
@@ -57,7 +68,8 @@ public class Main
          inputFile = inputFile.substring(0, indexOfLast);
 
 
-    tree.apply(new GenericsVisitor(inputFile));//we passed the input file name so that we can create the assembly file
+    tree.apply(new GenericsVisitor(inputFile, optimizeCode));//we passed the input file name so that we can create the assembly file
 
+     System.exit(0);
   }
 }

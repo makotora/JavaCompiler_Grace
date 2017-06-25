@@ -50,6 +50,7 @@ compiler/node/TNothing.class
 compiler/node/TAnd.class
 compiler/node/AVdefLocalDef.class
 compiler/node/TOr.class
+compiler/BasicBlock.class
 compiler/node/ALtCond.class
 compiler/node/TDiv.class
 compiler/node/TMult.class
@@ -85,6 +86,7 @@ compiler/node/TFun.class
 compiler/node/ANegativeSign.class
 compiler/node/TWhile.class
 compiler/node/TNumber.class
+compiler/ControlFlowGraph.class
 compiler/node/TErrorNumber.class
 compiler/node/PCond.class
 compiler/node/ACharType.class

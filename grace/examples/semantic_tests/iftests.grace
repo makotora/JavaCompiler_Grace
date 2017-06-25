@@ -1,4 +1,4 @@
-fun p():nothing
+fun main():nothing
 var x : int;
 var y : int[4];
 var z: char[3];

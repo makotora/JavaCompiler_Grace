@@ -25,6 +25,7 @@ public class AssemblyGenerator {
     private List<Quadruple> quads;
     private int nextQuadToTranform;//keep track of how many quads we have transformed so far,to continue from there
     private BufferedWriter assemblyWriter;
+    private BufferedWriter quadassemblyWriter;
     private String recentCode;
     private int np;
     private String current;
@@ -37,6 +38,18 @@ public class AssemblyGenerator {
         nextQuadToTranform = 0;
 
         String assemblyFileName = filename + ".s";
+        String quadassemblyFileName = filename + ".qs";
+
+        try
+        {
+            FileWriter fw = new FileWriter(quadassemblyFileName);
+            quadassemblyWriter = new BufferedWriter(fw);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         try
         {
             FileWriter fw = new FileWriter(assemblyFileName);
@@ -165,7 +178,6 @@ public class AssemblyGenerator {
             else//variable is not local (need access links, to get to the stack record were it IS local)
             {
                 getAR(variable.getScopeNumber());
-
                 if (variable.isReference())//if it is a reference (it is a local parameter passed by reference)
                 {
                     writeToFile("mov esi, DWORD PTR [esi + " + variable.getBpOffset() + "]");
@@ -444,7 +456,7 @@ public class AssemblyGenerator {
         for (int i=nextQuadToTranform; i<totalQuads; i++)
         {
             Quadruple quad = quads.get(i);
-            System.out.println(quad);//print the quad
+            //  System.out.println(quad);//print the quad
             //we will also print the assembly code generated for this quad
             String label = "L" + quad.getNum() + ":\n";
             //this block of assembly will have 'Lquadnum' as a label
@@ -508,7 +520,15 @@ public class AssemblyGenerator {
                 System.exit(-1);
             }
 
-            //System.out.println(recentCode);//print the assembly code generated for this quad
+            try
+            {
+                quadassemblyWriter.write(quad.toString() + "\n");
+                quadassemblyWriter.write(recentCode + "\n");
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
         }
 
         nextQuadToTranform = totalQuads;
@@ -777,6 +797,14 @@ public class AssemblyGenerator {
 
         try {
             assemblyWriter.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        try {
+            quadassemblyWriter.close();
         }
         catch (Exception e)
         {

@@ -1,19 +1,77 @@
-# Instructions
+# Οδήγίες - Hints
 
-## To compile
+## Compile the compiler
+   Στον κατάλογο grace
+   make ή mvn clean package (το make κανει mvn clean package)
 
-   mvn clean package
+## Run the compiler
 
-## To run
-	Go to directory: grace/target/classes
-	To run: java compiler.Main program.grace
+	ΜΕ βελτιστοποίηση: ./grace.sh executable_name path/to/grace/file
+
+	ΧΩΡΙΣ βελτιστοποίηση: το ίδιο με ένα extra argument στο τέλος (ότι να ναι)
+	πχ. ./grace.sh executable_name path/to/grace/file whatever_you_want
+
+	Το εκτελέσιμο θα βρίσκεται στον τρέχων κατάλογο και θα έχει όνομα executable_name (αν δωθεί path θα σωθεί στο path)
+	Στον φάκελο 'file' θα υπάρχουν 3 αρχεία (τετράδες, assembly, αντιστοιχία)
+
+	Γενικά έχουμε δοκιμάσει τα πάντα και με και χωρις βελτιστοποίηση και φαίνεται να τρέχουν.
+	Αν κάτι όμως δεν φαίνεται να δουλέυει σωστα, δοκιμάστε compile χωρίς βελτιστοποίηση μήπως φταίει
+	κάποιο bug εκεί! :)
+
+	Λεπτομέρειες για το script - compiler:
+
+	Αν μεταγλωττίζουμε το αρχείο file.grace
+	Ο compiler στην java παράγει 3 αρχεία:
+	file.quads : οι τετράδες που παράχτηκαν
+	file.s     : η assembly που παράχτηκε
+	file.qs    : για κάθε τετράδα που παράχτηκε, ο assembly κώδικας στον οποίο μετατρέπεται
+
+	Έχουμε φτιάξει ένα script για την δική σας διευκόλυνση το οποίο:
+	(1) Τρέχει τον compiler για το αρχείο που ζητείται (path/to/grace/file)
+	(2) Φτιάχνει στον τρέχων κατάλογο ένα directory με όνομα 'file' και βάζει εκεί μέσα (κάνει mv γιατί αρχικά δημιουργούνται όπου ήταν και το .grace αρχείο)
+	(3) Κάνει compile με 'gcc -o -m32 executable_name file/file.s' το αρχείο της assembly 
+	(που τώρα θα βρίσκεται στον κατάλογο file)
 
 ##Examples
-	Assignments examples as well as some of our own examples
-	are located in directory: grace/examples
+	Τα παραδείγματα του eclass και δικά μας παραδείγματα υπάρχουν στον κατάλογο grace/examples
+	grace/examples/assemblyTests: ορισμένα καλά παραδείγματα για εκτέλεση δικά μας.
+	Το printTests.grace είναι πολύ καλό και έχει διάφορα (nested functions, πέρασμα πίνακα σε συναρτηση etc) 
+
+	grace/examples/optimization: Κάποια παραδείγματα που δοκιμάζαμε για να δούμε ότι δουλέυει η βελτιστοποίηση
+	Καλό είναι το blocks.grace
 
 ## Quadruples
-	We basically followed the slides!
-	We haven't changed their names or anything..
-	They are printed at the stdout at their 'final' form.
-	If of course the the input code is 'correct'!
+	Ακολουθήσαμε τις διαφάνειες.Δεν κάναμε κάτι δικό μας.
+
+
+## Τα κάναμε όλα
+
+Έχουμε κάνει τελικό κώδικα σε assembly και κάναμε και τις συναρτήσεις βιβλιοθήκης!
+Αυτές γράφονται στο τέλος του τελικού assembly αρχείου.
+Τρέχουν όλα τα παραδείγματα στο eclass καθώς και ορισμένα 'περίεργα' δικά μας
+
+## BONUS
+
+Επίσης έχουμε κάνει το BONUS! (βελτιστοποίηση!).
+Διάφορα παραδείγματα που δοκιμάσαμε είναι στον κατάλογο examples/optimization
+Συγκεκριμένα κάναμε τα εξής:
+
+- Φτιάξαμε τον flow control graph (Basic blocks και ακμές)
+- Κάναμε το constant folding
+- Κάναμε το copy propagation
+- Subexpressions
+- Σβήνουμε τις αναθέσεις των μεταβλητών που δεν χρησιμοποιούνται σε μια συνάρτηση
+	Αν οι μεταβλητές δεν είναι τοπικές στην συνάρτηση δεν τις σβήνουμε
+	Αν μεσολαβεί κάποιο call και παλι δεν τις σβήνουμε
+	Αν ακολουθήσει κάποια ανάθεση στην ιδια μεταβλητή πριν κάποια χρήση την σβήνουμε
+	Και άλλες περιπτώσεις..
+
+- Σβήνουμε τα περιττά jumps ,συμπυκνώνουμε τα jumps και άλλα
+- Σβήνουμε τις αναθέσεις σε προσωρινές μεταβλητές που δεν χρησιμοποιουνται
+- Σβήνουμε τα unreachable blocks
+
+- Σημαντικο, με την βελτιστοποίηση 'σβήνονται' κάποιες φορές τετράδες.
+	Αντί για σβήσιμο τις αντικαθιστούμε με δικές μαςτετράδες 'noop'
+	Η κλάση που μετατρέπει assembly απο τετράδες, δεν παράγει κώδικα για την τετράδα αυτή.
+	Αλλά γράφει το label της στο assembly αρχείο.(Label μόνο του χωρίς κώδικα)
+	Αυτό γίνεται μήπως και κάποιο jmp οδηγεί σε αυτό το label

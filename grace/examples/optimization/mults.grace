@@ -2,8 +2,17 @@ fun main() : nothing
 	var x : int;
 	var y : int;
 	var z : int;
-{
-	z <- x div 18;
 
-	y <- x div 18;
+	fun foo(x : int[]) : nothing
+	{
+		;
+	}
+{
+	x <- 0;$should erase
+
+	x <- 1; $no erase
+
+	y <- x + 2;
+
+	
 }
