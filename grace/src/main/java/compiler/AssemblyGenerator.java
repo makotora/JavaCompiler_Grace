@@ -48,6 +48,7 @@ public class AssemblyGenerator {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         try
@@ -58,6 +59,7 @@ public class AssemblyGenerator {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         //write assembly file header
@@ -68,6 +70,7 @@ public class AssemblyGenerator {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         writeToFile(".global main");
@@ -527,6 +530,7 @@ public class AssemblyGenerator {
             } catch (Exception e)
             {
                 e.printStackTrace();
+                System.exit(-1);
             }
 
         }
@@ -742,6 +746,7 @@ public class AssemblyGenerator {
         } catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -757,6 +762,7 @@ public class AssemblyGenerator {
         } catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -774,6 +780,7 @@ public class AssemblyGenerator {
         } catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         int stringCounter = stringLabels.size();
@@ -800,6 +807,7 @@ public class AssemblyGenerator {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         try {
@@ -808,6 +816,7 @@ public class AssemblyGenerator {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
     }
 

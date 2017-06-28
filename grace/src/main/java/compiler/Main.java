@@ -48,6 +48,7 @@ public class Main
      catch (Exception e)
      {
          e.printStackTrace();
+         System.exit(-1);
      }
 
    // Parse the input.
@@ -59,6 +60,7 @@ public class Main
     catch(Exception e)
     {
    	  e.printStackTrace();
+   	  System.exit(-1);
     }
 
     //cut .grace file extension if given.We want the name itself (x)

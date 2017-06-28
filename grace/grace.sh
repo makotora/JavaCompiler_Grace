@@ -2,6 +2,7 @@
 
 if [ "$#" -lt 2 ]; then
     echo "Illegal number of parameters!Must be 2 or 3"
+    exit -1
 fi
 
 executable_name=$1

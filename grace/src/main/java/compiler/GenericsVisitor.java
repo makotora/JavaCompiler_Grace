@@ -87,6 +87,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -249,6 +250,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
                 catch (Exception e)
                 {
                     e.printStackTrace();
+                    System.exit(-1);
                 }
             }
         }
@@ -260,6 +262,7 @@ public class GenericsVisitor extends DepthFirstAdapter {
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
 
         symbolTable.exit();
