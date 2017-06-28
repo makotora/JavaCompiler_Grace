@@ -495,7 +495,7 @@ public class ControlFlowGraph {
             int index = i - 1;//they start from 0
 
             Quadruple quad = quads.get(index);
-            if (quad.getOp().equals("unit")) {
+            if (quad.getOp().equals("unit") && !quad.getArg1().equals("main_1")) {
                 int j = i;
                 while (quads.get(j).getOp().equals("noop"))
                     j++;
@@ -519,8 +519,17 @@ public class ControlFlowGraph {
             int index = i - 1;//they start from 0
 
             Quadruple quad = quads.get(index);
-            if (quad.getOp().equals("call") && deadUnits.contains(quad.getResult()))
+            if (quad.getOp().equals("call") && deadUnits.contains(quad.getResult())) // if is call quad and it's not main
+            {
+                int tmpIndex = i - 2;
+                Quadruple tmpQuad = quads.get(tmpIndex);
+                while (tmpQuad.getOp().equals("par"))        //dont push parameters cause function will not be called
+                {
+                    deleteQuad(tmpQuad);
+                    tmpQuad = quads.get(--tmpIndex);
+                }
                 deleteQuad(quad);
+            }
         }
     }
     private boolean isMathOp(String op)
