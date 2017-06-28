@@ -167,8 +167,11 @@ public class ControlFlowGraph {
         fixJumps();
         subexpressions();
         deadAssignmentElimination();
+
+/*
         deadUnitElimination();
         deadCallElimination();
+*/
     }
 
     private void CFCP()//constant folding followed by copy propagation
@@ -488,31 +491,34 @@ public class ControlFlowGraph {
         }
     }
 
-    private void deadUnitElimination() {
-        int total = quads.size();
-        String funcName = null;
-        for (int i = nextStartQuad; i <= total; i++) {
-            int index = i - 1;//they start from 0
+    /*
+        private void deadUnitElimination() {
+            int total = quads.size();
+            String funcName = null;
+            for (int i = nextStartQuad; i <= total; i++) {
+                int index = i - 1;//they start from 0
 
-            Quadruple quad = quads.get(index);
-            if (quad.getOp().equals("unit") && !quad.getArg1().equals("main_1")) {
-                int j = i;
-                while (quads.get(j).getOp().equals("noop"))
-                    j++;
+                Quadruple quad = quads.get(index);
+                if (quad.getOp().equals("unit") && !quad.getArg1().equals("main_1")) {
+                    int j = i;
+                    while (quads.get(j).getOp().equals("noop"))
+                        j++;
 
-                Quadruple nextQuad = quads.get(j);
+                    Quadruple nextQuad = quads.get(j);
 
-                if (nextQuad.getOp().equals("endu")) {
-                    deadUnits.add(quad.getArg1());
+                    if (nextQuad.getOp().equals("endu")) {
+                        deadUnits.add(quad.getArg1());
 
-                    deleteQuad(quad);
-                    deleteQuad(nextQuad);
+                        deleteQuad(quad);
+                        deleteQuad(nextQuad);
 
+                    }
                 }
             }
         }
-    }
 
+    */
+    /*
     private void deadCallElimination() {
         int total = quads.size();
         for (int i = nextStartQuad; i <= total; i++) {
@@ -532,8 +538,8 @@ public class ControlFlowGraph {
             }
         }
     }
-    private boolean isMathOp(String op)
-    {
+*/
+    private boolean isMathOp(String op) {
         if (op.equals("+") || op.equals("-") || op.equals("*") || op.equals("div") || op.equals("mod"))
             return true;
         else

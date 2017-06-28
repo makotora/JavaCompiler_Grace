@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e98291fd-a1e6-4181-b4e7-6c0e949a50e2" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/compiler/AssemblyGenerator.class" afterPath="$PROJECT_DIR$/target/classes/compiler/AssemblyGenerator.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/compiler/ControlFlowGraph.class" afterPath="$PROJECT_DIR$/target/classes/compiler/ControlFlowGraph.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README" afterPath="$PROJECT_DIR$/README" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/compiler/ControlFlowGraph.java" afterPath="$PROJECT_DIR$/src/main/java/compiler/ControlFlowGraph.java" />
@@ -30,8 +32,8 @@
       <file leaf-file-name="ControlFlowGraph.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ControlFlowGraph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="436" column="0" lean-forward="true" selection-start-line="436" selection-start-column="0" selection-end-line="436" selection-end-column="0" />
+            <state relative-caret-position="666">
+              <caret line="173" column="0" lean-forward="false" selection-start-line="170" selection-start-column="0" selection-end-line="174" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -704,7 +706,8 @@
     <MESSAGE value="Quads If and while condition seems ready.&#10;Gotta check to be sure!!!" />
     <MESSAGE value="IfWhileTest2.grace&#10;Go for it...." />
     <MESSAGE value="array quad optimized. DeadUnit and DeadCall elimination." />
-    <option name="LAST_COMMIT_MESSAGE" value="array quad optimized. DeadUnit and DeadCall elimination." />
+    <MESSAGE value="Semi-Final/ Final submission.." />
+    <option name="LAST_COMMIT_MESSAGE" value="Semi-Final/ Final submission.." />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1073,8 +1076,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/compiler/ControlFlowGraph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="436" column="0" lean-forward="true" selection-start-line="436" selection-start-column="0" selection-end-line="436" selection-end-column="0" />
+        <state relative-caret-position="666">
+          <caret line="173" column="0" lean-forward="false" selection-start-line="170" selection-start-column="0" selection-end-line="174" selection-end-column="0" />
           <folding />
         </state>
       </provider>
