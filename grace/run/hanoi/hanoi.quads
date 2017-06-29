@@ -1,0 +1,43 @@
+1: unit,move_3,-,-
+2: par,"Moving from ",R,-
+3: call,-,-,puts_1
+4: par,source,R,-
+5: call,-,-,puts_1
+6: par," to ",R,-
+7: call,-,-,puts_1
+8: par,target,R,-
+9: call,-,-,puts_1
+10: par,".\n",R,-
+11: call,-,-,puts_1
+12: endu,move_3,-,-
+13: unit,hanoi_2,-,-
+14: >=,rings,1,16
+15: jump,-,-,31
+16: -,rings,1,$1
+17: par,$1,V,-
+18: par,source,R,-
+19: par,auxiliary,R,-
+20: par,target,R,-
+21: call,-,-,hanoi_2
+22: par,source,R,-
+23: par,target,R,-
+24: call,-,-,move_3
+25: -,rings,1,$2
+26: par,$2,V,-
+27: par,auxiliary,R,-
+28: par,target,R,-
+29: par,source,R,-
+30: call,-,-,hanoi_2
+31: endu,hanoi_2,-,-
+32: unit,main_1,-,-
+33: par,"Rings: ",R,-
+34: call,-,-,puts_1
+35: par,$3,RET,-
+36: call,-,-,geti_1
+37: :=,$3,-,NumberOfRings
+38: par,$3,V,-
+39: par,"left",R,-
+40: par,"right",R,-
+41: par,"middle",R,-
+42: call,-,-,hanoi_2
+43: endu,main_1,-,-

@@ -1,0 +1,4 @@
+1: unit,main_1,-,-
+2: par,"Hello world!\n",R,-
+3: call,-,-,puts_1
+4: endu,main_1,-,-
